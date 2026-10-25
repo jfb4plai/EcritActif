@@ -24,6 +24,7 @@ export interface ActiviteLigne {
   id: string;
   consigne: string;
   itemIds: string[];
+  aidesRetirees: { id: AideId; raison: string }[];
 }
 
 const CONFLIT = '23505';
@@ -62,9 +63,14 @@ export async function reglerAides(db: SupabaseClient, eleveId: string, aides: Ai
 }
 
 export async function listerActivites(db: SupabaseClient, classeId: string): Promise<ActiviteLigne[]> {
-  const { data, error } = await db.from('ecrit_activites').select('id, consigne, item_ids').eq('classe_id', classeId).order('created_at', { ascending: false });
+  const { data, error } = await db.from('ecrit_activites').select('id, consigne, item_ids, aides_retirees').eq('classe_id', classeId).order('created_at', { ascending: false });
   if (error) throw error;
-  return (data ?? []).map((r) => ({ id: r.id, consigne: r.consigne, itemIds: r.item_ids ?? [] }));
+  return (data ?? []).map((r) => ({ id: r.id, consigne: r.consigne, itemIds: r.item_ids ?? [], aidesRetirees: r.aides_retirees ?? [] }));
+}
+
+export async function modifierAidesRetirees(db: SupabaseClient, activiteId: string, retirees: { id: AideId; raison: string }[]): Promise<void> {
+  const { error } = await db.from('ecrit_activites').update({ aides_retirees: retirees }).eq('id', activiteId);
+  if (error) throw error;
 }
 
 export async function enregistrerActivite(db: SupabaseClient, userId: string, classeId: string, a: ActiviteNouvelle): Promise<void> {
@@ -91,7 +97,7 @@ export async function chargerTableau(
   if (idsEleves.length === 0) return { eleves: [], activites, validations: [] };
 
   const [t, tr, v] = await Promise.all([
-    db.from('ecrit_textes').select('eleve_id, activite_id, version, phase').in('eleve_id', idsEleves),
+    db.from('ecrit_textes').select('eleve_id, activite_id, version, phase, updated_at').in('eleve_id', idsEleves),
     db.from('ecrit_traces').select('eleve_id, evenement').in('eleve_id', idsEleves).like('evenement', 'aide:%'),
     db.from('ecrit_validations').select('eleve_id, item_id').in('eleve_id', idsEleves),
   ]);
@@ -102,7 +108,7 @@ export async function chargerTableau(
   const lignes = construireLignes(
     eleves.map((e) => ({ id: e.id, code: e.code_eleve })),
     activites,
-    (t.data ?? []).map((r) => ({ eleveId: r.eleve_id, activiteId: r.activite_id, version: r.version, phase: r.phase })),
+    (t.data ?? []).map((r) => ({ eleveId: r.eleve_id, activiteId: r.activite_id, version: r.version, phase: r.phase, updatedAt: r.updated_at })),
     (tr.data ?? []).map((r) => ({ eleveId: r.eleve_id, evenement: r.evenement })),
   );
   return { eleves: lignes, activites, validations: (v.data ?? []).map((r) => ({ eleveId: r.eleve_id, itemId: r.item_id })) };

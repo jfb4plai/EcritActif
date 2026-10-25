@@ -86,7 +86,7 @@ export async function ouvrirEleve(depot: Depot, secret: string, body: unknown): 
   };
 }
 
-export async function sauverTexte(depot: Depot, secret: string, body: unknown): Promise<Reponse<{ version: number; aides: AideActive[] }>> {
+export async function sauverTexte(depot: Depot, secret: string, body: unknown): Promise<Reponse<{ version: number; aides: AideActive[]; aidesRetirees: { id: AideId; raison: string }[] }>> {
   const b = enObjet(body);
   if (
     !b ||
@@ -109,5 +109,5 @@ export async function sauverTexte(depot: Depot, secret: string, body: unknown): 
   if (!activite || !eleve || activite.classeId !== session.classeId) return erreur(404, 'Activité inconnue');
   const evenements = b.evenements.filter((e): e is string => typeof e === 'string').slice(0, 50);
   await depot.enregistrer({ activiteId: activite.id, eleveId: eleve.id, version: b.version as number, texte: b.texte, phase: b.phase, evenements });
-  return { status: 200, corps: { version: b.version as number, aides: resoudreAides(eleve.aides, activite.aidesRetirees) } };
+  return { status: 200, corps: { version: b.version as number, aides: resoudreAides(eleve.aides, activite.aidesRetirees), aidesRetirees: activite.aidesRetirees } };
 }

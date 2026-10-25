@@ -231,6 +231,17 @@ describe('EcranEleve : aides', () => {
     expect(screen.getByText(/On vérifie le geste d’écrire/)).toBeInTheDocument();
   });
 
+  test('une aide que l’élève s’est donnée elle-même est coupée quand l’enseignant la retire en cours de route', async () => {
+    const api = apiDeTest({ version: 1, aides: [], aidesRetirees: [{ id: 'clavier', raison: 'Retiré pendant l’activité.' }] });
+    render(<EcranEleve activite={activite()} eleveId="el1" jeton="j" api={api} delaiSauvegardeMs={0} />);
+    await versEcriture();
+    await userEvent.click(screen.getByLabelText(/écrire à la main est lent ou fatigant/i));
+    await userEvent.type(screen.getByLabelText(/mon texte/i), 'Un');
+    expect(await screen.findByText(/Retiré pendant l’activité/)).toBeInTheDocument();
+    expect(screen.queryByText(/Aide active : Écrire au clavier/)).not.toBeInTheDocument();
+    expect(screen.getByLabelText(/mon texte/i)).toHaveValue('Un');
+  });
+
   test('activer une aide l’enregistre comme trace pour le tableau de bord', async () => {
     const api = apiDeTest();
     render(<EcranEleve activite={activite()} eleveId="el1" jeton="j" api={api} delaiSauvegardeMs={0} />);

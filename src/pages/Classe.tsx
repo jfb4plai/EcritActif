@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import AidesRetireesEditeur from '../components/AidesRetireesEditeur';
 import { AIDES, type AideId } from '../lib/aides';
 import { itemsParAnnee } from '../lib/cecp';
 import {
@@ -10,6 +11,7 @@ import {
   listerActivites,
   listerClasses,
   listerEleves,
+  modifierAidesRetirees,
   reglerAides,
   validerItem,
   type ActiviteLigne,
@@ -102,7 +104,24 @@ export default function Classe() {
         <h2>Activités</h2>
         <ul>
           {activites.map((a) => (
-            <li key={a.id}>{a.consigne}</li>
+            <li key={a.id}>
+              {a.consigne}
+              <details>
+                <summary>Aides retirées pour cette activité ({a.aidesRetirees.length})</summary>
+                <p className="text-sm">Un retrait s’applique aussi aux élèves qui écrivent en ce moment : ils voient votre raison à leur prochaine sauvegarde.</p>
+                <AidesRetireesEditeur
+                  initial={a.aidesRetirees}
+                  onEnregistrer={async (r) => {
+                    try {
+                      await modifierAidesRetirees(getSupabase(), a.id, r);
+                      recharger();
+                    } catch {
+                      setErreur('Les aides retirées n’ont pas pu être enregistrées.');
+                    }
+                  }}
+                />
+              </details>
+            </li>
           ))}
         </ul>
         {creation ? (

@@ -131,6 +131,8 @@ describe('sauverTexte', () => {
     if (r.status !== 200) return;
     expect(r.corps.version).toBe(1);
     expect(r.corps.aides.find((a) => a.id === 'clavier')?.active).toBe(false);
+    // Les retraits courants de l'activité sont renvoyés : l'élève ne peut pas garder une aide que l'enseignant vient de retirer.
+    expect(r.corps.aidesRetirees).toEqual([{ id: 'clavier', raison: 'On vérifie le geste d’écrire.' }]);
     expect(textes).toHaveLength(1);
   });
 

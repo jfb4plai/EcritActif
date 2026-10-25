@@ -48,4 +48,12 @@ describe('NouvelleActivite : comportement', () => {
     await userEvent.click(screen.getByLabelText(/afficher les principes en brouillon/i));
     expect(screen.getAllByText(/Ton texte dit-il ce que tu voulais dire/).length).toBeGreaterThan(0);
   });
+
+  test('un principe en brouillon est étiqueté comme tel et la phrase d’aide ne prétend pas qu’il est validé (revue finale)', async () => {
+    formulaire();
+    await userEvent.click(screen.getByLabelText(/afficher les principes en brouillon/i));
+    expect(screen.getAllByText(/\(brouillon\)/).length).toBeGreaterThan(0);
+    expect(document.body.textContent).toMatch(/sous votre responsabilité/);
+    expect(document.body.textContent).not.toMatch(/Seuls les principes validés sont proposés aux élèves/);
+  });
 });

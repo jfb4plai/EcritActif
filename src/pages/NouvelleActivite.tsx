@@ -102,7 +102,7 @@ export default function NouvelleActivite({ annee, onEnregistrer }: { annee: Anne
 
       <fieldset>
         <legend>Principes posés à l’élève</legend>
-        <p className="text-sm">Questions fixes, une à la fois. Seuls les principes validés sont proposés aux élèves.</p>
+        <p className="text-sm">Questions fixes, une à la fois. Les principes en brouillon n’ont pas encore été validés : vous les utilisez sous votre responsabilité.</p>
         <label className="block">
           <input type="checkbox" checked={brouillons} onChange={() => setBrouillons(!brouillons)} /> Afficher les principes en brouillon
         </label>
@@ -111,7 +111,7 @@ export default function NouvelleActivite({ annee, onEnregistrer }: { annee: Anne
             <h3>{p.titre}</h3>
             {principesPour(codes, p.id, { brouillons }).map((pr) => (
               <label key={pr.id} className="block">
-                <input type="checkbox" checked={principeIds.includes(pr.id)} onChange={() => setPrincipeIds(bascule(principeIds, pr.id))} /> {pr.question}
+                <input type="checkbox" checked={principeIds.includes(pr.id)} onChange={() => setPrincipeIds(bascule(principeIds, pr.id))} /> {pr.question}{pr.statut === 'brouillon' ? ' (brouillon)' : ''}
               </label>
             ))}
           </div>

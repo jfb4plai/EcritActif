@@ -13,11 +13,25 @@ const activites = [
 describe('construireLignes', () => {
   test('dernière phase = phase de la version la plus récente ; versions = numéro le plus haut', () => {
     const textes = [
-      { eleveId: 'e1', activiteId: 'a1', version: 1, phase: 'corriger' },
-      { eleveId: 'e1', activiteId: 'a1', version: 2, phase: 'relire' },
+      { eleveId: 'e1', activiteId: 'a1', version: 1, phase: 'corriger', updatedAt: '2026-10-25T10:00:00Z' },
+      { eleveId: 'e1', activiteId: 'a1', version: 2, phase: 'relire', updatedAt: '2026-10-25T10:05:00Z' },
     ];
     const l = construireLignes(eleves, activites, textes, []);
     expect(l[0]).toMatchObject({ id: 'e1', code: 'KMNPQR', dernierePhase: 'relire', versions: 2 });
+  });
+
+  test('« où il en est » suit le texte le plus récemment modifié, pas la version la plus haute (revue finale)', () => {
+    const textes = [
+      { eleveId: 'e1', activiteId: 'a1', version: 3, phase: 'corriger', updatedAt: '2026-10-24T09:00:00Z' },
+      { eleveId: 'e1', activiteId: 'a2', version: 1, phase: 'reflechir', updatedAt: '2026-10-25T09:00:00Z' },
+    ];
+    const l = construireLignes(eleves, activites, textes, []);
+    expect(l[0]).toMatchObject({ dernierePhase: 'reflechir', versions: 1 });
+  });
+
+  test('un texte rendu apparaît comme rendu', () => {
+    const textes = [{ eleveId: 'e1', activiteId: 'a1', version: 1, phase: 'rendu', updatedAt: '2026-10-25T09:00:00Z' }];
+    expect(construireLignes(eleves, activites, textes, [])[0].dernierePhase).toBe('rendu');
   });
 
   test('élève sans texte : jamais commencé', () => {
@@ -26,7 +40,7 @@ describe('construireLignes', () => {
   });
 
   test('items travaillés = items des activités où l’élève a écrit', () => {
-    const textes = [{ eleveId: 'e1', activiteId: 'a2', version: 1, phase: 'ecrire' }];
+    const textes = [{ eleveId: 'e1', activiteId: 'a2', version: 1, phase: 'ecrire', updatedAt: '2026-10-25T10:00:00Z' }];
     expect(construireLignes(eleves, activites, textes, [])[0].itemsTravailles).toEqual(['P1:F3']);
   });
 

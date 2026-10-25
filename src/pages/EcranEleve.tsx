@@ -14,7 +14,7 @@ import { detecterSignaux, verifierContraintes } from '../lib/retour';
 import type { Phase } from '../types';
 
 export interface ApiEleve {
-  sauver(p: { jeton: string; activiteId: string; texte: string; phase: Phase | 'rendu'; version: number; evenements: string[] }): Promise<{ version: number; aides: AideActive[] }>;
+  sauver(p: { jeton: string; activiteId: string; texte: string; phase: Phase | 'rendu'; version: number; evenements: string[] }): Promise<{ version: number; aides: AideActive[]; aidesRetirees?: { id: AideId; raison: string }[] }>;
 }
 
 interface Props {
@@ -52,6 +52,7 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
   const [essai, setEssai] = useState(0);
   const [horsLigne, setHorsLigne] = useState(false);
   const [aidesServeur, setAidesServeur] = useState<AideActive[]>(activite.aides);
+  const [retraitsServeur, setRetraitsServeur] = useState(activite.aidesRetirees);
   const [choisies, setChoisies] = useState<AideId[]>([]);
   const [deja, setDeja] = useState<string[]>([]);
   const [ecoute, setEcoute] = useState(false);
@@ -62,10 +63,10 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
 
   const retirees = useMemo(() => {
     const vues = new Map<string, { id: AideId; raison: string }>();
-    for (const r of activite.aidesRetirees) vues.set(r.id, r);
+    for (const r of retraitsServeur) vues.set(r.id, r);
     for (const a of aidesServeur) if (!a.active) vues.set(a.id, { id: a.id, raison: a.raison ?? '' });
     return [...vues.values()];
-  }, [activite.aidesRetirees, aidesServeur]);
+  }, [retraitsServeur, aidesServeur]);
   const ids = useMemo(() => [...new Set([...aidesServeur.map((a) => a.id), ...choisies])], [aidesServeur, choisies]);
   const resolues = useMemo(() => resoudreAides(ids, retirees), [ids, retirees]);
   const active = (id: AideId) => resolues.some((a) => a.id === id && a.active);
@@ -85,6 +86,7 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
         const r = await api.sauver({ jeton, activiteId: activite.id, texte, phase: rendu ? 'rendu' : etat.phase, version: etat.versions, evenements: envoyes });
         setHorsLigne(false);
         setAidesServeur(r.aides);
+        if (r.aidesRetirees) setRetraitsServeur(r.aidesRetirees);
       } catch {
         evenements.current.unshift(...envoyes);
         setHorsLigne(true);

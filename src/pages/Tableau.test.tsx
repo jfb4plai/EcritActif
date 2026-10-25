@@ -35,6 +35,13 @@ describe('Tableau', () => {
     expect(within(screen.getByText('STUVWX').closest('tr') as HTMLElement).getByText(/pas encore commencé/i)).toBeInTheDocument();
   });
 
+  test('un texte rendu est indiqué « Rendu »', () => {
+    render(
+      <Tableau annee="P1" items={[I1]} eleves={[{ id: 'e1', code: 'KMNPQR', dernierePhase: 'rendu', versions: 1, aides: [], itemsTravailles: [] }]} activites={[]} validations={[]} onValider={() => {}} />,
+    );
+    expect(screen.getByText('Rendu')).toBeInTheDocument();
+  });
+
   test('affiche les aides utilisées par libellé', () => {
     afficher();
     expect(within(screen.getByText('KMNPQR').closest('tr') as HTMLElement).getByText(/Colorer les sons ou les syllabes/)).toBeInTheDocument();

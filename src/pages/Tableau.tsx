@@ -5,7 +5,7 @@ import type { Annee, ItemCecp, Phase } from '../types';
 export interface LigneEleve {
   id: string;
   code: string;
-  dernierePhase: Phase | null;
+  dernierePhase: Phase | 'rendu' | null;
   versions: number;
   aides: string[];
   itemsTravailles: string[];
@@ -20,7 +20,7 @@ interface Props {
   onValider: (eleveId: string, itemId: string) => void;
 }
 
-const PHASES: Record<Phase, string> = { reflechir: 'Réfléchir', ecrire: 'Écrire', relire: 'Relire', corriger: 'Corriger' };
+const PHASES: Record<Phase | 'rendu', string> = { reflechir: 'Réfléchir', ecrire: 'Écrire', relire: 'Relire', corriger: 'Corriger', rendu: 'Rendu' };
 
 export default function Tableau({ annee, items, eleves, activites, validations, onValider }: Props) {
   const statuts = statutParItem(items, activites, validations, eleves.map((e) => e.id));
