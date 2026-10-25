@@ -1,0 +1,82 @@
+[
+  {
+    "id": "refl-destinataire",
+    "phase": "reflechir",
+    "question": "À qui écris-tu ce texte ?",
+    "codes": ["F114", "F244", "F282"],
+    "source": { "kind": "riss", "ids": ["hal-04120344"] },
+    "statut": "brouillon"
+  },
+  {
+    "id": "refl-intention",
+    "phase": "reflechir",
+    "question": "Que veux-tu dire dans ce texte ?",
+    "codes": ["F114", "F244", "F282"],
+    "source": { "kind": "riss", "ids": ["hal-04120344"] },
+    "statut": "brouillon"
+  },
+  {
+    "id": "refl-ordre",
+    "phase": "reflechir",
+    "question": "Quelle idée viendra d’abord, ensuite, à la fin ?",
+    "codes": ["F72", "F191", "F340"],
+    "source": { "kind": "riss", "ids": ["hal-04120344"] },
+    "statut": "brouillon"
+  },
+  {
+    "id": "ecr-d-abord",
+    "phase": "ecrire",
+    "question": "Écrire d’abord, corriger plus tard.",
+    "codes": ["F282"],
+    "source": { "kind": "riss", "ids": ["hal-04120344", "dumas-05497857"] },
+    "statut": "brouillon"
+  },
+  {
+    "id": "rel-intention",
+    "phase": "relire",
+    "question": "Ton texte dit-il ce que tu voulais dire ?",
+    "codes": ["F114", "F244", "F411"],
+    "source": { "kind": "riss", "ids": ["hal-04120344"] },
+    "statut": "brouillon"
+  },
+  {
+    "id": "rel-ordre",
+    "phase": "relire",
+    "question": "Les idées sont-elles dans le bon ordre ?",
+    "codes": ["F191", "F340", "F411"],
+    "source": { "kind": "riss", "ids": ["hal-04120344"] },
+    "statut": "brouillon"
+  },
+  {
+    "id": "rel-lecteur",
+    "phase": "relire",
+    "question": "Un lecteur comprendra-t-il ton texte ?",
+    "codes": ["F282", "F411"],
+    "source": { "kind": "riss", "ids": ["hal-04120344"] },
+    "statut": "brouillon"
+  },
+  {
+    "id": "cor-majuscule",
+    "phase": "corriger",
+    "question": "Chaque phrase commence-t-elle par une majuscule ?",
+    "codes": ["F39", "F154", "F295"],
+    "source": { "kind": "non-etaye" },
+    "statut": "brouillon"
+  },
+  {
+    "id": "cor-point",
+    "phase": "corriger",
+    "question": "Chaque phrase se termine-t-elle par un point ?",
+    "codes": ["F40", "F155", "F295"],
+    "source": { "kind": "non-etaye" },
+    "statut": "brouillon"
+  },
+  {
+    "id": "cor-repete",
+    "phase": "corriger",
+    "question": "As-tu écrit deux fois le même mot de suite ?",
+    "codes": ["F411"],
+    "source": { "kind": "non-etaye" },
+    "statut": "brouillon"
+  }
+]
