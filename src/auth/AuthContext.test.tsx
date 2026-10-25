@@ -51,6 +51,43 @@ describe('RequiertEnseignant', () => {
   });
 });
 
+describe('sans configuration Supabase (les pages élève et À propos doivent rester utilisables)', () => {
+  function Etat() {
+    const { user, chargement, seConnecter } = useAuth();
+    return (
+      <div>
+        <p>utilisateur : {user ? 'oui' : 'non'}</p>
+        <p>chargement : {chargement ? 'oui' : 'non'}</p>
+        <button onClick={() => seConnecter('a@b.be', 'motdepasse8').catch((e: Error) => document.body.setAttribute('data-erreur', e.message))}>essayer</button>
+      </div>
+    );
+  }
+
+  test('le fournisseur ne plante pas et n’attend pas indéfiniment', async () => {
+    render(
+      <MemoryRouter>
+        <AuthProvider>
+          <Etat />
+        </AuthProvider>
+      </MemoryRouter>,
+    );
+    expect(await screen.findByText('chargement : non')).toBeInTheDocument();
+    expect(screen.getByText('utilisateur : non')).toBeInTheDocument();
+  });
+
+  test('se connecter lève une erreur claire', async () => {
+    render(
+      <MemoryRouter>
+        <AuthProvider>
+          <Etat />
+        </AuthProvider>
+      </MemoryRouter>,
+    );
+    await userEvent.click(await screen.findByText('essayer'));
+    await waitFor(() => expect(document.body.getAttribute('data-erreur')).toMatch(/configuration/i));
+  });
+});
+
 describe('creerCompte', () => {
   test('passe emailRedirectTo vers /connexion', async () => {
     const { client, signUp } = clientDeTest(null);

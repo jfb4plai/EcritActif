@@ -29,6 +29,18 @@ describe('ouvrirSession', () => {
   });
 });
 
+describe('serveur injoignable ou réponse illisible', () => {
+  test('une réponse non JSON (page 404 HTML) donne un message simple, pas une erreur technique', async () => {
+    vi.stubGlobal('fetch', vi.fn(() => Promise.resolve({ ok: false, status: 404, json: () => Promise.reject(new SyntaxError('Unexpected token <')) } as Response)));
+    await expect(ouvrirSession('AAAAAA', 'BBBBBB')).rejects.toThrow('Le serveur ne répond pas. Réessaie dans un moment.');
+  });
+
+  test('un réseau coupé donne le même message', async () => {
+    vi.stubGlobal('fetch', vi.fn(() => Promise.reject(new TypeError('Failed to fetch'))));
+    await expect(ouvrirSession('AAAAAA', 'BBBBBB')).rejects.toThrow('Le serveur ne répond pas. Réessaie dans un moment.');
+  });
+});
+
 describe('apiEleve.sauver', () => {
   test('renvoie la version et les aides', async () => {
     vi.stubGlobal('fetch', vi.fn(() => reponse(200, { version: 1, aides: [] })));

@@ -32,9 +32,21 @@ const Contexte = createContext<AuthValeur | null>(null);
 export function AuthProvider({ client, children }: { client?: AuthClient; children: ReactNode }) {
   const [user, setUser] = useState<Utilisateur | null>(null);
   const [chargement, setChargement] = useState(true);
-  const c = useMemo(() => client ?? (getSupabase() as unknown as AuthClient), [client]);
+  // Sans configuration Supabase, l'app reste utilisable pour les élèves : seules les actions enseignant échouent.
+  const c = useMemo<AuthClient | null>(() => {
+    if (client) return client;
+    try {
+      return getSupabase() as unknown as AuthClient;
+    } catch {
+      return null;
+    }
+  }, [client]);
 
   useEffect(() => {
+    if (!c) {
+      setChargement(false);
+      return;
+    }
     let actif = true;
     c.auth.getSession().then(({ data }) => {
       if (!actif) return;
@@ -48,20 +60,25 @@ export function AuthProvider({ client, children }: { client?: AuthClient; childr
     };
   }, [c]);
 
+  const exiger = (): AuthClient => {
+    if (!c) throw new Error('Configuration de la connexion manquante : l’espace enseignant n’est pas disponible.');
+    return c;
+  };
+
   const valeur: AuthValeur = {
     user,
     chargement,
     async seConnecter(email, mdp) {
-      const { error } = await c.auth.signInWithPassword({ email, password: mdp });
+      const { error } = await exiger().auth.signInWithPassword({ email, password: mdp });
       if (error) throw new Error(error.message);
     },
     async creerCompte(email, mdp) {
       // redirectTo explicite : sans lui, le lien du courriel renvoie vers une autre app du projet partagé.
-      const { error } = await c.auth.signUp({ email, password: mdp, options: { emailRedirectTo: window.location.origin + '/connexion' } });
+      const { error } = await exiger().auth.signUp({ email, password: mdp, options: { emailRedirectTo: window.location.origin + '/connexion' } });
       if (error) throw new Error(error.message);
     },
     async seDeconnecter() {
-      await c.auth.signOut();
+      await c?.auth.signOut();
     },
   };
 
