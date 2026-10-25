@@ -16,6 +16,10 @@ export function filtrerPrincipes(liste: Principe[], codes: string[], phase: Phas
   );
 }
 
+export function principeParId(id: string): Principe | undefined {
+  return (donnees as Principe[]).find((p) => p.id === id);
+}
+
 export function principesPour(codes: string[], phase: Phase, opts: Options = {}): Principe[] {
   return filtrerPrincipes(donnees as Principe[], codes, phase, opts);
 }

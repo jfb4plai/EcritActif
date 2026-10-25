@@ -59,6 +59,7 @@ describe('ouvrirEleve', () => {
     expect(r.status).toBe(200);
     if (r.status !== 200) return;
     expect(verifierJeton(r.corps.jeton, SECRET)).toEqual({ eleveId: 'el1', classeId: 'cl1' });
+    expect(r.corps.activites[0].aidesRetirees).toEqual([{ id: 'clavier', raison: 'On vérifie le geste d’écrire.' }]);
     expect(r.corps.activites[0].aides).toEqual([
       { id: 'clavier', active: false, raison: 'On vérifie le geste d’écrire.' },
       { id: 'colorisation', active: true },

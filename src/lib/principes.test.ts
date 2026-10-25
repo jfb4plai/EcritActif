@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import principesJson from '../data/principes.json';
-import { filtrerPrincipes, principesPour } from './principes';
+import { filtrerPrincipes, principeParId, principesPour } from './principes';
 import { itemParCode } from './cecp';
 import type { Principe } from '../types';
 
@@ -33,6 +33,11 @@ describe('principes (questions fixes)', () => {
 
   test('aucun principe ne parle de style d’apprentissage ni de police spéciale', () => {
     expect(JSON.stringify(TOUS)).not.toMatch(/visuel|auditif|kinesth|opendyslexic/i);
+  });
+
+  test('principeParId retrouve un principe, même en brouillon, et renvoie undefined sinon', () => {
+    expect(principeParId('rel-intention')?.phase).toBe('relire');
+    expect(principeParId('inconnu')).toBeUndefined();
   });
 
   test('par défaut les brouillons sont exclus, avec l’option ils sont inclus', () => {

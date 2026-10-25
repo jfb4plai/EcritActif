@@ -35,6 +35,8 @@ export interface ActiviteEleve {
   principeIds: string[];
   categories: CategorieErreur[];
   aides: AideActive[];
+  // Nécessaire côté client : l'élève peut activer d'autres aides, qui doivent respecter les retraits de l'enseignant.
+  aidesRetirees: { id: AideId; raison: string }[];
 }
 
 export type Reponse<T> = { status: 200; corps: T } | { status: 400 | 401 | 404 | 413 | 429; corps: { erreur: string } };
@@ -57,6 +59,7 @@ function versEleve(a: ActiviteBrute, eleve: EleveBrut): ActiviteEleve {
     principeIds: a.principeIds,
     categories: a.categories,
     aides: resoudreAides(eleve.aides, a.aidesRetirees),
+    aidesRetirees: a.aidesRetirees,
   };
 }
 
