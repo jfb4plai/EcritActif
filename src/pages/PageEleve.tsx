@@ -7,7 +7,7 @@ export default function PageEleve() {
   const [codeClasse, setCodeClasse] = useState('');
   const [codeEleve, setCodeEleve] = useState('');
   const [erreur, setErreur] = useState<string | null>(null);
-  const [session, setSession] = useState<{ jeton: string; activites: ActiviteEleve[] } | null>(null);
+  const [session, setSession] = useState<{ jeton: string; eleveId: string; activites: ActiviteEleve[] } | null>(null);
   const [choix, setChoix] = useState<ActiviteEleve | null>(null);
 
   async function entrer(e: FormEvent) {
@@ -20,7 +20,7 @@ export default function PageEleve() {
     }
   }
 
-  if (session && choix) return <EcranEleve activite={choix} jeton={session.jeton} api={apiEleve} />;
+  if (session && choix) return <EcranEleve activite={choix} eleveId={session.eleveId} jeton={session.jeton} api={apiEleve} />;
 
   if (session) {
     return (

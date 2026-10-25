@@ -5,7 +5,7 @@ import Picto from '../components/Picto';
 import TexteColore from '../components/TexteColore';
 import { AIDES, resoudreAides, type AideActive, type AideId } from '../lib/aides';
 import { dicteePossible, dicter, lire, synthesePossible } from '../lib/audio';
-import { choisirCritere, decider, initial, retourAutorise, suivant, type Choix } from '../lib/boucle';
+import { choisirCritere, decider, initial, retourAutorise, suivant, type Choix, type EtatBoucle } from '../lib/boucle';
 import { lireLocal, sauverLocal } from '../lib/brouillonLocal';
 import { chargerColorisation, type ModeColorisation } from '../lib/colorisation';
 import { ATTRIBUTION_ARASAAC } from '../lib/pictos';
@@ -14,14 +14,17 @@ import { detecterSignaux, verifierContraintes } from '../lib/retour';
 import type { Phase } from '../types';
 
 export interface ApiEleve {
-  sauver(p: { jeton: string; activiteId: string; texte: string; phase: Phase; version: number; evenements: string[] }): Promise<{ version: number; aides: AideActive[] }>;
+  sauver(p: { jeton: string; activiteId: string; texte: string; phase: Phase | 'rendu'; version: number; evenements: string[] }): Promise<{ version: number; aides: AideActive[] }>;
 }
 
 interface Props {
   activite: ActiviteEleve;
+  // Identifiant de l'élève : isole la copie locale sur un appareil partagé par plusieurs élèves.
+  eleveId: string;
   jeton: string;
   api: ApiEleve;
   delaiSauvegardeMs?: number;
+  reessaiMs?: number;
 }
 
 const TITRES: Record<Phase, string> = { reflechir: 'Réfléchir', ecrire: 'Écrire', relire: 'Relire', corriger: 'Corriger' };
@@ -32,15 +35,21 @@ const MODES: { id: ModeColorisation; libelle: string }[] = [
   { id: 'voyelles-consonnes', libelle: 'Voyelles et consonnes' },
 ];
 
-export default function EcranEleve({ activite, jeton, api, delaiSauvegardeMs = 2000 }: Props) {
-  const cleTexte = `ecrit:${activite.id}`;
+export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvegardeMs = 2000, reessaiMs = 5000 }: Props) {
+  const cleTexte = `ecrit:${eleveId}:${activite.id}`;
   const locale = useMemo(() => lireLocal(cleTexte), [cleTexte]);
   const versionLocale = useMemo(() => Number(lireLocal(`${cleTexte}:v`)) || 1, [cleTexte]);
+  const reprise = activite.reprise;
+  const renduAvant = reprise?.phase === 'rendu';
 
-  // Texte retrouvé sur l'appareil : on reprend directement à l'écriture.
-  const [etat, setEtat] = useState(() => ({ ...initial(), phase: (locale !== null ? 'ecrire' : 'reflechir') as Phase, versions: versionLocale }));
-  const [texte, setTexte] = useState(locale ?? '');
-  const [rendu, setRendu] = useState(false);
+  // Reprise : un texte déjà rendu reste rendu ; sinon la copie de l'appareil, puis celle du serveur.
+  const departTexte = renduAvant ? reprise!.texte : (locale ?? reprise?.texte ?? '');
+  const departVersion = renduAvant ? reprise!.version : locale !== null ? versionLocale : (reprise?.version ?? 1);
+  const departPhase: Phase = renduAvant ? 'corriger' : locale !== null || reprise ? 'ecrire' : 'reflechir';
+  const [etat, setEtat] = useState<EtatBoucle>(() => ({ ...initial(), phase: departPhase, versions: departVersion }));
+  const [texte, setTexte] = useState(departTexte);
+  const [rendu, setRendu] = useState(renduAvant);
+  const [essai, setEssai] = useState(0);
   const [horsLigne, setHorsLigne] = useState(false);
   const [aidesServeur, setAidesServeur] = useState<AideActive[]>(activite.aides);
   const [choisies, setChoisies] = useState<AideId[]>([]);
@@ -68,11 +77,12 @@ export default function EcranEleve({ activite, jeton, api, delaiSauvegardeMs = 2
   }, [texte, etat.versions, cleTexte]);
 
   useEffect(() => {
+    if (renduAvant) return; // ne jamais écraser un texte déjà rendu
     if (etat.phase === 'reflechir' && texte === '' && !rendu) return;
     const t = setTimeout(async () => {
       const envoyes = evenements.current.splice(0);
       try {
-        const r = await api.sauver({ jeton, activiteId: activite.id, texte, phase: etat.phase, version: etat.versions, evenements: envoyes });
+        const r = await api.sauver({ jeton, activiteId: activite.id, texte, phase: rendu ? 'rendu' : etat.phase, version: etat.versions, evenements: envoyes });
         setHorsLigne(false);
         setAidesServeur(r.aides);
       } catch {
@@ -81,7 +91,14 @@ export default function EcranEleve({ activite, jeton, api, delaiSauvegardeMs = 2
       }
     }, delaiSauvegardeMs);
     return () => clearTimeout(t);
-  }, [texte, etat.phase, etat.versions, rendu, api, jeton, activite.id, delaiSauvegardeMs]);
+  }, [texte, etat.phase, etat.versions, rendu, essai, renduAvant, api, jeton, activite.id, delaiSauvegardeMs]);
+
+  // Réseau coupé : on retente seul, l'élève n'a pas à retaper quoi que ce soit.
+  useEffect(() => {
+    if (!horsLigne) return;
+    const t = setTimeout(() => setEssai((n) => n + 1), reessaiMs);
+    return () => clearTimeout(t);
+  }, [horsLigne, essai, reessaiMs]);
 
   useEffect(() => {
     if (active('colorisation')) chargerColorisation().then(() => setColorPrete(true));
@@ -192,6 +209,11 @@ export default function EcranEleve({ activite, jeton, api, delaiSauvegardeMs = 2
               <li key={p.id}>{p.question}</li>
             ))}
           </ul>
+          {peutLire && principes('reflechir').length > 0 && (
+            <button type="button" className="plai-btn" onClick={() => lire(principes('reflechir').map((p) => p.question).join(' '))}>
+              Écouter les questions
+            </button>
+          )}
           <button type="button" className="plai-btn" onClick={() => aller('suivant')}>
             Commencer à écrire
           </button>
@@ -244,6 +266,11 @@ export default function EcranEleve({ activite, jeton, api, delaiSauvegardeMs = 2
               {retourAutorise(etat.phase) && critere ? (
                 <div className="plai-card">
                   <p>{critere.texte}</p>
+                  {peutLire && (
+                    <button type="button" className="plai-btn" onClick={() => lire(critere.texte)}>
+                      Écouter la question
+                    </button>
+                  )}
                   <button type="button" className="plai-btn" onClick={() => setDeja([...deja, critere.id])}>
                     J’ai regardé
                   </button>
@@ -265,7 +292,14 @@ export default function EcranEleve({ activite, jeton, api, delaiSauvegardeMs = 2
           {signauxActifs.length > 0 ? (
             <ul>
               {signauxActifs.map((s, i) => (
-                <li key={i}>{s.indice}</li>
+                <li key={i}>
+                  {s.indice}{' '}
+                  <q>
+                    {texte.slice(Math.max(0, s.debut - 12), s.debut)}
+                    <mark>{texte.slice(s.debut, Math.max(s.fin, s.debut + 1))}</mark>
+                    {texte.slice(Math.max(s.fin, s.debut + 1), s.fin + 12)}
+                  </q>
+                </li>
               ))}
             </ul>
           ) : (

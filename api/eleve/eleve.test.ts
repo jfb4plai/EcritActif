@@ -28,6 +28,12 @@ function depotDeTest() {
       else textes.push(t);
     },
     eleve: async (id) => (id === 'el1' ? { id: 'el1', aides: ['clavier', 'colorisation'] } : null),
+    dernierTexte: async (eleveId, activiteId) => {
+      const l = textes.filter((x) => x.eleveId === eleveId && x.activiteId === activiteId);
+      if (l.length === 0) return null;
+      const d = l.reduce((m, x) => (x.version > m.version ? x : m));
+      return { texte: d.texte, version: d.version, phase: d.phase };
+    },
   };
   return { depot, textes };
 }
@@ -81,6 +87,28 @@ describe('ouvrirEleve', () => {
   });
 });
 
+describe('ouvrirEleve : identité et reprise', () => {
+  test('renvoie l’identifiant de l’élève (pour isoler la copie locale sur un appareil partagé)', async () => {
+    const { depot } = depotDeTest();
+    const r = await ouvrirEleve(depot, SECRET, { codeClasse: 'ABCDEF', codeEleve: 'KMNPQR' });
+    expect(r.status === 200 && r.corps.eleveId).toBe('el1');
+  });
+
+  test('renvoie le dernier texte enregistré de cet élève pour chaque activité', async () => {
+    const { depot, textes } = depotDeTest();
+    textes.push({ activiteId: 'act1', eleveId: 'el1', version: 1, texte: 'Mon chat', phase: 'ecrire', evenements: [] });
+    textes.push({ activiteId: 'act1', eleveId: 'el1', version: 2, texte: 'Mon chat dort.', phase: 'rendu', evenements: [] });
+    const r = await ouvrirEleve(depot, SECRET, { codeClasse: 'ABCDEF', codeEleve: 'KMNPQR' });
+    expect(r.status === 200 && r.corps.activites[0].reprise).toEqual({ texte: 'Mon chat dort.', version: 2, phase: 'rendu' });
+  });
+
+  test('aucun texte enregistré : pas de reprise', async () => {
+    const { depot } = depotDeTest();
+    const r = await ouvrirEleve(depot, SECRET, { codeClasse: 'ABCDEF', codeEleve: 'KMNPQR' });
+    expect(r.status === 200 && r.corps.activites[0].reprise).toBeUndefined();
+  });
+});
+
 describe('limiteur', () => {
   test('plus de 10 appels par minute depuis la même adresse : refusé', () => {
     let t = 0;
@@ -115,6 +143,13 @@ describe('sauverTexte', () => {
     expect(textes[0].texte).toBe('Mon chat');
     await sauverTexte(depot, SECRET, { ...base, texte: 'Autre', version: 2 });
     expect(textes).toHaveLength(2);
+  });
+
+  test('la phase « rendu » est acceptée', async () => {
+    const { depot, textes } = depotDeTest();
+    const r = await sauverTexte(depot, SECRET, { jeton: jeton(), activiteId: 'act1', texte: 'Fini.', phase: 'rendu', version: 1, evenements: ['choix:rendre'] });
+    expect(r.status).toBe(200);
+    expect(textes[0].phase).toBe('rendu');
   });
 
   test('jeton falsifié : 401', async () => {

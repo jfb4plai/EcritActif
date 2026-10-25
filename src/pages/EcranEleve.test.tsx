@@ -24,37 +24,117 @@ function apiDeTest(reponse: Awaited<ReturnType<ApiEleve['sauver']>> = { version:
 }
 
 beforeEach(() => localStorage.clear());
-afterEach(() => vi.restoreAllMocks());
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
+});
 
 async function versEcriture() {
   await userEvent.click(screen.getByRole('button', { name: /commencer à écrire/i }));
 }
 
+describe('EcranEleve : appareil partagé et reprise (revue finale)', () => {
+  test('le texte d’un autre élève sur le même appareil n’est jamais restauré', () => {
+    localStorage.setItem('ecrit:elA:act1', 'Texte de A.');
+    render(<EcranEleve activite={activite()} eleveId="elB" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
+    expect(screen.queryByLabelText(/mon texte/i)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /commencer à écrire/i })).toBeInTheDocument();
+  });
+
+  test('le texte enregistré par le serveur est repris quand l’appareil n’a rien', () => {
+    render(<EcranEleve activite={activite({ reprise: { texte: 'Du serveur.', version: 2, phase: 'relire' } })} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
+    expect(screen.getByLabelText(/mon texte/i)).toHaveValue('Du serveur.');
+  });
+
+  test('la version reprise du serveur est celle envoyée ensuite', async () => {
+    const api = apiDeTest();
+    render(<EcranEleve activite={activite({ reprise: { texte: 'Du serveur.', version: 2, phase: 'ecrire' } })} eleveId="el1" jeton="j" api={api} delaiSauvegardeMs={0} />);
+    await userEvent.type(screen.getByLabelText(/mon texte/i), ' Plus.');
+    await waitFor(() => {
+      const d = (api.sauver as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[0];
+      expect(d).toMatchObject({ version: 2, texte: 'Du serveur. Plus.' });
+    });
+  });
+
+  test('un texte déjà rendu reste rendu : pas de modification, aucun envoi qui l’écraserait', async () => {
+    const api = apiDeTest();
+    render(<EcranEleve activite={activite({ reprise: { texte: 'Fini.', version: 1, phase: 'rendu' } })} eleveId="el1" jeton="j" api={api} delaiSauvegardeMs={0} />);
+    expect(screen.getByText(/ton texte est rendu/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/mon texte/i)).toBeDisabled();
+    await new Promise((r) => setTimeout(r, 30));
+    expect(api.sauver).not.toHaveBeenCalled();
+  });
+
+  test('rendre le texte l’enregistre avec la phase « rendu »', async () => {
+    const api = apiDeTest();
+    render(<EcranEleve activite={activite()} eleveId="el1" jeton="j" api={api} delaiSauvegardeMs={0} />);
+    await versEcriture();
+    await userEvent.type(screen.getByLabelText(/mon texte/i), 'Un chat.');
+    await userEvent.click(screen.getByRole('button', { name: /fini d.écrire/i }));
+    await userEvent.click(screen.getByRole('button', { name: /passer à la correction/i }));
+    await userEvent.click(screen.getByRole('button', { name: /rendre mon texte/i }));
+    await waitFor(() => {
+      const d = (api.sauver as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[0];
+      expect(d).toMatchObject({ phase: 'rendu', texte: 'Un chat.' });
+    });
+  });
+
+  test('après un échec réseau, l’envoi est retenté tout seul sans que l’élève touche au clavier', async () => {
+    const sauver = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('réseau'))
+      .mockResolvedValue({ version: 1, aides: [] });
+    render(<EcranEleve activite={activite()} eleveId="el1" jeton="j" api={{ sauver }} delaiSauvegardeMs={0} reessaiMs={20} />);
+    await versEcriture();
+    await userEvent.type(screen.getByLabelText(/mon texte/i), 'Un');
+    await waitFor(() => expect(sauver.mock.calls.length).toBeGreaterThanOrEqual(2));
+    await waitFor(() => expect(screen.queryByText(/seulement sur cet appareil/i)).not.toBeInTheDocument());
+  });
+});
+
 describe('EcranEleve : réfléchir', () => {
   test('affiche la consigne et les questions de la phase réfléchir', () => {
-    render(<EcranEleve activite={activite()} jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
+    render(<EcranEleve activite={activite()} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
     expect(screen.getByText(/Écrire trois phrases sur mon animal/)).toBeInTheDocument();
     expect(screen.getByText(/Que veux-tu dire dans ce texte/)).toBeInTheDocument();
   });
 });
 
+describe('EcranEleve : questions lues à voix haute (revue finale)', () => {
+  test('un bouton lit les questions à voix haute quand la synthèse existe', async () => {
+    const parle = vi.fn();
+    class Enonce {
+      voice: unknown = null;
+      lang = '';
+      constructor(public text: string) {}
+    }
+    vi.stubGlobal('SpeechSynthesisUtterance', Enonce);
+    vi.stubGlobal('speechSynthesis', { getVoices: () => [], speak: parle, cancel: vi.fn() });
+    render(<EcranEleve activite={activite()} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
+    await userEvent.click(screen.getByRole('button', { name: /écouter les questions/i }));
+    expect(parle).toHaveBeenCalledOnce();
+    expect((parle.mock.calls[0][0] as Enonce).text).toContain('Que veux-tu dire dans ce texte');
+    vi.unstubAllGlobals();
+  });
+});
+
 describe('EcranEleve : écrire', () => {
   test('aucune correction n’apparaît pendant l’écriture', async () => {
-    render(<EcranEleve activite={activite()} jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
+    render(<EcranEleve activite={activite()} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
     await versEcriture();
     await userEvent.type(screen.getByLabelText(/mon texte/i), 'mon chat dort');
     expect(screen.queryByText(/Regarde la première lettre/)).not.toBeInTheDocument();
   });
 
   test('un texte enregistré sur l’appareil revient après fermeture de l’onglet (Review Focus 1)', () => {
-    localStorage.setItem('ecrit:act1', 'Mon chat dort.');
-    render(<EcranEleve activite={activite()} jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
+    localStorage.setItem('ecrit:el1:act1', 'Mon chat dort.');
+    render(<EcranEleve activite={activite()} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
     expect(screen.getByLabelText(/mon texte/i)).toHaveValue('Mon chat dort.');
   });
 
   test('la sauvegarde sur le serveur est appelée avec le texte, la phase et la version', async () => {
     const api = apiDeTest();
-    render(<EcranEleve activite={activite()} jeton="jeton-x" api={api} delaiSauvegardeMs={0} />);
+    render(<EcranEleve activite={activite()} eleveId="el1" jeton="jeton-x" api={api} delaiSauvegardeMs={0} />);
     await versEcriture();
     await userEvent.type(screen.getByLabelText(/mon texte/i), 'Un chat');
     await waitFor(() => {
@@ -65,7 +145,7 @@ describe('EcranEleve : écrire', () => {
 
   test('si le serveur est injoignable, le texte reste et un message le dit', async () => {
     const api: ApiEleve = { sauver: vi.fn(async () => Promise.reject(new Error('réseau'))) };
-    render(<EcranEleve activite={activite()} jeton="j" api={api} delaiSauvegardeMs={0} />);
+    render(<EcranEleve activite={activite()} eleveId="el1" jeton="j" api={api} delaiSauvegardeMs={0} />);
     await versEcriture();
     await userEvent.type(screen.getByLabelText(/mon texte/i), 'Un chat');
     expect(await screen.findByText(/seulement sur cet appareil/i)).toBeInTheDocument();
@@ -75,7 +155,7 @@ describe('EcranEleve : écrire', () => {
 
 describe('EcranEleve : relire et corriger', () => {
   async function jusqueRelire(texte: string, a = activite()) {
-    render(<EcranEleve activite={a} jeton="j" api={apiDeTest({ version: 1, aides: a.aides })} delaiSauvegardeMs={0} />);
+    render(<EcranEleve activite={a} eleveId="el1" jeton="j" api={apiDeTest({ version: 1, aides: a.aides })} delaiSauvegardeMs={0} />);
     await versEcriture();
     if (texte) await userEvent.type(screen.getByLabelText(/mon texte/i), texte);
     await userEvent.click(screen.getByRole('button', { name: /fini d.écrire/i }));
@@ -93,6 +173,16 @@ describe('EcranEleve : relire et corriger', () => {
     expect(screen.queryByText(/Mon chat dort/)).not.toBeInTheDocument();
   });
 
+  test('chaque signal montre l’endroit du texte concerné, sans la forme corrigée', async () => {
+    await jusqueRelire('il pleut. elle rit.');
+    await userEvent.click(screen.getByRole('button', { name: /passer à la correction/i }));
+    const extraits = Array.from(document.querySelectorAll('q')).map((q) => q.textContent ?? '');
+    expect(extraits).toHaveLength(2);
+    expect(extraits[0]).toContain('il pleut');
+    expect(extraits[1]).toContain('elle rit');
+    expect(extraits.join(' ')).not.toMatch(/Il pleut|Elle rit/);
+  });
+
   test('sans synthèse vocale : le bouton Écouter est absent et une phrase l’explique (Review Focus 3)', async () => {
     await jusqueRelire('Un chat.', activite({ aides: [{ id: 'audio-relecture', active: true }] }));
     expect(screen.queryByRole('button', { name: /écouter mon texte/i })).not.toBeInTheDocument();
@@ -101,7 +191,7 @@ describe('EcranEleve : relire et corriger', () => {
 
   test('réécrire ouvre une nouvelle version', async () => {
     const api = apiDeTest();
-    render(<EcranEleve activite={activite()} jeton="j" api={api} delaiSauvegardeMs={0} />);
+    render(<EcranEleve activite={activite()} eleveId="el1" jeton="j" api={api} delaiSauvegardeMs={0} />);
     await versEcriture();
     await userEvent.type(screen.getByLabelText(/mon texte/i), 'Un chat.');
     await userEvent.click(screen.getByRole('button', { name: /fini d.écrire/i }));
@@ -118,7 +208,7 @@ describe('EcranEleve : relire et corriger', () => {
 describe('EcranEleve : aides', () => {
   test('une aide retirée en cours d’écriture est signalée avec sa raison, sans perdre le texte (Review Focus 5)', async () => {
     const api = apiDeTest({ version: 1, aides: [{ id: 'clavier', active: false, raison: 'Pas de clavier ce jour.' }] });
-    render(<EcranEleve activite={activite({ aides: [{ id: 'clavier', active: true }] })} jeton="j" api={api} delaiSauvegardeMs={0} />);
+    render(<EcranEleve activite={activite({ aides: [{ id: 'clavier', active: true }] })} eleveId="el1" jeton="j" api={api} delaiSauvegardeMs={0} />);
     await versEcriture();
     await userEvent.type(screen.getByLabelText(/mon texte/i), 'Un chat');
     expect(await screen.findByText(/Pas de clavier ce jour/)).toBeInTheDocument();
@@ -129,6 +219,7 @@ describe('EcranEleve : aides', () => {
     render(
       <EcranEleve
         activite={activite({ aidesRetirees: [{ id: 'clavier', raison: 'On vérifie le geste d’écrire.' }] })}
+        eleveId="el1"
         jeton="j"
         api={apiDeTest()}
         delaiSauvegardeMs={0}
@@ -142,7 +233,7 @@ describe('EcranEleve : aides', () => {
 
   test('activer une aide l’enregistre comme trace pour le tableau de bord', async () => {
     const api = apiDeTest();
-    render(<EcranEleve activite={activite()} jeton="j" api={api} delaiSauvegardeMs={0} />);
+    render(<EcranEleve activite={activite()} eleveId="el1" jeton="j" api={api} delaiSauvegardeMs={0} />);
     await versEcriture();
     await userEvent.click(screen.getByLabelText(/les sons et les lettres se mélangent/i));
     await userEvent.type(screen.getByLabelText(/mon texte/i), 'Un');
@@ -154,7 +245,7 @@ describe('EcranEleve : aides', () => {
 
   test('pictogrammes actifs : l’attribution ARASAAC est affichée', () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => [] }) as Response));
-    render(<EcranEleve activite={activite({ aides: [{ id: 'pictogrammes', active: true }] })} jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
+    render(<EcranEleve activite={activite({ aides: [{ id: 'pictogrammes', active: true }] })} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
     expect(screen.getByText(/Sergio Palao/)).toBeInTheDocument();
     vi.unstubAllGlobals();
   });

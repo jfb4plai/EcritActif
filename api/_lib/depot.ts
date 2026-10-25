@@ -47,10 +47,22 @@ export function depotSupabase(): Depot {
       if (error) throw error;
       return data ? versActivite(data) : null;
     },
+    async dernierTexte(eleveId, activiteId) {
+      const { data, error } = await db
+        .from('ecrit_textes')
+        .select('texte, version, phase')
+        .eq('eleve_id', eleveId)
+        .eq('activite_id', activiteId)
+        .order('version', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return data ? { texte: data.texte, version: data.version, phase: data.phase } : null;
+    },
     async enregistrer(t) {
       const { error } = await db
         .from('ecrit_textes')
-        .upsert({ activite_id: t.activiteId, eleve_id: t.eleveId, version: t.version, texte: t.texte, phase: t.phase }, { onConflict: 'activite_id,eleve_id,version' });
+        .upsert({ activite_id: t.activiteId, eleve_id: t.eleveId, version: t.version, texte: t.texte, phase: t.phase, updated_at: new Date().toISOString() }, { onConflict: 'activite_id,eleve_id,version' });
       if (error) throw error;
       if (t.evenements.length > 0) {
         const { error: e2 } = await db

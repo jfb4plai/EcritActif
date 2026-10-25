@@ -24,6 +24,7 @@ export interface Depot {
   eleve(id: string): Promise<EleveBrut | null>;
   activites(classeId: string): Promise<ActiviteBrute[]>;
   activite(id: string): Promise<ActiviteBrute | null>;
+  dernierTexte(eleveId: string, activiteId: string): Promise<{ texte: string; version: number; phase: string } | null>;
   enregistrer(t: { activiteId: string; eleveId: string; version: number; texte: string; phase: string; evenements: string[] }): Promise<void>;
 }
 
@@ -37,20 +38,22 @@ export interface ActiviteEleve {
   aides: AideActive[];
   // Nécessaire côté client : l'élève peut activer d'autres aides, qui doivent respecter les retraits de l'enseignant.
   aidesRetirees: { id: AideId; raison: string }[];
+  // Dernier texte enregistré de cet élève : permet de reprendre sur un autre appareil et de ne pas écraser un texte rendu.
+  reprise?: { texte: string; version: number; phase: string };
 }
 
 export type Reponse<T> = { status: 200; corps: T } | { status: 400 | 401 | 404 | 413 | 429; corps: { erreur: string } };
 
 const erreur = (status: 400 | 401 | 404 | 413, message: string): Reponse<never> => ({ status, corps: { erreur: message } });
 
-const PHASES = ['reflechir', 'ecrire', 'relire', 'corriger'];
+const PHASES = ['reflechir', 'ecrire', 'relire', 'corriger', 'rendu'];
 export const TEXTE_MAX = 20_000;
 
 function enObjet(x: unknown): Record<string, unknown> | null {
   return typeof x === 'object' && x !== null ? (x as Record<string, unknown>) : null;
 }
 
-function versEleve(a: ActiviteBrute, eleve: EleveBrut): ActiviteEleve {
+function versEleve(a: ActiviteBrute, eleve: EleveBrut, reprise: { texte: string; version: number; phase: string } | null): ActiviteEleve {
   return {
     id: a.id,
     consigne: a.consigne,
@@ -60,10 +63,11 @@ function versEleve(a: ActiviteBrute, eleve: EleveBrut): ActiviteEleve {
     categories: a.categories,
     aides: resoudreAides(eleve.aides, a.aidesRetirees),
     aidesRetirees: a.aidesRetirees,
+    ...(reprise ? { reprise } : {}),
   };
 }
 
-export async function ouvrirEleve(depot: Depot, secret: string, body: unknown): Promise<Reponse<{ jeton: string; activites: ActiviteEleve[] }>> {
+export async function ouvrirEleve(depot: Depot, secret: string, body: unknown): Promise<Reponse<{ jeton: string; eleveId: string; activites: ActiviteEleve[] }>> {
   const b = enObjet(body);
   if (!b || typeof b.codeClasse !== 'string' || typeof b.codeEleve !== 'string') return erreur(400, 'Demande incomplète');
   const classe = await depot.classeParCode(b.codeClasse.trim().toUpperCase());
@@ -71,9 +75,14 @@ export async function ouvrirEleve(depot: Depot, secret: string, body: unknown): 
   // Même réponse pour une classe inconnue et un élève inconnu : pas d'énumération des codes.
   if (!classe || !eleve) return erreur(404, 'Code inconnu');
   const activites = await depot.activites(classe.id);
+  const reprises = await Promise.all(activites.map((a) => depot.dernierTexte(eleve.id, a.id)));
   return {
     status: 200,
-    corps: { jeton: signerJeton({ eleveId: eleve.id, classeId: classe.id }, secret), activites: activites.map((a) => versEleve(a, eleve)) },
+    corps: {
+      jeton: signerJeton({ eleveId: eleve.id, classeId: classe.id }, secret),
+      eleveId: eleve.id,
+      activites: activites.map((a, i) => versEleve(a, eleve, reprises[i])),
+    },
   };
 }
 

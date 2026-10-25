@@ -16,7 +16,7 @@ async function appeler<T>(chemin: string, corps: unknown): Promise<T> {
   return donnees as T;
 }
 
-export function ouvrirSession(codeClasse: string, codeEleve: string): Promise<{ jeton: string; activites: ActiviteEleve[] }> {
+export function ouvrirSession(codeClasse: string, codeEleve: string): Promise<{ jeton: string; eleveId: string; activites: ActiviteEleve[] }> {
   return appeler('/api/eleve/ouvrir', { codeClasse: codeClasse.trim().toUpperCase(), codeEleve: codeEleve.trim().toUpperCase() });
 }
 

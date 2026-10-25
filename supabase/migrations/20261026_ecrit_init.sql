@@ -41,6 +41,7 @@ create table public.ecrit_textes (
   texte text not null,
   phase text not null,
   created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
   unique (activite_id, eleve_id, version)
 );
 
