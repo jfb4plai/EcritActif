@@ -101,6 +101,8 @@ export default function EcranEleve({ activite, jeton, api, delaiSauvegardeMs = 2
 
   function basculerGene(gene: string) {
     const lies = AIDES.filter((a) => a.gene === gene).map((a) => a.id);
+    // Trace pour le tableau de bord : seules les aides que l'élève active sont enregistrées.
+    if (!lies.every((id) => choisies.includes(id))) for (const id of lies) evenements.current.push('aide:' + id);
     setChoisies((c) => (lies.every((id) => c.includes(id)) ? c.filter((id) => !lies.includes(id)) : [...new Set([...c, ...lies])]));
   }
 

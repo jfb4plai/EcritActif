@@ -140,6 +140,18 @@ describe('EcranEleve : aides', () => {
     expect(screen.getByText(/On vérifie le geste d’écrire/)).toBeInTheDocument();
   });
 
+  test('activer une aide l’enregistre comme trace pour le tableau de bord', async () => {
+    const api = apiDeTest();
+    render(<EcranEleve activite={activite()} jeton="j" api={api} delaiSauvegardeMs={0} />);
+    await versEcriture();
+    await userEvent.click(screen.getByLabelText(/les sons et les lettres se mélangent/i));
+    await userEvent.type(screen.getByLabelText(/mon texte/i), 'Un');
+    await waitFor(() => {
+      const tous = (api.sauver as ReturnType<typeof vi.fn>).mock.calls.flatMap((c) => c[0].evenements as string[]);
+      expect(tous).toContain('aide:colorisation');
+    });
+  });
+
   test('pictogrammes actifs : l’attribution ARASAAC est affichée', () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => [] }) as Response));
     render(<EcranEleve activite={activite({ aides: [{ id: 'pictogrammes', active: true }] })} jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
