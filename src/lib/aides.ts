@@ -31,7 +31,7 @@ export const AIDES: Aide[] = [
   { id: 'colorisation', libelle: 'Colorer les sons ou les syllabes', gene: 'Les sons et les lettres se mélangent quand je lis', source: { kind: 'riss', ids: ['dumas-03282114'] } },
   { id: 'audio-consigne', libelle: 'Écouter la consigne', gene: 'Le français est ma deuxième langue', source: { kind: 'riss', ids: ['hal-03194300'] } },
   { id: 'pictogrammes', libelle: 'Voir des images pour les mots', gene: 'Le français est ma deuxième langue', source: { kind: 'non-etaye' } },
-  { id: 'banque-mots', libelle: 'Chercher des mots dans une liste', gene: 'Je trouve difficilement mes mots', source: { kind: 'riss', ids: ['dumas-03246050'] } },
+  { id: 'banque-mots', libelle: 'Chercher des mots dans une liste', gene: 'Je trouve difficilement mes mots', source: { kind: 'non-etaye' } },
 ];
 
 export function resoudreAides(choisies: AideId[], retirees: { id: AideId; raison: string }[]): AideActive[] {

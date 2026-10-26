@@ -11,5 +11,5 @@ Décision de JF (2026-10-25) : « utilise en mentionnant la licence ». Les fich
 ## Points non résolus (à garder visibles)
 
 - Les en-têtes de ces fichiers indiquent GPL-3.0, tandis que `Colorization OnlyOffice\LICENSE` est PolyForm Noncommercial 1.0.0. Les deux se contredisent ; la structure de licence du code autour de ce module reste à décider.
-- Le texte complet de la GPL-3.0 n'est pas joint ici (https://www.gnu.org/licenses/gpl-3.0.html). Il devra l'être si l'app est distribuée avec ce module.
+- Le texte complet de la GPL-3.0 est joint à la racine du dépôt (`LICENSE`, copie de https://www.gnu.org/licenses/gpl-3.0.txt, ajoutée le 2026-10-26). Choix à confirmer par JF : l'app embarque du code GPL-3.0, donc la distribuer sous GPL-3.0 est la voie cohérente ; la licence PolyForm NC des autres dépôts PLAI n'est pas compatible avec ce code.
 - Mentionner la licence ne remplace pas d'en respecter les conditions. Ce n'est pas un avis juridique.
