@@ -13,6 +13,17 @@ export default function APropos() {
       </p>
       <h2>Pictogrammes</h2>
       <p>{ATTRIBUTION_ARASAAC}</p>
+      <h2>Apprendre à utiliser les retours</h2>
+      <p>
+        Un retour ne sert que si l’élève sait s’en servir. L’application travaille quatre compétences, selon le modèle de Carless et Boud (2018) tel que résumé par
+        Hausman et al. (2025, Université de Liège) :
+      </p>
+      <ul>
+        <li>Comprendre la rétroaction : l’élève peut dire « Je ne comprends pas » et reçoit une explication.</li>
+        <li>Porter un jugement sur son travail : « Deux étoiles et un souhait » avant de rendre.</li>
+        <li>Gérer ses émotions face à un retour : pas encore travaillée dans l’application.</li>
+        <li>Agir après un retour : « Essayer autrement » garde la version d’avant à côté de la nouvelle.</li>
+      </ul>
       <h2>Programme</h2>
       <p>
         Les compétences viennent des programmes CECP de l’enseignement primaire (Wallonie-Bruxelles Enseignement). Le

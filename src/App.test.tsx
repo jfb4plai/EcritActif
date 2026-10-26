@@ -38,6 +38,15 @@ describe('App : routes', () => {
     expect(screen.getByText(/GPL-3\.0/)).toBeInTheDocument();
   });
 
+  test('la page À propos présente les quatre compétences de la littératie à la rétroaction, avec leur source', () => {
+    afficher('/apropos');
+    for (const c of [/comprendre la rétroaction/i, /porter un jugement/i, /gérer ses émotions/i, /agir après/i]) {
+      expect(screen.getByText(c)).toBeInTheDocument();
+    }
+    expect(screen.getByText(/Hausman/)).toBeInTheDocument();
+    expect(screen.getByText(/Carless et Boud/)).toBeInTheDocument();
+  });
+
   test('la page élève demande les deux codes avec leur aide', () => {
     afficher('/eleve');
     for (const nom of [/code de la classe/i, /mon code/i]) {
