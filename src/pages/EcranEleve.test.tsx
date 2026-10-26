@@ -368,6 +368,40 @@ describe('EcranEleve : gérer ses émotions face aux retours (compétence 3 du c
   });
 });
 
+describe('EcranEleve : référence au programme CECP', () => {
+  test('« Dans le programme » cite l’item du CECP tel quel, fermé par défaut', () => {
+    render(<EcranEleve activite={activite({ itemIds: ['P1:F114+F115'] })} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
+    const detail = screen.getByText(/dans le programme/i).closest('details') as HTMLElement;
+    expect(detail).not.toHaveAttribute('open');
+    expect(detail).toHaveTextContent('F114, F115');
+    expect(detail).toHaveTextContent('Réviser sa production écrite');
+    expect(detail).toHaveTextContent('Relire son écrit en vérifiant si son contenu correspond à l’intention poursuivie');
+  });
+
+  test('les deux sources sont combinées : l’attendu du référentiel de l’année et les composantes de l’écrit, avec les items CECP', () => {
+    render(<EcranEleve activite={activite({ annee: 'P1', itemIds: ['P1:F114+F115'] })} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
+    const detail = screen.getByText(/dans le programme/i).closest('details') as HTMLElement;
+    expect(detail).toHaveTextContent('Référentiel de français et langues anciennes');
+    expect(detail).toHaveTextContent('Rédiger un écrit lisible');
+    expect(detail).toHaveTextContent('planification ; mise en texte ; révision');
+    expect(detail).not.toHaveTextContent('correction');
+    expect(detail).toHaveTextContent('Programme d’études de l’enseignement primaire (CECP');
+    expect(detail).toHaveTextContent('F114, F115');
+  });
+
+  test('en P2, la correction s’ajoute aux composantes citées', () => {
+    render(<EcranEleve activite={activite({ annee: 'P2', itemIds: [] })} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
+    expect(screen.getByText(/dans le programme/i).closest('details')).toHaveTextContent('planification ; mise en texte ; révision ; correction');
+  });
+
+  test('un identifiant d’item inconnu ne plante pas : le référentiel reste cité, sans item CECP', () => {
+    render(<EcranEleve activite={activite({ itemIds: ['P9:F0'] })} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
+    const detail = screen.getByText(/dans le programme/i).closest('details') as HTMLElement;
+    expect(detail).toHaveTextContent('Rédiger un écrit lisible');
+    expect(detail).not.toHaveTextContent('P9');
+  });
+});
+
 describe('EcranEleve : réfléchir', () => {
   test('affiche la consigne et les questions de la phase réfléchir', () => {
     render(<EcranEleve activite={activite()} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);

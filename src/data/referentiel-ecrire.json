@@ -1,0 +1,37 @@
+{
+ "P1": {
+  "pages": "37-52",
+  "palierScripteur": "scripteur émergent vers scripteur débutant",
+  "formesCorrectes": null,
+  "composantes": [
+   "planification",
+   "mise en texte",
+   "révision"
+  ],
+  "attenduEcrire": "Rédiger un écrit lisible qui combine plusieurs des éléments ci-dessous en mobilisant des ressources (référentiels) : en restant dans le sujet ; en tenant compte de l'intention et du destinataire ; en l'organisant selon une structure textuelle simple donnée ; en utilisant la majuscule et le point ; en respectant la segmentation en mots ; en orthographiant correctement les mots connus de la liste des mots à haute fréquence ; en mobilisant les ressources de la classe (référentiels)."
+ },
+ "P2": {
+  "pages": "53-69",
+  "palierScripteur": "scripteur débutant",
+  "formesCorrectes": 50,
+  "composantes": [
+   "planification",
+   "mise en texte",
+   "révision",
+   "correction"
+  ],
+  "attenduEcrire": "Rédiger un écrit lisible qui combine plusieurs des éléments ci-dessous en mobilisant des ressources (référentiels) : en restant dans le sujet ; en tenant compte de l'intention et du destinataire ; en l'organisant selon une structure textuelle simple donnée ; en utilisant la majuscule et le point ; en respectant la segmentation en mots ; en orthographiant correctement les mots connus de la liste des mots à haute fréquence ; en mobilisant les ressources de la classe (référentiels)."
+ },
+ "P3": {
+  "pages": "70-87",
+  "palierScripteur": "scripteur en transition",
+  "formesCorrectes": null,
+  "composantes": [
+   "planification",
+   "mise en texte",
+   "révision",
+   "correction"
+  ],
+  "attenduEcrire": "Rédiger un écrit lisible qui combine plusieurs des éléments suivants en mobilisant des ressources (référentiels) : en restant dans le sujet ; en tenant compte de l'intention et du destinataire ; en l'organisant selon une structure textuelle simple donnée ; en utilisant la majuscule et le point ; en orthographiant correctement les mots connus ; en mobilisant les ressources de la classe (référentiels) ; en utilisant les organisateurs textuels adéquats ; en utilisant les substituts lexicaux."
+ }
+}

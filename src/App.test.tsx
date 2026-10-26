@@ -33,6 +33,27 @@ describe('App : routes', () => {
     expect(screen.getByRole('link', { name: /je suis enseignant/i })).toHaveAttribute('href', '/enseignant');
   });
 
+  test('l’accueil dit pour quel programme l’app est faite', () => {
+    afficher('/');
+    expect(screen.getByText(/programme CECP de l.enseignement primaire en Fédération Wallonie-Bruxelles/i)).toBeInTheDocument();
+  });
+
+  test('la page À propos décrit l’ancrage dans le programme de la Fédération Wallonie-Bruxelles', () => {
+    afficher('/apropos');
+    expect(screen.getByRole('heading', { name: /ancrage dans le programme de la fédération wallonie-bruxelles/i })).toBeInTheDocument();
+    expect(screen.getByText(/P3_Montage_10-12-2024_INT\.pdf/)).toBeInTheDocument();
+    expect(screen.getByText(/planification/i)).toBeInTheDocument();
+    expect(screen.getByText(/F282/)).toBeInTheDocument();
+    expect(screen.getByText(/cité tel quel/i)).toBeInTheDocument();
+  });
+
+  test('la page À propos cite aussi le référentiel du tronc commun et ses composantes de l’écrit par année', () => {
+    afficher('/apropos');
+    expect(screen.getByText(/Référentiel de français et langues anciennes/)).toBeInTheDocument();
+    expect(screen.getByText(/En P1, le référentiel nomme trois composantes/i)).toBeInTheDocument();
+    expect(screen.getByText(/la correction s’ajoute en P2/i)).toBeInTheDocument();
+  });
+
   test('la page À propos mentionne la licence GPL-3.0', () => {
     afficher('/apropos');
     expect(screen.getByText(/GPL-3\.0/)).toBeInTheDocument();

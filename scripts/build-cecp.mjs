@@ -23,4 +23,12 @@ for (const annee of ['P1', 'P2', 'P3']) {
   }
 }
 writeFileSync(SORTIE, JSON.stringify(items, null, 1), 'utf-8');
+
+// Fichier source et date d'extraction de chaque année : l'app cite d'où viennent les items.
+const sources = {};
+for (const annee of ['P1', 'P2', 'P3']) {
+  const m = JSON.parse(readFileSync(`${SOURCE}${annee}/francais.json`, 'utf-8')).meta;
+  sources[annee] = { pdf: m.source_pdf, extraitLe: m.extrait_le };
+}
+writeFileSync(fileURLToPath(new URL('../src/data/cecp-sources.json', import.meta.url)), JSON.stringify(sources, null, 1), 'utf-8');
 console.log(`${items.length} items écrits dans ${SORTIE}`);

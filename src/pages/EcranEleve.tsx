@@ -2,11 +2,13 @@ import { useEffect, useMemo, useRef, useState, type ClipboardEvent, type DragEve
 import type { ActiviteEleve } from '../../api/_lib/eleve';
 import AidesPanel from '../components/AidesPanel';
 import Picto from '../components/Picto';
+import RepereProgramme from '../components/RepereProgramme';
 import TexteColore from '../components/TexteColore';
 import { AIDES, resoudreAides, type AideActive, type AideId } from '../lib/aides';
 import { dicteePossible, dicter, lire, synthesePossible } from '../lib/audio';
 import { choisirCritere, decider, initial, retourAutorise, suivant, type Choix, type EtatBoucle } from '../lib/boucle';
 import { lireLocal, sauverLocal } from '../lib/brouillonLocal';
+import { itemParId } from '../lib/cecp';
 import { chargerColorisation, type ModeColorisation } from '../lib/colorisation';
 import { PALETTE, TEXTE_SOMBRE } from '../lib/palette';
 import { ATTRIBUTION_ARASAAC } from '../lib/pictos';
@@ -351,6 +353,10 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
       {etat.phase === 'reflechir' && (
         <section data-phase="reflechir" className="zone-temps" style={teinte('reflechir')}>
           {consigneBloc}
+          <details>
+            <summary>Dans le programme (pour les adultes)</summary>
+            <RepereProgramme annee={activite.annee} items={activite.itemIds.map((id) => itemParId(id)).filter((i): i is NonNullable<typeof i> => i !== undefined)} />
+          </details>
           <ul>
             {principes('reflechir').map((p) => (
               <li key={p.id}>{p.question}</li>

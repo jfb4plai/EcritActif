@@ -155,6 +155,27 @@ Origine : les deux articles co-écrits par JF (« Développer la littératie à 
 
 Non construit : tableau de bord de la qualité des commentaires de l'enseignant (il n'y a pas encore de commentaire enseignant dans l'app), instrument SFLI-S (Weidlich et al. 2025, **non vérifié** dans le RISS), évaluation par les pairs.
 
+## 15quater. Singularité : l'ancrage dans la FWB, par deux textes combinés (2026-10-26)
+
+Exigence de JF : l'ancrage dans la Fédération Wallonie-Bruxelles et le programme CECP est une singularité de l'app ; elle doit s'y conformer et y faire référence. Les deux textes sont **à combiner** (JF, 2026-10-26).
+
+**Les deux sources** (dossier `referentiels-fwb`, texte cité tel quel, jamais reformulé) :
+1. Le **référentiel de français et langues anciennes, tronc commun FWB**, section français (`francais/P1.json` à `P3.json`, pages 37-52, 53-69, 70-87) : ce que l'élève doit pouvoir faire à l'écrit, palier de scripteur attendu, composantes de la production d'écrit. Généré par `scripts/build-referentiel.mjs` dans `src/data/referentiel-ecrire.json`.
+2. Le **programme d'études de l'enseignement primaire (CECP, Wallonie-Bruxelles Enseignement)** (`P1..P3/francais.json`) : 82 items « écrire » avec leurs codes. Généré par `scripts/build-cecp.mjs`.
+
+**Ce que le référentiel apporte, constaté dans les fichiers** :
+- Les composantes de la production d'écrit à verbaliser : planification, mise en texte, révision en **P1** ; la **correction s'ajoute en P2** (P2 et P3 : quatre composantes). Les quatre temps de l'app les reprennent ; le programme CECP les nomme aussi (F282, P3).
+- Palier de scripteur attendu : « scripteur émergent vers scripteur débutant » (P1), « scripteur débutant » (P2), « scripteur en transition » (P3). **50 % de formes correctes en fin de P2** (seul chiffre présent dans les fichiers pour P1 à P3). Le rapport d'extraction annonce 60 % pour P3, mais le champ du fichier P3 est vide : **à vérifier dans le PDF**, non repris dans l'app. L'app ne mesure pas les formes correctes et ne l'affirme nulle part.
+- L'attendu officiel de l'écrit : rester dans le sujet ; tenir compte de l'intention et du destinataire ; structure textuelle simple donnée ; majuscule et point ; segmentation en mots (P1, P2) ; mots connus correctement orthographiés ; ressources de la classe ; organisateurs textuels et substituts lexicaux (P3).
+
+**Où l'app le montre** : page d'accueil (pour quel programme elle est faite) ; page « À propos » (les deux textes, les fichiers sources, les composantes par année) ; écran de l'élève, rubrique fermée « Dans le programme (pour les adultes) » (attendu du référentiel + items CECP de l'activité, texte tel quel) ; formulaire de l'enseignant (attendu du référentiel, terme du programme à côté de chaque temps, codes de chaque principe) ; tableau de bord (fichier source et palier de scripteur).
+
+**Ce qui le garantit (tests)** : chaque terme de vocabulaire est relié à un code d'item et vérifié contre les données ; chaque temps correspond à un terme de F282 ; chaque principe cite des codes existants ; un test refuse tout repère de l'école française (collège, lycée, CE1, CM2, cycle 3, GAR, ENT…) dans ce que lisent l'élève et l'enseignant.
+
+**Décisions en attente de JF** (non tranchées par Claude) :
+- **P1 et la correction** : le référentiel ne nomme que trois composantes en P1. L'app propose quatre temps dès P1. À décider : fusionner « Relire » et « Corriger » en P1 (trois temps), ou garder quatre temps partout. Source : référentiel P1, « Verbaliser les composantes de la production d'écrits ».
+- **Nouveaux principes tirés de l'attendu officiel** (en brouillon, à valider avec sources) : « Ton texte reste-t-il dans le sujet ? » ; « As-tu séparé chaque mot par un espace ? » (P1, P2) ; « As-tu relié tes phrases avec des mots comme « puis » ou « ensuite » ? » (organisateurs textuels, P3).
+
 ## 15ter. Adapter l'approche au niveau des élèves (2026-10-26)
 
 Demande de JF : « il faudra de toute façon adapter l'approche avec le niveau des élèves ».

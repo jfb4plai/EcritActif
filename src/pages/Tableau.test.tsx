@@ -35,6 +35,17 @@ describe('Tableau', () => {
     expect(within(screen.getByText('STUVWX').closest('tr') as HTMLElement).getByText(/pas encore commencé/i)).toBeInTheDocument();
   });
 
+  test('le repère du référentiel (palier de scripteur attendu) accompagne la carte du programme', () => {
+    afficher();
+    expect(screen.getByText(/scripteur émergent vers scripteur débutant/i)).toBeInTheDocument();
+    expect(screen.getByText(/Référentiel de français et langues anciennes/)).toBeInTheDocument();
+  });
+
+  test('la carte du programme cite son fichier source', () => {
+    afficher();
+    expect(screen.getByText(/Programme P1-Version interactive\.pdf/)).toBeInTheDocument();
+  });
+
   test('un texte rendu est indiqué « Rendu »', () => {
     render(
       <Tableau annee="P1" items={[I1]} eleves={[{ id: 'e1', code: 'KMNPQR', dernierePhase: 'rendu', versions: 1, aides: [], itemsTravailles: [], clarifications: 0, autoEvaluation: null }]} activites={[]} validations={[]} onValider={() => {}} />,

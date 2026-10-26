@@ -1,5 +1,7 @@
 import { useMemo, useState, type FormEvent } from 'react';
 import { AIDES, type AideId } from '../lib/aides';
+import RepereProgramme from '../components/RepereProgramme';
+import { TEMPS_CECP } from '../lib/ancrage';
 import { itemsParAnnee } from '../lib/cecp';
 import { principesPour } from '../lib/principes';
 import type { CategorieErreur, Contraintes } from '../lib/retour';
@@ -97,6 +99,10 @@ export default function NouvelleActivite({ annee, onEnregistrer }: { annee: Anne
           </p>
         )}
         <details>
+          <summary>Ce que le référentiel attend à l’écrit en {annee}</summary>
+          <RepereProgramme annee={annee} items={[]} />
+        </details>
+        <details>
           <summary>Voir les {items.length} items « écrire »</summary>
           {items.map((i) => (
             <label key={i.id} className="block">
@@ -114,10 +120,12 @@ export default function NouvelleActivite({ annee, onEnregistrer }: { annee: Anne
         </label>
         {PHASES.map((p) => (
           <div key={p.id}>
-            <h3>{p.titre}</h3>
+            <h3>
+              {p.titre} ({TEMPS_CECP[p.id].terme})
+            </h3>
             {principesPour(codes, p.id, { brouillons }).map((pr) => (
               <label key={pr.id} className="block">
-                <input type="checkbox" checked={principeIds.includes(pr.id)} onChange={() => setPrincipeIds(bascule(principeIds, pr.id))} /> {pr.question}{pr.statut === 'brouillon' ? ' (brouillon)' : ''}
+                <input type="checkbox" checked={principeIds.includes(pr.id)} onChange={() => setPrincipeIds(bascule(principeIds, pr.id))} /> {pr.question}{pr.statut === 'brouillon' ? ' (brouillon)' : ''} <small>Programme : {pr.codes.join(', ')}</small>
               </label>
             ))}
           </div>

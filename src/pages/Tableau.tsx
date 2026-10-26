@@ -1,4 +1,5 @@
 import { AIDES } from '../lib/aides';
+import { REFERENTIEL, REFERENTIEL_ANNEE, SOURCES_CECP } from '../lib/ancrage';
 import { statutParItem } from '../lib/statut';
 import type { Annee, AutoEvaluation, ItemCecp, Phase } from '../types';
 
@@ -102,6 +103,9 @@ export default function Tableau({ annee, items, eleves, activites, validations, 
 
       <section aria-label={`Programme ${annee}`}>
         <h2>Programme CECP {annee}, écrire</h2>
+        <p className="text-sm">
+          Source : {SOURCES_CECP[annee].pdf}. {REFERENTIEL} : palier de scripteur attendu en {annee}, {REFERENTIEL_ANNEE[annee].palierScripteur}.
+        </p>
         <p className="text-sm">L’app présente les traces. Vous seul décidez qu’un item est acquis.</p>
         <ul>
           {items.map((i) => {

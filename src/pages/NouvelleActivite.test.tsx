@@ -42,6 +42,22 @@ describe('NouvelleActivite : comportement', () => {
     expect(a.consigne).toBe('Écrire trois phrases sur mon animal.');
   });
 
+  test('l’attendu du référentiel de l’année est rappelé à côté des items CECP', () => {
+    formulaire();
+    expect(screen.getByText(/Rédiger un écrit lisible/)).toBeInTheDocument();
+    expect(screen.getByText(/scripteur débutant/i)).toBeInTheDocument();
+    expect(screen.getByText(/planification ; mise en texte ; révision ; correction/)).toBeInTheDocument();
+  });
+
+  test('chaque temps porte le terme du programme (production d’écrit, F282) et chaque principe ses codes', async () => {
+    formulaire();
+    await userEvent.click(screen.getByLabelText(/afficher les principes en brouillon/i));
+    for (const t of [/Réfléchir \(planification\)/, /Relire \(révision\)/, /Corriger \(correction\)/]) {
+      expect(screen.getByRole('heading', { name: t })).toBeInTheDocument();
+    }
+    expect(screen.getAllByText(/Programme : F/).length).toBeGreaterThan(0);
+  });
+
   test('les mots utiles et les questions de l’enseignant sont enregistrés (singularité de l’enseignant)', async () => {
     const { onEnregistrer } = formulaire();
     await userEvent.type(screen.getByLabelText(/consigne pour les élèves/i), 'Décrire mon animal.');
