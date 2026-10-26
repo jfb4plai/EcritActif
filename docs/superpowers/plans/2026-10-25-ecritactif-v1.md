@@ -18,7 +18,7 @@
 - Imports dans `api/*.ts` : extension `.js` obligatoire (sinon FUNCTION_INVOCATION_FAILED sur Vercel).
 - Tester les fonctions serveur avec `vercel dev`, jamais `vite dev` seul.
 - Tables Supabase : préfixe `ecrit_`, `grant` explicites dans la même migration, RLS actif, `profiles` et trigger `updated_at` réutilisés, jamais recréés. Avant tout `create table` : `grep -rIn "create table" --include=*.sql --exclude-dir=node_modules ..` depuis la racine du workspace.
-- Application d'une migration sur la base partagée (`dfoaumjleqtxjeaplnna`) : seulement avec l'accord explicite de JF ; essais dans une transaction annulée.
+- Application d'une migration sur la base partagée (`otiorljbujqzruulmqrs`) : seulement avec l'accord explicite de JF ; essais dans une transaction annulée.
 - Aucune clé dans le frontend ni dans un `console.log`. Aucun log de texte d'élève.
 - Élèves : code anonyme uniquement, aucun nom, aucun diagnostic stocké.
 - Interface : Arial par défaut, 16 px minimum, contraste suffisant, un seul critère mis en avant à la fois, consignes aux élèves à l'infinitif, une action par puce, exemples FWB (jamais « collège/lycée » ni exemples français).
