@@ -64,7 +64,7 @@ export function depotSupabase(): Depot {
     async enregistrer(t) {
       const { error } = await db
         .from('ecrit_textes')
-        .upsert({ activite_id: t.activiteId, eleve_id: t.eleveId, version: t.version, texte: t.texte, phase: t.phase, updated_at: new Date().toISOString() }, { onConflict: 'activite_id,eleve_id,version' });
+        .upsert({ activite_id: t.activiteId, eleve_id: t.eleveId, version: t.version, texte: t.texte, phase: t.phase, updated_at: new Date().toISOString(), ...(t.autoEvaluation ? { auto_evaluation: t.autoEvaluation } : {}) }, { onConflict: 'activite_id,eleve_id,version' });
       if (error) throw error;
       if (t.evenements.length > 0) {
         const { error: e2 } = await db

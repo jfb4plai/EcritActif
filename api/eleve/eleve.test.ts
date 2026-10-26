@@ -165,6 +165,25 @@ describe('sauverTexte', () => {
     expect(textes[0].phase).toBe('rendu');
   });
 
+  test('l’auto-évaluation de l’élève est enregistrée avec le texte', async () => {
+    const { depot, textes } = depotDeTest();
+    const auto = { etoiles: ['J’ai décrit mon chat', 'J’ai mis un point'], souhait: 'Écrire une phrase de plus' };
+    const r = await sauverTexte(depot, SECRET, { jeton: jeton(), activiteId: 'act1', texte: 'Fini.', phase: 'rendu', version: 1, evenements: [], autoEvaluation: auto });
+    expect(r.status).toBe(200);
+    expect((textes[0] as { autoEvaluation?: unknown }).autoEvaluation).toEqual(auto);
+  });
+
+  test.each([
+    ['plus de deux étoiles', { etoiles: ['a', 'b', 'c'], souhait: 'x' }],
+    ['étoile trop longue', { etoiles: ['a'.repeat(201)], souhait: 'x' }],
+    ['souhait qui n’est pas du texte', { etoiles: ['a'], souhait: 42 }],
+    ['pas un objet', 'oups'],
+  ])('auto-évaluation invalide (%s) : 400', async (_nom, auto) => {
+    const { depot } = depotDeTest();
+    const r = await sauverTexte(depot, SECRET, { jeton: jeton(), activiteId: 'act1', texte: 'x', phase: 'rendu', version: 1, evenements: [], autoEvaluation: auto });
+    expect(r.status).toBe(400);
+  });
+
   test('jeton falsifié : 401', async () => {
     const { depot } = depotDeTest();
     const r = await sauverTexte(depot, SECRET, { jeton: 'faux', activiteId: 'act1', texte: 'x', phase: 'ecrire', version: 1, evenements: [] });

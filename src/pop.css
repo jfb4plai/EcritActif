@@ -200,3 +200,18 @@ aside[aria-label='Aides'] li {
   line-height: 1.6;
   white-space: pre-wrap;
 }
+
+/* Champs de saisie de l'espace élève : même lisibilité que la zone de texte. */
+.zone-temps input.plai-input {
+  font-family: Arial, sans-serif;
+  font-size: 1.25rem;
+  border: 2px solid #1a1814;
+  border-radius: 14px;
+  background: #fff;
+  min-height: 52px;
+}
+.zone-temps input.plai-input::placeholder,
+.zone-temps textarea::placeholder {
+  color: #5a564f;
+  opacity: 1;
+}

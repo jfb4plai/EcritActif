@@ -34,6 +34,23 @@ describe('construireLignes', () => {
     expect(construireLignes(eleves, activites, textes, [])[0].dernierePhase).toBe('rendu');
   });
 
+  test('demandes d’aide et auto-évaluation du dernier texte, pour lire la littératie à la rétroaction', () => {
+    const auto = { etoiles: ['a', 'b'], souhait: 'c' };
+    const textes = [
+      { eleveId: 'e1', activiteId: 'a1', version: 1, phase: 'ecrire', updatedAt: '2026-10-25T09:00:00Z' },
+      { eleveId: 'e1', activiteId: 'a1', version: 2, phase: 'rendu', updatedAt: '2026-10-25T10:00:00Z', autoEvaluation: auto },
+    ];
+    const traces = [
+      { eleveId: 'e1', evenement: 'clarification:majuscule_debut_phrase' },
+      { eleveId: 'e1', evenement: 'clarification:rel-intention' },
+      { eleveId: 'e1', evenement: 'aide:colorisation' },
+      { eleveId: 'e2', evenement: 'clarification:mot_repete' },
+    ];
+    const l = construireLignes(eleves, activites, textes, traces);
+    expect(l[0]).toMatchObject({ clarifications: 2, autoEvaluation: auto, aides: ['colorisation'] });
+    expect(l[1]).toMatchObject({ clarifications: 1, autoEvaluation: null });
+  });
+
   test('élève sans texte : jamais commencé', () => {
     const l = construireLignes(eleves, activites, [], []);
     expect(l[1]).toMatchObject({ id: 'e2', dernierePhase: null, versions: 0, itemsTravailles: [], aides: [] });

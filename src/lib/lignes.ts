@@ -1,10 +1,10 @@
 import type { LigneEleve } from '../pages/Tableau';
-import type { Phase } from '../types';
+import type { AutoEvaluation, Phase } from '../types';
 
 export function construireLignes(
   eleves: { id: string; code: string }[],
   activites: { id: string; itemIds: string[] }[],
-  textes: { eleveId: string; activiteId: string; version: number; phase: string; updatedAt: string }[],
+  textes: { eleveId: string; activiteId: string; version: number; phase: string; updatedAt: string; autoEvaluation?: AutoEvaluation }[],
   traces: { eleveId: string; evenement: string }[],
 ): LigneEleve[] {
   return eleves.map((e) => {
@@ -19,6 +19,8 @@ export function construireLignes(
       code: e.code,
       dernierePhase: (dernier?.phase as Phase | 'rendu' | undefined) ?? null,
       versions: dernier?.version ?? 0,
+      clarifications: traces.filter((t) => t.eleveId === e.id && t.evenement.startsWith('clarification:')).length,
+      autoEvaluation: dernier?.autoEvaluation ?? null,
       aides,
       itemsTravailles: items,
     };

@@ -1,6 +1,6 @@
 import { AIDES } from '../lib/aides';
 import { statutParItem } from '../lib/statut';
-import type { Annee, ItemCecp, Phase } from '../types';
+import type { Annee, AutoEvaluation, ItemCecp, Phase } from '../types';
 
 export interface LigneEleve {
   id: string;
@@ -9,6 +9,9 @@ export interface LigneEleve {
   versions: number;
   aides: string[];
   itemsTravailles: string[];
+  // Littératie à la rétroaction : demandes d'aide (« Je ne comprends pas ») et auto-évaluation avant de rendre.
+  clarifications: number;
+  autoEvaluation: AutoEvaluation | null;
 }
 
 interface Props {
@@ -38,6 +41,8 @@ export default function Tableau({ annee, items, eleves, activites, validations, 
               <th>Code</th>
               <th>Où il en est</th>
               <th>Aides utilisées</th>
+              <th>Demandes d’aide</th>
+              <th>Auto-évaluation</th>
               <th>Items travaillés</th>
             </tr>
           </thead>
@@ -55,6 +60,22 @@ export default function Tableau({ annee, items, eleves, activites, validations, 
                   )}
                 </td>
                 <td>{e.aides.length > 0 ? e.aides.map(libelleAide).join(' ; ') : 'Aucune'}</td>
+                <td>{e.clarifications === 0 ? 'Aucune demande d’aide' : `${e.clarifications} demande${e.clarifications > 1 ? 's' : ''} d’aide`}</td>
+                <td>
+                  {e.autoEvaluation ? (
+                    <div>
+                      <ul>
+                        {e.autoEvaluation.etoiles.map((x, i) => (
+                          <li key={i}>{x}</li>
+                        ))}
+                      </ul>
+                      {e.autoEvaluation.souhait && <p>Souhait : {e.autoEvaluation.souhait}</p>}
+                      {e.autoEvaluation.change && <p>Ce qui est mieux : {e.autoEvaluation.change}</p>}
+                    </div>
+                  ) : (
+                    'Pas d’auto-évaluation'
+                  )}
+                </td>
                 <td>
                   {e.itemsTravailles.map((id) => {
                     const item = itemParId(id);

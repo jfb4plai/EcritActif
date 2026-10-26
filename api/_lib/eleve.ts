@@ -1,6 +1,6 @@
 import { resoudreAides, type AideActive, type AideId } from '../../src/lib/aides.js';
 import type { CategorieErreur, Contraintes } from '../../src/lib/retour.js';
-import type { Phase } from '../../src/types.js';
+import type { AutoEvaluation, Phase } from '../../src/types.js';
 import { signerJeton, verifierJeton } from './session.js';
 
 export interface ActiviteBrute {
@@ -28,7 +28,7 @@ export interface Depot {
   activites(classeId: string): Promise<ActiviteBrute[]>;
   activite(id: string): Promise<ActiviteBrute | null>;
   dernierTexte(eleveId: string, activiteId: string): Promise<{ texte: string; version: number; phase: string } | null>;
-  enregistrer(t: { activiteId: string; eleveId: string; version: number; texte: string; phase: string; evenements: string[] }): Promise<void>;
+  enregistrer(t: { activiteId: string; eleveId: string; version: number; texte: string; phase: string; evenements: string[]; autoEvaluation?: AutoEvaluation }): Promise<void>;
 }
 
 export interface ActiviteEleve {
@@ -54,6 +54,20 @@ const erreur = (status: 400 | 401 | 404 | 413, message: string): Reponse<never> 
 
 const PHASES = ['reflechir', 'ecrire', 'relire', 'corriger', 'rendu'];
 export const TEXTE_MAX = 20_000;
+
+function court(x: unknown, max: number): x is string {
+  return typeof x === 'string' && x.length <= max;
+}
+
+// null = invalide ; undefined = absente.
+function lireAutoEvaluation(x: unknown): AutoEvaluation | null | undefined {
+  if (x === undefined) return undefined;
+  const o = enObjet(x);
+  if (!o || !Array.isArray(o.etoiles) || o.etoiles.length > 2 || !o.etoiles.every((e) => court(e, 200))) return null;
+  if (!court(o.souhait, 200)) return null;
+  if (o.change !== undefined && !court(o.change, 300)) return null;
+  return { etoiles: o.etoiles as string[], souhait: o.souhait, ...(o.change !== undefined ? { change: o.change as string } : {}) };
+}
 
 function enObjet(x: unknown): Record<string, unknown> | null {
   return typeof x === 'object' && x !== null ? (x as Record<string, unknown>) : null;
@@ -109,6 +123,8 @@ export async function sauverTexte(depot: Depot, secret: string, body: unknown): 
   ) {
     return erreur(400, 'Demande incomplète');
   }
+  const auto = lireAutoEvaluation(b.autoEvaluation);
+  if (auto === null) return erreur(400, 'Demande incomplète');
   const session = verifierJeton(b.jeton, secret);
   if (!session) return erreur(401, 'Session expirée');
   if (b.texte.length > TEXTE_MAX) return erreur(413, 'Texte trop long');
@@ -116,6 +132,6 @@ export async function sauverTexte(depot: Depot, secret: string, body: unknown): 
   const eleve = await depot.eleve(session.eleveId);
   if (!activite || !eleve || activite.classeId !== session.classeId) return erreur(404, 'Activité inconnue');
   const evenements = b.evenements.filter((e): e is string => typeof e === 'string').slice(0, 50);
-  await depot.enregistrer({ activiteId: activite.id, eleveId: eleve.id, version: b.version as number, texte: b.texte, phase: b.phase, evenements });
+  await depot.enregistrer({ activiteId: activite.id, eleveId: eleve.id, version: b.version as number, texte: b.texte, phase: b.phase, evenements, ...(auto ? { autoEvaluation: auto } : {}) });
   return { status: 200, corps: { version: b.version as number, aides: resoudreAides(eleve.aides, activite.aidesRetirees), aidesRetirees: activite.aidesRetirees } };
 }

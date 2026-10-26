@@ -1,5 +1,12 @@
 export type Annee = 'P1' | 'P2' | 'P3';
 
+// Deux étoiles et un souhait (Black et al. 2004, cité dans l'article de JF) : l'élève juge lui-même son travail avant de le rendre.
+export interface AutoEvaluation {
+  etoiles: string[];
+  souhait: string;
+  change?: string;
+}
+
 export type Phase = 'reflechir' | 'ecrire' | 'relire' | 'corriger';
 
 export type Source =

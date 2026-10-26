@@ -135,6 +135,26 @@ La réussite n'est pas « l'app marche » : elle se mesure auprès de vrais util
 | Tableau de bord inter-classes ou lien AménagActif | Suivi des aménagements | Données sensibles, accord DPO |
 | Collaboration entre élèves | Demande des enseignants (idée vue ailleurs, non évaluée) | Conception, modération |
 
+## 15bis. Qualité de la rétroaction et littératie à la rétroaction (ajouté le 2026-10-26)
+
+Origine : les deux articles co-écrits par JF (« Développer la littératie à la rétroaction dans l'enseignement obligatoire en FWB » ; « La littératie de la rétroaction avant l'esprit critique et l'usage de l'IA »), lus en entier le 2026-10-26. [JF]
+
+**Deux notions distinctes, toutes deux construites :**
+1. **Qualité de ce que l'app dit à l'élève** (`src/lib/qualite.ts`). Un retour sur le travail est accepté seulement s'il est : centré sur la tâche et le processus, pas sur la personne ; précis (dit où) ; actionnable (propose quoi faire) ; sans note chiffrée ; sans louange vide ni validation complaisante. Un test applique ces critères à tous les messages produits par l'app (indices des signaux, retours sur la longueur, bilan du texte rendu, explications). Un constat sans action est admis pour un bilan, pas pour un retour correctif. [C] sources : hal-05348650 (Hattie & Timperley 2007 résumé : rétroaction sur la tâche, le processus, l'autorégulation, la personne ; la rétroaction descriptive a le plus de potentiel ; une note seule est inefficace et diminue la motivation), hal-04646895 (Calone & Lafontaine 2023, ULiège : la qualité du feedback est primordiale, la note est un feedback pauvre) lus dans le RISS. Louange vide et complaisance : article de JF, **hors corpus RISS**.
+2. **Littératie à la rétroaction de l'élève** : l'élève apprend à lire et à utiliser les retours.
+   - « Je ne comprends pas » sur chaque signal et chaque question de relecture : explication simple de la règle, sans la forme corrigée, et trace pour l'enseignant. Demander de l'aide est présenté comme apprendre. (Disposition « je peux demander de l'aide », article de JF.)
+   - « Deux étoiles et un souhait » avant de rendre : facultatif, enregistré, visible dans le tableau de bord. (Black et al. 2004, cité dans l'article de JF : **réel, hors corpus RISS**.)
+   - « Essayer autrement : une nouvelle version » : la version d'avant reste visible à côté, et l'élève dit ce qui est mieux. (Appropriation : comparaison avant-après, article de JF.)
+   - Bilan du texte rendu : un fait sur le travail (mots, versions), jamais « Bravo ».
+
+**Contrainte pour toute IA activée plus tard par l'enseignant** : sa rétroaction doit passer `evaluerQualite` avant d'être montrée à l'élève, et elle doit pouvoir dire « pas encore ». Une IA réglée pour être « bienveillante » sans ancrage dans le texte est refusée par construction. [article de JF « GPT-4o est mort »]
+
+**Deux points à vérifier par JF avant publication (non tranchés par Claude) :**
+- Le RISS (1118375ar, Hausman et al. 2025, ULiège) résume le modèle de Carless & Boud (2018) en quatre compétences : comprendre la rétroaction, porter un jugement évaluatif, gérer l'affect, agir. L'article de JF attribue à Carless & Boud quatre « dimensions » (dispositions, conception, littératie au sens strict, appropriation). Ce sont deux découpages différents : à ne pas confondre dans une page publique. Le même document du RISS nuance aussi la recommandation d'éviter tout affect négatif : certaines émotions désagréables remobilisent l'élève.
+- Le code couleur vert / orange / rouge de l'article de JF (réussi / presque / à retravailler) n'est pas repris : dans l'app, vert, orange et bleu désignent déjà les temps Écrire, Relire et Corriger. Reprendre ces couleurs pour une évaluation créerait un conflit de sens. Une auto-évaluation en trois niveaux devra passer par des mots et des symboles, ou par une autre palette.
+
+Non construit : tableau de bord de la qualité des commentaires de l'enseignant (il n'y a pas encore de commentaire enseignant dans l'app), instrument SFLI-S (Weidlich et al. 2025, **non vérifié** dans le RISS), évaluation par les pairs.
+
 ## 15. Questions ouvertes
 
 Tranchées par JF le 2026-10-25 : licence mentionnée simplement ; v1 = P1 à P3 ; IA désactivée par défaut, option de l'enseignant.

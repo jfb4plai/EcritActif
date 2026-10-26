@@ -230,6 +230,94 @@ describe('EcranEleve : quitter avant d’avoir écrit', () => {
   });
 });
 
+describe('EcranEleve : qualité de la rétroaction et littératie à la rétroaction (articles de JF)', () => {
+  async function jusquAuTemps(texte: string, temps: 'relire' | 'corriger', a = activite(), api = apiDeTest()) {
+    render(<EcranEleve activite={a} eleveId="el1" jeton="j" api={api} delaiSauvegardeMs={0} />);
+    await versEcriture();
+    await userEvent.type(screen.getByLabelText(/mon texte/i), texte);
+    await userEvent.click(screen.getByRole('button', { name: /fini d.écrire/i }));
+    if (temps === 'corriger') await userEvent.click(screen.getByRole('button', { name: /passer à la correction/i }));
+    return api;
+  }
+  const evenementsEnvoyes = (api: ApiEleve) => (api.sauver as ReturnType<typeof vi.fn>).mock.calls.flatMap((c) => c[0].evenements as string[]);
+
+  test('le retour sur la longueur dit les chiffres et propose une action', async () => {
+    await jusquAuTemps('Un chat.', 'relire');
+    expect(screen.getByText('Ton texte a 2 mots ; il en faut au moins 5. Ajoute une phrase.')).toBeInTheDocument();
+  });
+
+  test('« Je ne comprends pas » sur un signal : explication simple et trace pour l’enseignant', async () => {
+    const api = await jusquAuTemps('il pleut', 'corriger', activite({ categories: ['majuscule_debut_phrase'] }));
+    await userEvent.click(screen.getAllByRole('button', { name: /je ne comprends pas/i })[0]);
+    expect(screen.getByText(/grande lettre/i)).toBeInTheDocument();
+    expect(screen.getByText(/demander de l.aide, c.est apprendre/i)).toBeInTheDocument();
+    await userEvent.type(screen.getByLabelText(/mon texte/i), ' ');
+    await waitFor(() => expect(evenementsEnvoyes(api)).toContain('clarification:majuscule_debut_phrase'));
+  });
+
+  test('« Je ne comprends pas » sur une question de relecture : trace avec l’identifiant de la question', async () => {
+    const api = await jusquAuTemps('Un chat qui dort sur le canapé du salon.', 'relire', activite({ contraintes: {}, principeIds: ['rel-intention'] }));
+    await userEvent.click(screen.getByRole('button', { name: /je ne comprends pas/i }));
+    expect(screen.getByText(/réponds dans ta tête/i)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /j.ai regardé/i }));
+    await waitFor(() => expect(evenementsEnvoyes(api)).toContain('clarification:rel-intention'));
+  });
+
+  test('le bilan du texte rendu est un fait sur le travail, sans « bravo »', async () => {
+    await jusquAuTemps('Un chat roux.', 'corriger');
+    await userEvent.click(screen.getByRole('button', { name: /rendre mon texte/i }));
+    expect(screen.getByText('Ton texte est rendu : 3 mots, 1 version.')).toBeInTheDocument();
+    expect(screen.queryByText(/bravo/i)).not.toBeInTheDocument();
+  });
+
+  test('deux étoiles et un souhait : envoyés avec le texte rendu', async () => {
+    const api = await jusquAuTemps('Un chat roux.', 'corriger');
+    expect(screen.getByRole('group', { name: /deux étoiles et un souhait/i })).toBeInTheDocument();
+    await userEvent.type(screen.getByLabelText(/^une chose réussie/i), 'J’ai décrit mon chat');
+    await userEvent.type(screen.getByLabelText(/une autre chose réussie/i), 'J’ai mis un point');
+    await userEvent.type(screen.getByLabelText(/un souhait pour la prochaine fois/i), 'Écrire une phrase de plus');
+    await userEvent.click(screen.getByRole('button', { name: /rendre mon texte/i }));
+    await waitFor(() => {
+      const d = (api.sauver as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[0];
+      expect(d).toMatchObject({ phase: 'rendu', autoEvaluation: { etoiles: ['J’ai décrit mon chat', 'J’ai mis un point'], souhait: 'Écrire une phrase de plus' } });
+    });
+    expect(evenementsEnvoyes(api)).toContain('auto-evaluation:faite');
+  });
+
+  test('l’auto-évaluation est facultative : rien de rempli, rien d’envoyé', async () => {
+    const api = await jusquAuTemps('Un chat roux.', 'corriger');
+    await userEvent.click(screen.getByRole('button', { name: /rendre mon texte/i }));
+    await waitFor(() => {
+      const d = (api.sauver as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[0];
+      expect(d.phase).toBe('rendu');
+      expect(d.autoEvaluation).toBeUndefined();
+    });
+  });
+
+  test('« Essayer autrement » garde la version d’avant à côté et demande ce qui est mieux', async () => {
+    const api = await jusquAuTemps('Un chat roux.', 'corriger');
+    await userEvent.click(screen.getByRole('button', { name: /essayer autrement/i }));
+    const detail = screen.getByText(/ma version d.avant/i).closest('details') as HTMLElement;
+    expect(detail).toHaveTextContent('Un chat roux.');
+    await userEvent.type(screen.getByLabelText(/mon texte/i), ' Il dort.');
+    await userEvent.click(screen.getByRole('button', { name: /fini d.écrire/i }));
+    await userEvent.click(screen.getByRole('button', { name: /passer à la correction/i }));
+    await userEvent.type(screen.getByLabelText(/ce qui est mieux dans ma nouvelle version/i), 'J’ai ajouté ce que fait le chat');
+    await userEvent.click(screen.getByRole('button', { name: /rendre mon texte/i }));
+    await waitFor(() => {
+      const d = (api.sauver as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[0];
+      expect(d).toMatchObject({ phase: 'rendu', version: 2, autoEvaluation: { change: 'J’ai ajouté ce que fait le chat' } });
+    });
+    expect(screen.getByText(/2 versions/)).toBeInTheDocument();
+  });
+
+  test('la version d’avant n’apparaît pas tant qu’il n’y a qu’une version', async () => {
+    await jusquAuTemps('Un chat roux.', 'corriger');
+    expect(screen.queryByText(/ma version d.avant/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/ce qui est mieux dans ma nouvelle version/i)).not.toBeInTheDocument();
+  });
+});
+
 describe('EcranEleve : réfléchir', () => {
   test('affiche la consigne et les questions de la phase réfléchir', () => {
     render(<EcranEleve activite={activite()} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);

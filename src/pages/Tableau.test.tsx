@@ -15,8 +15,8 @@ function afficher(validations: { eleveId: string; itemId: string }[] = []) {
       annee="P1"
       items={[I1, I2]}
       eleves={[
-        { id: 'e1', code: 'KMNPQR', dernierePhase: 'relire', versions: 2, aides: ['colorisation'], itemsTravailles: ['P1:F114+F115'] },
-        { id: 'e2', code: 'STUVWX', dernierePhase: null, versions: 0, aides: [], itemsTravailles: [] },
+        { id: 'e1', code: 'KMNPQR', dernierePhase: 'relire', versions: 2, aides: ['colorisation'], itemsTravailles: ['P1:F114+F115'], clarifications: 2, autoEvaluation: { etoiles: ['J’ai décrit mon chat', 'J’ai mis un point'], souhait: 'Écrire une phrase de plus' } },
+        { id: 'e2', code: 'STUVWX', dernierePhase: null, versions: 0, aides: [], itemsTravailles: [], clarifications: 0, autoEvaluation: null },
       ]}
       activites={[{ id: 'a1', itemIds: ['P1:F114+F115'] }]}
       validations={validations}
@@ -37,9 +37,19 @@ describe('Tableau', () => {
 
   test('un texte rendu est indiqué « Rendu »', () => {
     render(
-      <Tableau annee="P1" items={[I1]} eleves={[{ id: 'e1', code: 'KMNPQR', dernierePhase: 'rendu', versions: 1, aides: [], itemsTravailles: [] }]} activites={[]} validations={[]} onValider={() => {}} />,
+      <Tableau annee="P1" items={[I1]} eleves={[{ id: 'e1', code: 'KMNPQR', dernierePhase: 'rendu', versions: 1, aides: [], itemsTravailles: [], clarifications: 0, autoEvaluation: null }]} activites={[]} validations={[]} onValider={() => {}} />,
     );
     expect(screen.getByText('Rendu')).toBeInTheDocument();
+  });
+
+  test('affiche les demandes d’aide et l’auto-évaluation de l’élève', () => {
+    afficher();
+    const ligne = screen.getByText('KMNPQR').closest('tr') as HTMLElement;
+    expect(within(ligne).getByText(/2 demandes d.aide/i)).toBeInTheDocument();
+    expect(within(ligne).getByText(/J’ai décrit mon chat/)).toBeInTheDocument();
+    expect(within(ligne).getByText(/Écrire une phrase de plus/)).toBeInTheDocument();
+    const autre = screen.getByText('STUVWX').closest('tr') as HTMLElement;
+    expect(within(autre).getByText(/pas d.auto-évaluation/i)).toBeInTheDocument();
   });
 
   test('affiche les aides utilisées par libellé', () => {

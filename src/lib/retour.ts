@@ -16,7 +16,7 @@ export interface Contraintes {
 export interface Verification {
   contrainte: keyof Contraintes;
   atteinte: boolean;
-  question: string;
+  message: string;
 }
 
 const MOT = /[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu;
@@ -73,14 +73,33 @@ export function detecterSignaux(texte: string, categories: CategorieErreur[]): S
   return signaux.sort((a, b) => a.debut - b.debut);
 }
 
+const pluriel = (n: number, mot: string) => `${n} ${mot}${n >= 2 ? 's' : ''}`;
+
+// Un retour qui informe : les chiffres, puis quoi faire (qualité de la rétroaction, voir qualite.ts).
 export function verifierContraintes(texte: string, c: Contraintes): Verification[] {
   const n = compterMots(texte);
   const r: Verification[] = [];
   if (c.minMots !== undefined) {
-    r.push({ contrainte: 'minMots', atteinte: n >= c.minMots, question: 'Ton texte est-il assez long ?' });
+    const atteinte = n >= c.minMots;
+    r.push({
+      contrainte: 'minMots',
+      atteinte,
+      message: atteinte ? `Ton texte a ${pluriel(n, 'mot')} : c’est ce qui est demandé.` : `Ton texte a ${pluriel(n, 'mot')} ; il en faut au moins ${c.minMots}. Ajoute une phrase.`,
+    });
   }
   if (c.maxMots !== undefined) {
-    r.push({ contrainte: 'maxMots', atteinte: n <= c.maxMots, question: 'Ton texte est-il trop long ?' });
+    const atteinte = n <= c.maxMots;
+    r.push({
+      contrainte: 'maxMots',
+      atteinte,
+      message: atteinte ? `Ton texte a ${pluriel(n, 'mot')} : c’est ce qui est demandé.` : `Ton texte a ${pluriel(n, 'mot')} ; il en faut au plus ${c.maxMots}. Garde l’essentiel.`,
+    });
   }
   return r;
+}
+
+// Bilan factuel du travail, sans « bravo » : il décrit ce qui a été fait.
+export function recapRendu(texte: string, versions: number): string {
+  const base = `Ton texte est rendu : ${pluriel(compterMots(texte), 'mot')}, ${pluriel(versions, 'version')}.`;
+  return versions >= 2 ? `${base} Regarde ce qui a changé dans « Ma version d’avant ».` : base;
 }

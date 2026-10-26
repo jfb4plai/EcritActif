@@ -9,6 +9,8 @@ Règle empruntée au projet « courrier simplifié » : les seuils sont écrits 
 3. L'enseignant lit-il le tableau de bord sans explication et sait-il dire quels items restent à travailler ?
 4. Chaque aide proposée aide-t-elle réellement un élève qui en a besoin, ou gêne-t-elle ?
 
+5. Les élèves utilisent-ils les retours ? (demandes d'aide « Je ne comprends pas », « Essayer autrement », étoiles et souhait remplis : lisibles dans le tableau de bord.) Ce n'est pas un test de qualité : c'est un indicateur de littératie à la rétroaction, à lire avec l'enseignant.
+
 ## Seuils (à fixer par JF)
 
 | Question | Proposition | Seuil fixé par JF |

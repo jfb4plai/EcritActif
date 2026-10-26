@@ -11,11 +11,12 @@ import { chargerColorisation, type ModeColorisation } from '../lib/colorisation'
 import { PALETTE, TEXTE_SOMBRE } from '../lib/palette';
 import { ATTRIBUTION_ARASAAC } from '../lib/pictos';
 import { principeParId } from '../lib/principes';
-import { detecterSignaux, verifierContraintes } from '../lib/retour';
-import type { Phase } from '../types';
+import { EXPLICATION_QUESTION, explicationDe } from '../lib/explications';
+import { detecterSignaux, recapRendu, verifierContraintes } from '../lib/retour';
+import type { AutoEvaluation, Phase } from '../types';
 
 export interface ApiEleve {
-  sauver(p: { jeton: string; activiteId: string; texte: string; phase: Phase | 'rendu'; version: number; evenements: string[] }): Promise<{ version: number; aides: AideActive[]; aidesRetirees?: { id: AideId; raison: string }[] }>;
+  sauver(p: { jeton: string; activiteId: string; texte: string; phase: Phase | 'rendu'; version: number; evenements: string[]; autoEvaluation?: AutoEvaluation }): Promise<{ version: number; aides: AideActive[]; aidesRetirees?: { id: AideId; raison: string }[] }>;
 }
 
 interface Props {
@@ -72,7 +73,21 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
       return { debut: '', ensuite: '', fin: '' };
     }
   });
+  const [bump, setBump] = useState(0);
+  const [explique, setExplique] = useState<string[]>([]);
+  const [precedente, setPrecedente] = useState(() => lireLocal(`${cleTexte}:prec`) ?? '');
+  const [etoile1, setEtoile1] = useState('');
+  const [etoile2, setEtoile2] = useState('');
+  const [souhait, setSouhait] = useState('');
+  const [change, setChange] = useState('');
+  const autoEnvoyee = useRef<AutoEvaluation | undefined>(undefined);
   const evenements = useRef<string[]>(['ouverture']);
+
+  // Une trace hors frappe (aide, demande d'aide, collage refusé) déclenche aussi un envoi.
+  function tracer(ev: string) {
+    evenements.current.push(ev);
+    setBump((n) => n + 1);
+  }
   const arretDictee = useRef<() => void>(() => {});
 
   const retirees = useMemo(() => {
@@ -99,7 +114,7 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
     const t = setTimeout(async () => {
       const envoyes = evenements.current.splice(0);
       try {
-        const r = await api.sauver({ jeton, activiteId: activite.id, texte, phase: rendu ? 'rendu' : etat.phase, version: etat.versions, evenements: envoyes });
+        const r = await api.sauver({ jeton, activiteId: activite.id, texte, phase: rendu ? 'rendu' : etat.phase, version: etat.versions, evenements: envoyes, autoEvaluation: rendu ? autoEnvoyee.current : undefined });
         setHorsLigne(false);
         setAidesServeur(r.aides);
         if (r.aidesRetirees) setRetraitsServeur(r.aidesRetirees);
@@ -109,7 +124,7 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
       }
     }, delaiSauvegardeMs);
     return () => clearTimeout(t);
-  }, [texte, etat.phase, etat.versions, rendu, essai, renduAvant, api, jeton, activite.id, delaiSauvegardeMs]);
+  }, [texte, etat.phase, etat.versions, rendu, essai, bump, renduAvant, api, jeton, activite.id, delaiSauvegardeMs]);
 
   // Réseau coupé : on retente seul, l'élève n'a pas à retaper quoi que ce soit.
   useEffect(() => {
@@ -140,16 +155,36 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
       evenements.current.push('phase:' + suivant(etat).phase);
       return;
     }
+    if (phase === 'reecrire') {
+      // « Essayer autrement » : la version d'avant reste visible à côté, pour voir ce qui change.
+      setPrecedente(texte);
+      sauverLocal(`${cleTexte}:prec`, texte);
+    }
+    if (phase === 'rendre') {
+      const etoiles = [etoile1, etoile2].map((x) => x.trim()).filter((x) => x !== '');
+      const s = souhait.trim();
+      const c = change.trim();
+      if (etoiles.length > 0 || s !== '' || c !== '') {
+        autoEnvoyee.current = { etoiles, souhait: s, ...(c !== '' ? { change: c } : {}) };
+        evenements.current.push('auto-evaluation:faite');
+      }
+    }
     const r = decider(etat, phase);
     setEtat(r.etat);
     evenements.current.push('choix:' + phase);
     if (r.rendu) setRendu(true);
   }
 
+  function clarifier(id: string) {
+    if (explique.includes(id)) return;
+    setExplique([...explique, id]);
+    tracer('clarification:' + id);
+  }
+
   function basculerGene(gene: string) {
     const lies = AIDES.filter((a) => a.gene === gene).map((a) => a.id);
     // Trace pour le tableau de bord : seules les aides que l'élève active sont enregistrées.
-    if (!lies.every((id) => choisies.includes(id))) for (const id of lies) evenements.current.push('aide:' + id);
+    if (!lies.every((id) => choisies.includes(id))) for (const id of lies) tracer('aide:' + id);
     setChoisies((c) => (lies.every((id) => c.includes(id)) ? c.filter((id) => !lies.includes(id)) : [...new Set([...c, ...lies])]));
   }
 
@@ -160,7 +195,7 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
   const questionsRelire = useMemo(() => {
     const contraintes = verifierContraintes(texte, activite.contraintes)
       .filter((v) => !v.atteinte)
-      .map((v) => ({ id: 'contrainte:' + v.contrainte, texte: v.question }));
+      .map((v) => ({ id: 'contrainte:' + v.contrainte, texte: v.message }));
     const perso = questionsPerso('relire').map((q, i) => ({ id: 'perso:relire:' + i, texte: q.question }));
     return [...contraintes, ...principes('relire').map((p) => ({ id: p.id, texte: p.question })), ...perso];
   }, [texte, activite]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -217,7 +252,7 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
     if (colle !== '' && !texte.includes(colle)) {
       e.preventDefault();
       setCollageRefuse(true);
-      evenements.current.push('collage-refuse');
+      tracer('collage-refuse');
     }
   }
 
@@ -235,6 +270,12 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
   const zoneTexte = (
     <div>
       {active('organisateur') && memoIdees}
+      {precedente !== '' && etat.versions > 1 && (
+        <details>
+          <summary>Ma version d’avant</summary>
+          <p className="texte-relu">{precedente}</p>
+        </details>
+      )}
       <label htmlFor="mon-texte">Mon texte</label>
       <textarea
         id="mon-texte"
@@ -370,9 +411,18 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
                       Écouter la question
                     </button>
                   )}
+                  <button type="button" className="plai-btn tuile" onClick={() => clarifier(critere.id)}>
+                    Je ne comprends pas
+                  </button>
                   <button type="button" className="plai-btn tuile" onClick={() => setDeja([...deja, critere.id])}>
                     J’ai regardé
                   </button>
+                  {explique.includes(critere.id) && (
+                    <div>
+                      <p>{EXPLICATION_QUESTION}</p>
+                      <p>Demander de l’aide, c’est apprendre.</p>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <p>Tu as regardé toutes les questions.</p>
@@ -404,12 +454,39 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
                     {texte.slice(Math.max(0, s.debut - 12), s.debut)}
                     <mark>{texte.slice(s.debut, Math.max(s.fin, s.debut + 1))}</mark>
                     {texte.slice(Math.max(s.fin, s.debut + 1), s.fin + 12)}
-                  </q>
+                  </q>{' '}
+                  <button type="button" className="plai-btn tuile" onClick={() => clarifier(s.categorie)}>
+                    Je ne comprends pas
+                  </button>
+                  {explique.includes(s.categorie) && (
+                    <div>
+                      <p>{explicationDe(s.categorie)}</p>
+                      <p>Demander de l’aide, c’est apprendre.</p>
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>
           ) : (
             <p>Rien à signaler pour le moment.</p>
+          )}
+          {!rendu && (
+            <fieldset>
+              <legend>Deux étoiles et un souhait</legend>
+              <p className="text-sm">Avant de rendre : dis ce qui est réussi et ce que tu voudrais améliorer. Tu peux laisser vide.</p>
+              <label htmlFor="etoile1">Une chose réussie</label>
+              <input id="etoile1" className="plai-input" maxLength={200} value={etoile1} onChange={(e) => setEtoile1(e.target.value)} placeholder="J’ai décrit mon animal." />
+              <label htmlFor="etoile2">Une autre chose réussie</label>
+              <input id="etoile2" className="plai-input" maxLength={200} value={etoile2} onChange={(e) => setEtoile2(e.target.value)} placeholder="J’ai mis un point à la fin." />
+              <label htmlFor="souhait">Un souhait pour la prochaine fois</label>
+              <input id="souhait" className="plai-input" maxLength={200} value={souhait} onChange={(e) => setSouhait(e.target.value)} placeholder="Écrire une phrase de plus." />
+              {precedente !== '' && etat.versions > 1 && (
+                <>
+                  <label htmlFor="change">Ce qui est mieux dans ma nouvelle version</label>
+                  <input id="change" className="plai-input" maxLength={300} value={change} onChange={(e) => setChange(e.target.value)} placeholder="J’ai ajouté ce que fait mon animal." />
+                </>
+              )}
+            </fieldset>
           )}
           {!rendu ? (
             <div className="flex gap-2 flex-wrap">
@@ -417,14 +494,14 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
                 Continuer à écrire
               </button>
               <button type="button" className="plai-btn tuile" onClick={() => aller('reecrire')}>
-                Écrire une nouvelle version
+                Essayer autrement : une nouvelle version
               </button>
               <button type="button" className="plai-btn tuile" onClick={() => aller('rendre')}>
                 Rendre mon texte
               </button>
             </div>
           ) : (
-            <p role="status">Ton texte est rendu. Bravo !</p>
+            <p role="status">{recapRendu(texte, etat.versions)}</p>
           )}
         </section>
       )}

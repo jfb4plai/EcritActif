@@ -99,8 +99,8 @@ export async function chargerTableau(
   if (idsEleves.length === 0) return { eleves: [], activites, validations: [] };
 
   const [t, tr, v] = await Promise.all([
-    db.from('ecrit_textes').select('eleve_id, activite_id, version, phase, updated_at').in('eleve_id', idsEleves),
-    db.from('ecrit_traces').select('eleve_id, evenement').in('eleve_id', idsEleves).like('evenement', 'aide:%'),
+    db.from('ecrit_textes').select('eleve_id, activite_id, version, phase, updated_at, auto_evaluation').in('eleve_id', idsEleves),
+    db.from('ecrit_traces').select('eleve_id, evenement').in('eleve_id', idsEleves).or('evenement.like.aide:%,evenement.like.clarification:%'),
     db.from('ecrit_validations').select('eleve_id, item_id').in('eleve_id', idsEleves),
   ]);
   if (t.error) throw t.error;
@@ -110,7 +110,7 @@ export async function chargerTableau(
   const lignes = construireLignes(
     eleves.map((e) => ({ id: e.id, code: e.code_eleve })),
     activites,
-    (t.data ?? []).map((r) => ({ eleveId: r.eleve_id, activiteId: r.activite_id, version: r.version, phase: r.phase, updatedAt: r.updated_at })),
+    (t.data ?? []).map((r) => ({ eleveId: r.eleve_id, activiteId: r.activite_id, version: r.version, phase: r.phase, updatedAt: r.updated_at, autoEvaluation: r.auto_evaluation ?? undefined })),
     (tr.data ?? []).map((r) => ({ eleveId: r.eleve_id, evenement: r.evenement })),
   );
   return { eleves: lignes, activites, validations: (v.data ?? []).map((r) => ({ eleveId: r.eleve_id, itemId: r.item_id })) };
