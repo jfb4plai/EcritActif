@@ -7,6 +7,7 @@ import type { ActiviteEleve } from '../../api/_lib/eleve';
 function activite(surcharge: Partial<ActiviteEleve> = {}): ActiviteEleve {
   return {
     id: 'act1',
+    annee: 'P1',
     consigne: 'Écrire trois phrases sur mon animal.',
     contraintes: { minMots: 5 },
     itemIds: [],
@@ -253,6 +254,16 @@ describe('EcranEleve : qualité de la rétroaction et littératie à la rétroac
     expect(screen.getByText(/demander de l.aide, c.est apprendre/i)).toBeInTheDocument();
     await userEvent.type(screen.getByLabelText(/mon texte/i), ' ');
     await waitFor(() => expect(evenementsEnvoyes(api)).toContain('clarification:majuscule_debut_phrase'));
+  });
+
+  test.each([
+    ['P1', /un point/i, /exclamation/i],
+    ['P2', /point d.exclamation/i, null],
+  ] as const)('l’explication sur la fin du texte suit le programme de %s', async (annee, attendu, interdit) => {
+    await jusquAuTemps('il pleut', 'corriger', activite({ annee, categories: ['point_fin_phrase'] }));
+    await userEvent.click(screen.getAllByRole('button', { name: /je ne comprends pas/i })[0]);
+    expect(screen.getByText(attendu)).toBeInTheDocument();
+    if (interdit) expect(screen.queryByText(interdit)).not.toBeInTheDocument();
   });
 
   test('« Je ne comprends pas » sur une question de relecture : trace avec l’identifiant de la question', async () => {

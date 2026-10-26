@@ -1,11 +1,12 @@
 import { resoudreAides, type AideActive, type AideId } from '../../src/lib/aides.js';
 import type { CategorieErreur, Contraintes } from '../../src/lib/retour.js';
-import type { AutoEvaluation, Phase } from '../../src/types.js';
+import type { Annee, AutoEvaluation, Phase } from '../../src/types.js';
 import { signerJeton, verifierJeton } from './session.js';
 
 export interface ActiviteBrute {
   id: string;
   classeId: string;
+  annee: Annee;
   consigne: string;
   contraintes: Contraintes;
   itemIds: string[];
@@ -33,6 +34,8 @@ export interface Depot {
 
 export interface ActiviteEleve {
   id: string;
+  // Niveau de l'activité : les messages de l'écran élève suivent le vocabulaire du programme de cette année.
+  annee: Annee;
   consigne: string;
   contraintes: Contraintes;
   itemIds: string[];
@@ -76,6 +79,7 @@ function enObjet(x: unknown): Record<string, unknown> | null {
 function versEleve(a: ActiviteBrute, eleve: EleveBrut, reprise: { texte: string; version: number; phase: string } | null): ActiviteEleve {
   return {
     id: a.id,
+    annee: a.annee,
     consigne: a.consigne,
     contraintes: a.contraintes,
     itemIds: a.itemIds,

@@ -73,10 +73,12 @@ export async function modifierAidesRetirees(db: SupabaseClient, activiteId: stri
   if (error) throw error;
 }
 
-export async function enregistrerActivite(db: SupabaseClient, userId: string, classeId: string, a: ActiviteNouvelle): Promise<void> {
-  const { error } = await db.from('ecrit_activites').insert({
+// Ce qui est écrit en base pour une nouvelle activité (fonction pure, testée).
+export function ligneActivite(userId: string, classeId: string, a: ActiviteNouvelle) {
+  return {
     classe_id: classeId,
     user_id: userId,
+    annee: a.annee,
     consigne: a.consigne,
     contraintes: a.contraintes,
     item_ids: a.itemIds,
@@ -85,7 +87,11 @@ export async function enregistrerActivite(db: SupabaseClient, userId: string, cl
     aides_retirees: a.aidesRetirees,
     banque_mots: a.banqueMots,
     principes_perso: a.principesPerso,
-  });
+  };
+}
+
+export async function enregistrerActivite(db: SupabaseClient, userId: string, classeId: string, a: ActiviteNouvelle): Promise<void> {
+  const { error } = await db.from('ecrit_activites').insert(ligneActivite(userId, classeId, a));
   if (error) throw error;
 }
 

@@ -13,6 +13,8 @@ Règle empruntée au projet « courrier simplifié » : les seuils sont écrits 
 
 6. Le mot sur l'erreur et le temps pour respirer aident-ils ou gênent-ils ? (Observer si l'élève ouvre « Prendre un moment avant de lire les retours », s'il la trouve utile, ou s'il la juge enfantine ou moqueuse. La trace `respiration:faite` existe mais n'est pas encore affichée au tableau de bord.)
 
+7. Les messages sont-ils compris à chaque niveau ? (Faire lire les explications par des élèves de P1, P2 et P3 ; noter les mots qui bloquent. Les hypothèses de différences entre niveaux — nombre d'étoiles, longueur des explications, nombre de respirations — se décident après cet essai, avec les enseignants.)
+
 ## Seuils (à fixer par JF)
 
 | Question | Proposition | Seuil fixé par JF |

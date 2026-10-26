@@ -12,6 +12,7 @@ export function depotSupabase(): Depot {
   const versActivite = (r: Record<string, any>): ActiviteBrute => ({
     id: r.id,
     classeId: r.classe_id,
+    annee: r.annee,
     consigne: r.consigne,
     contraintes: r.contraintes ?? {},
     itemIds: r.item_ids ?? [],

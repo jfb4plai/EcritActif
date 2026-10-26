@@ -483,7 +483,7 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
                   </button>
                   {explique.includes(s.categorie) && (
                     <div>
-                      <p>{explicationDe(s.categorie)}</p>
+                      <p>{explicationDe(s.categorie, activite.annee)}</p>
                       <p>Demander de l’aide, c’est apprendre.</p>
                     </div>
                   )}

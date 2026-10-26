@@ -34,6 +34,10 @@ describe('migrations SQL ecrit_', () => {
       for (const p of politiques) expect(p.split(';')[0]).not.toMatch(/exists\s*\(/);
     });
 
+    test(`${f} : une activité garde son année (P1 à P3)`, () => {
+      expect(sql).toMatch(/annee text not null check \(annee in \('p1', 'p2', 'p3'\)\)/);
+    });
+
     test(`${f} : ne recrée ni profiles ni le trigger updated_at`, () => {
       expect(sql).not.toMatch(/create table (?:if not exists )?public\.profiles/);
       expect(sql).not.toMatch(/create (?:or replace )?function[^;]*updated_at/);

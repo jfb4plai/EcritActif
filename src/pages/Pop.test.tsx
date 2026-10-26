@@ -9,6 +9,7 @@ import type { ActiviteEleve } from '../../api/_lib/eleve';
 
 const activite: ActiviteEleve = {
   id: 'act1',
+  annee: 'P1',
   consigne: 'Écrire trois phrases sur mon animal.',
   contraintes: {},
   itemIds: [],

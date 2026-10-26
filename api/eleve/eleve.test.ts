@@ -10,6 +10,7 @@ function depotDeTest() {
   const activite: ActiviteBrute = {
     id: 'act1',
     classeId: 'cl1',
+    annee: 'P2',
     consigne: 'Écrire trois phrases sur mon animal.',
     contraintes: { minMots: 5 },
     itemIds: ['P1:F114+F115'],
@@ -86,6 +87,14 @@ describe('ouvrirEleve', () => {
     const { depot } = depotDeTest();
     expect((await ouvrirEleve(depot, SECRET, null)).status).toBe(400);
     expect((await ouvrirEleve(depot, SECRET, { codeClasse: 12 })).status).toBe(400);
+  });
+});
+
+describe('ouvrirEleve : niveau de l’activité', () => {
+  test('l’année de l’activité arrive à l’élève', async () => {
+    const { depot } = depotDeTest();
+    const r = await ouvrirEleve(depot, SECRET, { codeClasse: 'ABCDEF', codeEleve: 'KMNPQR' });
+    expect(r.status === 200 && r.corps.activites[0].annee).toBe('P2');
   });
 });
 

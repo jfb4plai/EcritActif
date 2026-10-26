@@ -155,6 +155,24 @@ Origine : les deux articles co-écrits par JF (« Développer la littératie à 
 
 Non construit : tableau de bord de la qualité des commentaires de l'enseignant (il n'y a pas encore de commentaire enseignant dans l'app), instrument SFLI-S (Weidlich et al. 2025, **non vérifié** dans le RISS), évaluation par les pairs.
 
+## 15ter. Adapter l'approche au niveau des élèves (2026-10-26)
+
+Demande de JF : « il faudra de toute façon adapter l'approche avec le niveau des élèves ».
+
+**Construit (points 1 et 2, validés par JF)**
+1. Le niveau (P1, P2, P3) est enregistré avec l'activité (`ecrit_activites.annee`, migration non appliquée) et transmis à l'écran de l'élève.
+2. Les messages de l'app n'emploient que le vocabulaire que le programme CECP fait nommer à l'élève cette année-là (`src/lib/vocabulaire.ts`, chaque terme relié à un code d'item et vérifié par test contre `cecp-ecrire.json`). Exemple : la fin de phrase s'explique par le point en P1 (F40), le point, le point d'interrogation et le point d'exclamation en P2 (F156), avec le terme « signe de ponctuation » en P3 (F255). Les voyelles, consonnes, accents, virgule, apostrophe et parenthèses (P3, F254, F295) ne sont pas employés avant P3.
+
+**Correction d'une affirmation de Claude** : il avait écrit que « majuscule » et « ponctuation » n'apparaissaient qu'en P3. C'est faux : le CECP nomme déjà la majuscule, le point, le point d'interrogation et « les signes de ponctuation » en P1 (F10, F39, F40). Le tableau de vocabulaire a été construit sur les attendus lus.
+
+**Non construit : hypothèses à tester avec des enseignants de P1 à P3** (aucune source ne fixe ces seuils d'âge)
+- une seule réussite et un souhait en P1, deux réussites et un souhait en P2 et P3 ;
+- explications plus courtes en P1 ;
+- deux respirations en P1 au lieu de trois.
+Les aides (dictée, pictogrammes, colorisation, etc.) restent liées au profil de l'élève et non à son niveau, comme JF l'a décidé.
+
+**Limite** : seuls les messages sur la fin de phrase changent selon l'année aujourd'hui, car ce sont les seuls qui employaient un mot technique du programme. Le mécanisme est en place pour les prochains messages (règle : tout nouveau message passe le test de vocabulaire de son année).
+
 ## 15. Questions ouvertes
 
 Tranchées par JF le 2026-10-25 : licence mentionnée simplement ; v1 = P1 à P3 ; IA désactivée par défaut, option de l'enseignant.

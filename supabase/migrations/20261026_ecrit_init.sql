@@ -24,6 +24,7 @@ create table public.ecrit_activites (
   id uuid primary key default gen_random_uuid(),
   classe_id uuid not null references public.ecrit_classes(id) on delete cascade,
   user_id uuid not null references auth.users(id) on delete cascade,
+  annee text not null check (annee in ('P1', 'P2', 'P3')),
   consigne text not null,
   contraintes jsonb not null default '{}'::jsonb,
   item_ids text[] not null default '{}',

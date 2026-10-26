@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { evaluerQualite, type Retour } from './qualite';
 import { detecterSignaux, verifierContraintes, recapRendu, type CategorieErreur } from './retour';
-import { EXPLICATIONS, explicationDe } from './explications';
+import { explicationDe } from './explications';
 
 const ok = (r: Retour) => evaluerQualite(r);
 
@@ -82,12 +82,13 @@ describe('tout ce que l’app dit à l’élève sur son travail respecte ces cr
     expect(ok({ texte: recapRendu('Un chat roux dort.', 2), genre: 'bilan' }).ok).toBe(true);
   });
 
-  test('les explications « je ne comprends pas » : une par catégorie, courtes, conformes', () => {
-    expect(Object.keys(EXPLICATIONS).sort()).toEqual(['majuscule_debut_phrase', 'mot_repete', 'point_fin_phrase']);
-    for (const cat of categories) {
-      const e = explicationDe(cat);
-      expect(e.split(/\s+/).length, cat).toBeLessThanOrEqual(30);
-      expect(ok({ texte: e, localise: true }), e).toEqual({ ok: true, manques: [] });
+  test('les explications « je ne comprends pas » : courtes et conformes, pour chaque année', () => {
+    for (const annee of ['P1', 'P2', 'P3'] as const) {
+      for (const cat of categories) {
+        const e = explicationDe(cat, annee);
+        expect(e.split(/\s+/).length, `${annee} ${cat}`).toBeLessThanOrEqual(35);
+        expect(ok({ texte: e, localise: true }), e).toEqual({ ok: true, manques: [] });
+      }
     }
   });
 });
