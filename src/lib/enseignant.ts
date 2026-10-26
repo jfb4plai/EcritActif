@@ -83,6 +83,8 @@ export async function enregistrerActivite(db: SupabaseClient, userId: string, cl
     principe_ids: a.principeIds,
     categories: a.categories,
     aides_retirees: a.aidesRetirees,
+    banque_mots: a.banqueMots,
+    principes_perso: a.principesPerso,
   });
   if (error) throw error;
 }

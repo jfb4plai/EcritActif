@@ -1,5 +1,6 @@
 import { resoudreAides, type AideActive, type AideId } from '../../src/lib/aides.js';
 import type { CategorieErreur, Contraintes } from '../../src/lib/retour.js';
+import type { Phase } from '../../src/types.js';
 import { signerJeton, verifierJeton } from './session.js';
 
 export interface ActiviteBrute {
@@ -11,6 +12,8 @@ export interface ActiviteBrute {
   principeIds: string[];
   categories: CategorieErreur[];
   aidesRetirees: { id: AideId; raison: string }[];
+  banqueMots: string[];
+  principesPerso: { phase: Phase; question: string }[];
 }
 
 export interface EleveBrut {
@@ -38,6 +41,9 @@ export interface ActiviteEleve {
   aides: AideActive[];
   // Nécessaire côté client : l'élève peut activer d'autres aides, qui doivent respecter les retraits de l'enseignant.
   aidesRetirees: { id: AideId; raison: string }[];
+  // Apports propres à l'enseignant : ses mots utiles et ses questions s'ajoutent aux questions fixes.
+  banqueMots: string[];
+  principesPerso: { phase: Phase; question: string }[];
   // Dernier texte enregistré de cet élève : permet de reprendre sur un autre appareil et de ne pas écraser un texte rendu.
   reprise?: { texte: string; version: number; phase: string };
 }
@@ -63,6 +69,8 @@ function versEleve(a: ActiviteBrute, eleve: EleveBrut, reprise: { texte: string;
     categories: a.categories,
     aides: resoudreAides(eleve.aides, a.aidesRetirees),
     aidesRetirees: a.aidesRetirees,
+    banqueMots: a.banqueMots,
+    principesPerso: a.principesPerso,
     ...(reprise ? { reprise } : {}),
   };
 }

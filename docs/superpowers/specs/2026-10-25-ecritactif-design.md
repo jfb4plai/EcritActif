@@ -51,17 +51,20 @@ Principe [JF] : un réglage, deux décideurs possibles (l'élève ou l'enseignan
 | Ce qui me gêne | Aides proposées | Appui |
 |---|---|---|
 | Je ne trouve pas d'idées / je ne sais pas par où commencer | Questions de départ, organisateur graphique du genre de texte, dictée de ses idées | [C] hal-04120344 (planification et organisateur, SRSD) |
-| Écrire à la main est lent ou fatigant | Clavier, dictée vocale | [C] dumas-05497857 (clavier, dictée vocale, limites : syntaxe correcte et articulation précise requises) |
-| Je me trompe dans les mots | Prédiction de mots avec retour vocal, correcteur à l'étape « corriger » | [C] dumas-05497857 (prédiction plus efficace avec synthèse vocale ; correcteur exige un début de mot plausible) |
+| Écrire est lent ou fatigant | Dictée vocale (le clavier est le mode d’écriture de base de l’app) | [C] dumas-05497857 (dictée vocale, limites : syntaxe correcte et articulation précise requises) |
+| Je me trompe dans les mots | Retiré du catalogue le 2026-10-26 (prédiction de mots non construite) ; l’écoute du texte à la relecture reste proposée | [C] dumas-05497857 |
 | Je ne vois pas mes erreurs en relisant | Réécoute du texte, une catégorie d'erreur à la fois | [C] dumas-05497857 (retour vocal aide à l'autocorrection) |
 | Les sons et les lettres se mélangent à la lecture | Colorisation phonémique ou syllabique, **proposée comme option** | [C] dumas-03282114 : n=65 dyslexiques CE1-CE2, colorisation sans effet sur la vitesse de lecture, meilleure précision de lecture, préférée par les enfants. Mémoire d'orthophonie, **lecture** et non écriture : l'effet sur l'écriture est [D] non étayé |
 | Le français est ma deuxième langue | Consigne découpée et lue à voix haute, pictogrammes Arasaac, brouillon | [C] hal-03194300 (coût cognitif plus élevé en L2) ; Arasaac : [D] à étayer |
-| Je perds le fil / je n'arrive pas à rester concentré | Séances courtes, sauvegarde automatique, une seule consigne mentale à la fois | [D] fonctions exécutives et métacognition : hal-04120344, dumas-01357755 ; effet sur l'écriture du TDAH non étayé dans le RISS |
+| Je perds le fil / je n’arrive pas à rester concentré | Retiré du catalogue le 2026-10-26 (« séances courtes » sans fondement ni comportement) ; la sauvegarde automatique et une seule question à la fois restent | [D] hal-04120344, dumas-01357755 ; effet sur l’écriture du TDAH non étayé dans le RISS |
 | Je ne sais pas ce que le lecteur doit comprendre | Questions sur le destinataire, relecture « avec les yeux du lecteur » | [C] hal-04120344 ; TSA : dumas-02108358 (récits courts, informations inadaptées au contexte), écrit [D] |
 | J'ai peur de me tromper / je me décourage | Retours centrés sur ce qui est réussi, choix de continuer, de réécrire ou de rendre | [C] dumas-05110873 (sentiment de compétence), dumas-05497857 (anxiété de performance) |
-| Je trouve les mots difficilement | Banque de mots du projet, pictogrammes, dictée | [C] dumas-03246050 (élaborer un récit, dénommer) pour le trouble du langage ; lexique [D] |
+| Je trouve les mots difficilement | Banque de mots écrite par l’enseignant (insertion d’un clic), pictogrammes, dictée | [C] dumas-03246050 (élaborer un récit, dénommer) pour le trouble du langage ; lexique [D] |
 
 Réglages d'affichage (police, taille, interligne, contraste) : Arial par défaut, **sans promouvoir de police spéciale**. [Appel, voir §8] Aucun réglage n'est présenté comme « pour dyslexique » ou « pour visuel ».
+
+**Singularité de l'enseignant (ajouté le 2026-10-26)** : en plus des questions fixes, l'enseignant écrit une question par temps (réfléchir, relire, corriger) et sa propre banque de mots pour chaque activité. Ces ajouts ne passent pas par le RISS : ce sont ses mots. [JF, amélioration 4]
+**Collage** : l'élève ne peut coller que du texte qu'il a lui-même écrit ; un refus est tracé (`collage-refuse`) et expliqué à l'enfant. [JF, amélioration 3]
 
 ## 6. Ancrage CECP [C pour les données, D/Appel pour l'usage]
 

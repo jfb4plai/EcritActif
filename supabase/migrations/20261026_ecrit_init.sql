@@ -30,6 +30,8 @@ create table public.ecrit_activites (
   principe_ids text[] not null default '{}',
   categories text[] not null default '{}',
   aides_retirees jsonb not null default '[]'::jsonb,
+  banque_mots text[] not null default '{}',
+  principes_perso jsonb not null default '[]'::jsonb,
   created_at timestamptz not null default now()
 );
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ClipboardEvent, type DragEvent } from 'react';
 import type { ActiviteEleve } from '../../api/_lib/eleve';
 import AidesPanel from '../components/AidesPanel';
 import Picto from '../components/Picto';
@@ -58,6 +58,14 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
   const [ecoute, setEcoute] = useState(false);
   const [modeColor, setModeColor] = useState<ModeColorisation>('syllabes');
   const [colorPrete, setColorPrete] = useState(false);
+  const [collageRefuse, setCollageRefuse] = useState(false);
+  const [plan, setPlan] = useState(() => {
+    try {
+      return { debut: '', ensuite: '', fin: '', ...(JSON.parse(lireLocal(`${cleTexte}:plan`) ?? '{}') as object) };
+    } catch {
+      return { debut: '', ensuite: '', fin: '' };
+    }
+  });
   const evenements = useRef<string[]>(['ouverture']);
   const arretDictee = useRef<() => void>(() => {});
 
@@ -103,6 +111,18 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
   }, [horsLigne, essai, reessaiMs]);
 
   useEffect(() => {
+    sauverLocal(`${cleTexte}:plan`, JSON.stringify(plan));
+  }, [plan, cleTexte]);
+
+  // Aide « Écouter la consigne » : lecture automatique une seule fois, à l'ouverture de l'activité.
+  const consigneLue = useRef(false);
+  useEffect(() => {
+    if (consigneLue.current || !active('audio-consigne') || !synthesePossible()) return;
+    consigneLue.current = true;
+    lire(activite.consigne);
+  }); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
     if (active('colorisation')) chargerColorisation().then(() => setColorPrete(true));
   }, [resolues]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -125,13 +145,16 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
     setChoisies((c) => (lies.every((id) => c.includes(id)) ? c.filter((id) => !lies.includes(id)) : [...new Set([...c, ...lies])]));
   }
 
+  const questionsPerso = (phase: Phase) => activite.principesPerso.filter((q) => q.phase === phase);
+
   const principes = (phase: Phase) => activite.principeIds.map((id) => principeParId(id)).filter((p) => p && p.phase === phase) as NonNullable<ReturnType<typeof principeParId>>[];
 
   const questionsRelire = useMemo(() => {
     const contraintes = verifierContraintes(texte, activite.contraintes)
       .filter((v) => !v.atteinte)
       .map((v) => ({ id: 'contrainte:' + v.contrainte, texte: v.question }));
-    return [...contraintes, ...principes('relire').map((p) => ({ id: p.id, texte: p.question }))];
+    const perso = questionsPerso('relire').map((q, i) => ({ id: 'perso:relire:' + i, texte: q.question }));
+    return [...contraintes, ...principes('relire').map((p) => ({ id: p.id, texte: p.question })), ...perso];
   }, [texte, activite]); // eslint-disable-line react-hooks/exhaustive-deps
   const critereId = choisirCritere(questionsRelire.map((q) => q.id), deja);
   const critere = questionsRelire.find((q) => q.id === critereId);
@@ -177,10 +200,54 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
     </div>
   );
 
+  function ajouterMot(mot: string) {
+    setTexte((p) => p + (p && !/\s$/.test(p) ? ' ' : '') + mot);
+  }
+
+  // Le collage n'est accepté que pour du texte que l'élève a lui-même écrit.
+  function refuserSiEtranger(e: ClipboardEvent | DragEvent, colle: string) {
+    if (colle !== '' && !texte.includes(colle)) {
+      e.preventDefault();
+      setCollageRefuse(true);
+      evenements.current.push('collage-refuse');
+    }
+  }
+
+  const memoIdees = [plan.debut, plan.ensuite, plan.fin].some((x) => x.trim() !== '') && (
+    <section aria-label="Mes idées" className="plai-card">
+      <h2>Mes idées</h2>
+      <ul>
+        {plan.debut.trim() !== '' && <li>Au début : {plan.debut}</li>}
+        {plan.ensuite.trim() !== '' && <li>Ensuite : {plan.ensuite}</li>}
+        {plan.fin.trim() !== '' && <li>À la fin : {plan.fin}</li>}
+      </ul>
+    </section>
+  );
+
   const zoneTexte = (
     <div>
+      {active('organisateur') && memoIdees}
       <label htmlFor="mon-texte">Mon texte</label>
-      <textarea id="mon-texte" className="plai-input" style={{ fontFamily: 'Arial, sans-serif', fontSize: '1.25rem', minHeight: '12rem' }} value={texte} onChange={(e) => setTexte(e.target.value)} disabled={rendu} />
+      <textarea
+        id="mon-texte"
+        className="plai-input"
+        style={{ fontFamily: 'Arial, sans-serif', fontSize: '1.25rem', minHeight: '12rem' }}
+        value={texte}
+        onChange={(e) => setTexte(e.target.value)}
+        onPaste={(e) => refuserSiEtranger(e, e.clipboardData.getData('text'))}
+        onDrop={(e) => refuserSiEtranger(e, e.dataTransfer.getData('text'))}
+        disabled={rendu}
+      />
+      {collageRefuse && <p role="status">Écris avec tes mots : on peut seulement coller un morceau de ton propre texte.</p>}
+      {active('banque-mots') && !rendu && activite.banqueMots.length > 0 && (
+        <div className="flex gap-2 flex-wrap" aria-label="Mots utiles">
+          {activite.banqueMots.map((m) => (
+            <button key={m} type="button" className="plai-btn" onClick={() => ajouterMot(m)}>
+              {m}
+            </button>
+          ))}
+        </div>
+      )}
       {active('dictee-vocale') &&
         (dicteePossible() ? (
           <button type="button" className="plai-btn" onClick={dicterTexte}>
@@ -210,11 +277,25 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
             {principes('reflechir').map((p) => (
               <li key={p.id}>{p.question}</li>
             ))}
+            {questionsPerso('reflechir').map((q, i) => (
+              <li key={'perso' + i}>{q.question}</li>
+            ))}
           </ul>
-          {peutLire && principes('reflechir').length > 0 && (
-            <button type="button" className="plai-btn" onClick={() => lire(principes('reflechir').map((p) => p.question).join(' '))}>
+          {peutLire && principes('reflechir').length + questionsPerso('reflechir').length > 0 && (
+            <button type="button" className="plai-btn" onClick={() => lire([...principes('reflechir').map((p) => p.question), ...questionsPerso('reflechir').map((q) => q.question)].join(' '))}>
               Écouter les questions
             </button>
+          )}
+          {active('organisateur') && (
+            <fieldset>
+              <legend>Range tes idées</legend>
+              <label htmlFor="plan-debut">Au début</label>
+              <textarea id="plan-debut" className="plai-input" value={plan.debut} onChange={(e) => setPlan({ ...plan, debut: e.target.value })} />
+              <label htmlFor="plan-ensuite">Ensuite</label>
+              <textarea id="plan-ensuite" className="plai-input" value={plan.ensuite} onChange={(e) => setPlan({ ...plan, ensuite: e.target.value })} />
+              <label htmlFor="plan-fin">À la fin</label>
+              <textarea id="plan-fin" className="plai-input" value={plan.fin} onChange={(e) => setPlan({ ...plan, fin: e.target.value })} />
+            </fieldset>
           )}
           <button type="button" className="plai-btn" onClick={() => aller('suivant')}>
             Commencer à écrire
@@ -290,6 +371,13 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
 
       {etat.phase === 'corriger' && (
         <section>
+          {questionsPerso('corriger').length > 0 && (
+            <ul>
+              {questionsPerso('corriger').map((q, i) => (
+                <li key={'perso' + i}>{q.question}</li>
+              ))}
+            </ul>
+          )}
           {zoneTexte}
           {signauxActifs.length > 0 ? (
             <ul>

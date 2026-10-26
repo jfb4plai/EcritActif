@@ -10,7 +10,7 @@ function formulaire() {
 }
 
 describe('NouvelleActivite : guidage de chaque champ', () => {
-  test.each([/consigne pour les élèves/i, /nombre minimum de mots/i, /nombre maximum de mots/i])('%s a un placeholder et une aide', (nom) => {
+  test.each([/consigne pour les élèves/i, /nombre minimum de mots/i, /nombre maximum de mots/i, /mots utiles/i, /ma question pour réfléchir/i, /ma question pour relire/i, /ma question pour corriger/i])('%s a un placeholder et une aide', (nom) => {
     formulaire();
     const champ = screen.getByLabelText(nom);
     expect(champ.getAttribute('placeholder')).toBeTruthy();
@@ -31,15 +31,35 @@ describe('NouvelleActivite : comportement', () => {
     await userEvent.type(screen.getByLabelText(/consigne pour les élèves/i), 'Écrire trois phrases sur mon animal.');
     const bouton = screen.getByRole('button', { name: /enregistrer/i });
     expect(bouton).toBeEnabled();
-    await userEvent.click(screen.getByLabelText(/retirer : écrire au clavier/i));
+    await userEvent.click(screen.getByLabelText(/retirer : dire mon texte à voix haute/i));
     expect(bouton).toBeDisabled();
-    await userEvent.type(screen.getByLabelText(/raison du retrait : écrire au clavier/i), 'On vérifie le geste d’écrire.');
+    await userEvent.type(screen.getByLabelText(/raison du retrait : dire mon texte à voix haute/i), 'On vérifie le geste d’écrire.');
     expect(bouton).toBeEnabled();
     await userEvent.click(bouton);
     expect(onEnregistrer).toHaveBeenCalledOnce();
     const a = onEnregistrer.mock.calls[0][0];
-    expect(a.aidesRetirees).toEqual([{ id: 'clavier', raison: 'On vérifie le geste d’écrire.' }]);
+    expect(a.aidesRetirees).toEqual([{ id: 'dictee-vocale', raison: 'On vérifie le geste d’écrire.' }]);
     expect(a.consigne).toBe('Écrire trois phrases sur mon animal.');
+  });
+
+  test('les mots utiles et les questions de l’enseignant sont enregistrés (singularité de l’enseignant)', async () => {
+    const { onEnregistrer } = formulaire();
+    await userEvent.type(screen.getByLabelText(/consigne pour les élèves/i), 'Décrire mon animal.');
+    await userEvent.type(screen.getByLabelText(/mots utiles/i), 'chat, dormir ,, poil');
+    await userEvent.type(screen.getByLabelText(/ma question pour relire/i), 'As-tu décrit son pelage ?');
+    await userEvent.click(screen.getByRole('button', { name: /enregistrer/i }));
+    const a = onEnregistrer.mock.calls[0][0];
+    expect(a.banqueMots).toEqual(['chat', 'dormir', 'poil']);
+    expect(a.principesPerso).toEqual([{ phase: 'relire', question: 'As-tu décrit son pelage ?' }]);
+  });
+
+  test('sans saisie : banque de mots et questions vides', async () => {
+    const { onEnregistrer } = formulaire();
+    await userEvent.type(screen.getByLabelText(/consigne pour les élèves/i), 'Décrire mon animal.');
+    await userEvent.click(screen.getByRole('button', { name: /enregistrer/i }));
+    const a = onEnregistrer.mock.calls[0][0];
+    expect(a.banqueMots).toEqual([]);
+    expect(a.principesPerso).toEqual([]);
   });
 
   test('les principes en brouillon ne s’affichent que si l’enseignant le demande', async () => {

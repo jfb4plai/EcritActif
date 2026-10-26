@@ -14,6 +14,8 @@ export interface ActiviteNouvelle {
   principeIds: string[];
   categories: CategorieErreur[];
   aidesRetirees: { id: AideId; raison: string }[];
+  banqueMots: string[];
+  principesPerso: { phase: Phase; question: string }[];
 }
 
 const CATEGORIES: { id: CategorieErreur; libelle: string }[] = [
@@ -22,10 +24,10 @@ const CATEGORIES: { id: CategorieErreur; libelle: string }[] = [
   { id: 'mot_repete', libelle: 'Mot écrit deux fois de suite' },
 ];
 
-const PHASES: { id: Phase; titre: string }[] = [
-  { id: 'reflechir', titre: 'Réfléchir' },
-  { id: 'relire', titre: 'Relire' },
-  { id: 'corriger', titre: 'Corriger' },
+const PHASES: { id: Phase; titre: string; verbe: string; exemple: string }[] = [
+  { id: 'reflechir', titre: 'Réfléchir', verbe: 'réfléchir', exemple: 'Comment s’appelle ton animal ?' },
+  { id: 'relire', titre: 'Relire', verbe: 'relire', exemple: 'As-tu décrit son pelage ?' },
+  { id: 'corriger', titre: 'Corriger', verbe: 'corriger', exemple: 'As-tu relu les noms propres ?' },
 ];
 
 export default function NouvelleActivite({ annee, onEnregistrer }: { annee: Annee; onEnregistrer: (a: ActiviteNouvelle) => void }) {
@@ -38,6 +40,8 @@ export default function NouvelleActivite({ annee, onEnregistrer }: { annee: Anne
   const [categories, setCategories] = useState<CategorieErreur[]>([]);
   const [retirees, setRetirees] = useState<Record<string, string>>({});
   const [brouillons, setBrouillons] = useState(false);
+  const [motsUtiles, setMotsUtiles] = useState('');
+  const [perso, setPerso] = useState<Record<string, string>>({});
 
   const suggeres = useMemo(() => suggererItems(consigne, items), [consigne, items]);
   const codes = useMemo(() => (itemIds.length > 0 ? items.filter((i) => itemIds.includes(i.id)) : items).flatMap((i) => i.codes), [items, itemIds]);
@@ -60,6 +64,8 @@ export default function NouvelleActivite({ annee, onEnregistrer }: { annee: Anne
       principeIds,
       categories,
       aidesRetirees: Object.entries(retirees).map(([id, raison]) => ({ id: id as AideId, raison: raison.trim() })),
+      banqueMots: motsUtiles.split(',').map((m) => m.trim()).filter((m) => m !== ''),
+      principesPerso: PHASES.map((p) => ({ phase: p.id, question: (perso[p.id] ?? '').trim() })).filter((q) => q.question !== ''),
     });
   }
 
@@ -117,6 +123,32 @@ export default function NouvelleActivite({ annee, onEnregistrer }: { annee: Anne
           </div>
         ))}
       </fieldset>
+
+      <fieldset>
+        <legend>Vos propres questions</legend>
+        <p className="text-sm">Ajoutez votre voix : vos questions s’affichent avec les questions fixes. Laissez vide pour n’en poser aucune.</p>
+        {PHASES.map((p) => (
+          <div key={p.id}>
+            <label htmlFor={`perso-${p.id}`}>Ma question pour {p.verbe}</label>
+            <input
+              id={`perso-${p.id}`}
+              className="plai-input"
+              value={perso[p.id] ?? ''}
+              onChange={(e) => setPerso({ ...perso, [p.id]: e.target.value })}
+              placeholder={p.exemple}
+              maxLength={140}
+              aria-describedby={`aide-perso-${p.id}`}
+            />
+            <p id={`aide-perso-${p.id}`} className="text-sm">Une question courte, à la deuxième personne. Elle apparaît au temps « {p.titre} » pour tous les élèves de cette activité.</p>
+          </div>
+        ))}
+      </fieldset>
+
+      <div>
+        <label htmlFor="mots-utiles">Mots utiles pour cette activité</label>
+        <input id="mots-utiles" className="plai-input" value={motsUtiles} onChange={(e) => setMotsUtiles(e.target.value)} placeholder="chat, dormir, poil, moustaches" aria-describedby="aide-mots" />
+        <p id="aide-mots" className="text-sm">Séparez les mots par des virgules. Les élèves qui ont l’aide « Chercher des mots dans une liste » peuvent les insérer d’un clic.</p>
+      </div>
 
       <fieldset>
         <legend>Signaler à la correction</legend>

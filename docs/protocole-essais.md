@@ -24,11 +24,12 @@ Règle empruntée au projet « courrier simplifié » : les seuils sont écrits 
 
 ## Aides jamais testées avec un élève qui en a besoin (état au 2026-10-25)
 
-Toutes : organisateur d'idées (questions de réflexion), dictée vocale, clavier, prédiction (non construite en v1), écoute du texte, colorisation, écoute de la consigne, pictogrammes, travail par petites étapes (non construit), banque de mots (non construite).
+Toutes celles du catalogue : ranger mes idées (organisateur), dire mon texte (dictée), écouter mon texte, colorer, écouter la consigne (lue à l'ouverture), images ARASAAC, banque de mots.
 
 ## Limites connues de la v1
 
-- Prédiction de mots, banque de mots et séances courtes : listées dans le catalogue d'aides mais sans comportement dédié dans l'écran élève.
+- Prédiction de mots, clavier comme aide et séances courtes : retirés du catalogue le 2026-10-26 (rien de fondé à construire).
+- Collage limité à son propre texte : un refus est tracé mais le tableau de bord ne l'affiche pas encore.
 - Correcteur orthographique local : absent (trois repères structurels seulement : majuscule, point final, mot répété).
 - Reprise d'un texte sur un autre appareil : impossible (copie locale uniquement).
 - IA : absente.

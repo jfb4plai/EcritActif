@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import EcranEleve, { type ApiEleve } from './EcranEleve';
@@ -14,6 +14,8 @@ function activite(surcharge: Partial<ActiviteEleve> = {}): ActiviteEleve {
     categories: ['majuscule_debut_phrase'],
     aides: [],
     aidesRetirees: [],
+    banqueMots: [],
+    principesPerso: [],
     ...surcharge,
   };
 }
@@ -89,6 +91,133 @@ describe('EcranEleve : appareil partagé et reprise (revue finale)', () => {
     await userEvent.type(screen.getByLabelText(/mon texte/i), 'Un');
     await waitFor(() => expect(sauver.mock.calls.length).toBeGreaterThanOrEqual(2));
     await waitFor(() => expect(screen.queryByText(/seulement sur cet appareil/i)).not.toBeInTheDocument());
+  });
+});
+
+function simulerSynthese() {
+  const parle = vi.fn();
+  class Enonce {
+    voice: unknown = null;
+    lang = '';
+    constructor(public text: string) {}
+  }
+  vi.stubGlobal('SpeechSynthesisUtterance', Enonce);
+  vi.stubGlobal('speechSynthesis', { getVoices: () => [], speak: parle, cancel: vi.fn() });
+  return parle;
+}
+
+describe('EcranEleve : chaque aide du catalogue a un effet visible (amélioration 2)', () => {
+  test('audio-consigne : la consigne est lue dès l’ouverture', () => {
+    const parle = simulerSynthese();
+    render(<EcranEleve activite={activite({ aides: [{ id: 'audio-consigne', active: true }] })} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
+    expect(parle).toHaveBeenCalledOnce();
+    expect((parle.mock.calls[0][0] as { text: string }).text).toContain('Écrire trois phrases sur mon animal');
+  });
+
+  test('audio-consigne inactive : rien n’est lu tout seul', () => {
+    const parle = simulerSynthese();
+    render(<EcranEleve activite={activite()} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
+    expect(parle).not.toHaveBeenCalled();
+  });
+
+  test('organisateur : trois cases pour ranger ses idées, rappelées pendant l’écriture', async () => {
+    const aides = [{ id: 'organisateur' as const, active: true }];
+    render(<EcranEleve activite={activite({ aides })} eleveId="el1" jeton="j" api={apiDeTest({ version: 1, aides })} delaiSauvegardeMs={0} />);
+    await userEvent.type(screen.getByLabelText(/au début/i), 'un chat roux');
+    expect(screen.getByLabelText(/ensuite/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/à la fin/i)).toBeInTheDocument();
+    await versEcriture();
+    const memo = screen.getByRole('region', { name: /mes idées/i });
+    expect(memo).toHaveTextContent('un chat roux');
+  });
+
+  test('organisateur inactif : pas de cases', () => {
+    render(<EcranEleve activite={activite()} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
+    expect(screen.queryByLabelText(/au début/i)).not.toBeInTheDocument();
+  });
+
+  test('banque-mots : les mots de l’enseignant s’insèrent dans le texte d’un clic', async () => {
+    const aides = [{ id: 'banque-mots' as const, active: true }];
+    render(<EcranEleve activite={activite({ banqueMots: ['chat', 'dormir'], aides })} eleveId="el1" jeton="j" api={apiDeTest({ version: 1, aides })} delaiSauvegardeMs={0} />);
+    await versEcriture();
+    await userEvent.click(screen.getByRole('button', { name: 'chat' }));
+    await userEvent.click(screen.getByRole('button', { name: 'dormir' }));
+    expect(screen.getByLabelText(/mon texte/i)).toHaveValue('chat dormir');
+  });
+
+  test('banque-mots inactive : aucun mot proposé', async () => {
+    render(<EcranEleve activite={activite({ banqueMots: ['chat'] })} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
+    await versEcriture();
+    expect(screen.queryByRole('button', { name: 'chat' })).not.toBeInTheDocument();
+  });
+
+  test('colorisation : un choix de coloration apparaît à la relecture', async () => {
+    const aides = [{ id: 'colorisation' as const, active: true }];
+    render(<EcranEleve activite={activite({ aides })} eleveId="el1" jeton="j" api={apiDeTest({ version: 1, aides })} delaiSauvegardeMs={0} />);
+    await versEcriture();
+    await userEvent.type(screen.getByLabelText(/mon texte/i), 'Un chat.');
+    await userEvent.click(screen.getByRole('button', { name: /fini d.écrire/i }));
+    expect(screen.getByLabelText(/colorer/i)).toBeInTheDocument();
+  });
+});
+
+describe('EcranEleve : collage limité à son propre texte (amélioration 3)', () => {
+  async function enEcriture() {
+    render(<EcranEleve activite={activite()} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
+    await versEcriture();
+    await userEvent.type(screen.getByLabelText(/mon texte/i), 'Mon chat dort');
+    return screen.getByLabelText(/mon texte/i);
+  }
+
+  test('un texte venu d’ailleurs est refusé avec une explication', async () => {
+    const zone = await enEcriture();
+    const autorise = fireEvent.paste(zone, { clipboardData: { getData: () => 'Un texte copié sur un autre site.' } });
+    expect(autorise).toBe(false);
+    expect(zone).toHaveValue('Mon chat dort');
+    expect(await screen.findByText(/écris avec tes mots/i)).toBeInTheDocument();
+  });
+
+  test('un morceau de son propre texte peut être collé', async () => {
+    const zone = await enEcriture();
+    expect(fireEvent.paste(zone, { clipboardData: { getData: () => 'chat dort' } })).toBe(true);
+  });
+
+  test('le refus est enregistré comme trace pour l’enseignant', async () => {
+    const api = apiDeTest();
+    render(<EcranEleve activite={activite()} eleveId="el1" jeton="j" api={api} delaiSauvegardeMs={0} />);
+    await versEcriture();
+    const zone = screen.getByLabelText(/mon texte/i);
+    fireEvent.paste(zone, { clipboardData: { getData: () => 'Autre texte' } });
+    await userEvent.type(zone, 'a');
+    await waitFor(() => {
+      const tous = (api.sauver as ReturnType<typeof vi.fn>).mock.calls.flatMap((c) => c[0].evenements as string[]);
+      expect(tous).toContain('collage-refuse');
+    });
+  });
+});
+
+describe('EcranEleve : questions écrites par l’enseignant (amélioration 4)', () => {
+  const perso = [
+    { phase: 'reflechir' as const, question: 'Comment s’appelle ton animal ?' },
+    { phase: 'relire' as const, question: 'As-tu décrit son pelage ?' },
+    { phase: 'corriger' as const, question: 'As-tu relu les noms propres ?' },
+  ];
+
+  test('chaque question de l’enseignant apparaît dans son temps', async () => {
+    render(<EcranEleve activite={activite({ principesPerso: perso, principeIds: [], contraintes: {} })} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
+    expect(screen.getByText('Comment s’appelle ton animal ?')).toBeInTheDocument();
+    await versEcriture();
+    await userEvent.type(screen.getByLabelText(/mon texte/i), 'Un chat roux.');
+    await userEvent.click(screen.getByRole('button', { name: /fini d.écrire/i }));
+    expect(screen.getByText('As-tu décrit son pelage ?')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /passer à la correction/i }));
+    expect(screen.getByText('As-tu relu les noms propres ?')).toBeInTheDocument();
+  });
+
+  test('elles s’ajoutent aux questions fixes choisies', () => {
+    render(<EcranEleve activite={activite({ principesPerso: perso })} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
+    expect(screen.getByText(/Que veux-tu dire dans ce texte/)).toBeInTheDocument();
+    expect(screen.getByText('Comment s’appelle ton animal ?')).toBeInTheDocument();
   });
 });
 
@@ -207,8 +336,8 @@ describe('EcranEleve : relire et corriger', () => {
 
 describe('EcranEleve : aides', () => {
   test('une aide retirée en cours d’écriture est signalée avec sa raison, sans perdre le texte (Review Focus 5)', async () => {
-    const api = apiDeTest({ version: 1, aides: [{ id: 'clavier', active: false, raison: 'Pas de clavier ce jour.' }] });
-    render(<EcranEleve activite={activite({ aides: [{ id: 'clavier', active: true }] })} eleveId="el1" jeton="j" api={api} delaiSauvegardeMs={0} />);
+    const api = apiDeTest({ version: 1, aides: [{ id: 'dictee-vocale', active: false, raison: 'Pas de clavier ce jour.' }] });
+    render(<EcranEleve activite={activite({ aides: [{ id: 'dictee-vocale', active: true }] })} eleveId="el1" jeton="j" api={api} delaiSauvegardeMs={0} />);
     await versEcriture();
     await userEvent.type(screen.getByLabelText(/mon texte/i), 'Un chat');
     expect(await screen.findByText(/Pas de clavier ce jour/)).toBeInTheDocument();
@@ -218,7 +347,7 @@ describe('EcranEleve : aides', () => {
   test('une aide retirée par l’enseignant ne peut pas être activée par l’élève', async () => {
     render(
       <EcranEleve
-        activite={activite({ aidesRetirees: [{ id: 'clavier', raison: 'On vérifie le geste d’écrire.' }] })}
+        activite={activite({ aidesRetirees: [{ id: 'dictee-vocale', raison: 'On vérifie le geste d’écrire.' }] })}
         eleveId="el1"
         jeton="j"
         api={apiDeTest()}
@@ -226,19 +355,19 @@ describe('EcranEleve : aides', () => {
       />,
     );
     await versEcriture();
-    expect(screen.getByLabelText(/écrire à la main est lent ou fatigant/i)).toBeInTheDocument();
-    await userEvent.click(screen.getByLabelText(/écrire à la main est lent ou fatigant/i));
+    expect(screen.getByLabelText(/écrire est lent ou fatigant/i)).toBeInTheDocument();
+    await userEvent.click(screen.getByLabelText(/écrire est lent ou fatigant/i));
     expect(screen.getByText(/On vérifie le geste d’écrire/)).toBeInTheDocument();
   });
 
   test('une aide que l’élève s’est donnée elle-même est coupée quand l’enseignant la retire en cours de route', async () => {
-    const api = apiDeTest({ version: 1, aides: [], aidesRetirees: [{ id: 'clavier', raison: 'Retiré pendant l’activité.' }] });
+    const api = apiDeTest({ version: 1, aides: [], aidesRetirees: [{ id: 'dictee-vocale', raison: 'Retiré pendant l’activité.' }] });
     render(<EcranEleve activite={activite()} eleveId="el1" jeton="j" api={api} delaiSauvegardeMs={0} />);
     await versEcriture();
-    await userEvent.click(screen.getByLabelText(/écrire à la main est lent ou fatigant/i));
+    await userEvent.click(screen.getByLabelText(/écrire est lent ou fatigant/i));
     await userEvent.type(screen.getByLabelText(/mon texte/i), 'Un');
     expect(await screen.findByText(/Retiré pendant l’activité/)).toBeInTheDocument();
-    expect(screen.queryByText(/Aide active : Écrire au clavier/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Aide active : dire mon texte à voix haute/)).not.toBeInTheDocument();
     expect(screen.getByLabelText(/mon texte/i)).toHaveValue('Un');
   });
 
