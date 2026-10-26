@@ -121,8 +121,11 @@ export default function NouvelleActivite({ annee, onEnregistrer }: { annee: Anne
         {PHASES.map((p) => (
           <div key={p.id}>
             <h3>
-              {p.titre} ({TEMPS_CECP[p.id].terme})
+              {p.id === 'corriger' && annee === 'P1' ? 'Corriger (avec Relire en P1)' : `${p.titre} (${TEMPS_CECP[p.id].terme})`}
             </h3>
+            {p.id === 'corriger' && annee === 'P1' && (
+              <p className="text-sm">En P1, ce temps est fusionné avec Relire : le référentiel ne nomme la correction qu’à partir de P2. Ces questions s’affichent pendant la relecture.</p>
+            )}
             {principesPour(codes, p.id, { brouillons }).map((pr) => (
               <label key={pr.id} className="block">
                 <input type="checkbox" checked={principeIds.includes(pr.id)} onChange={() => setPrincipeIds(bascule(principeIds, pr.id))} /> {pr.question}{pr.statut === 'brouillon' ? ' (brouillon)' : ''} <small>Programme : {pr.codes.join(', ')}</small>

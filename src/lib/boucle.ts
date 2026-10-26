@@ -1,4 +1,4 @@
-import type { Phase } from '../types';
+import type { Annee, Phase } from '../types';
 
 export interface EtatBoucle {
   phase: Phase;
@@ -8,15 +8,25 @@ export interface EtatBoucle {
 
 export type Choix = 'continuer' | 'reecrire' | 'rendre';
 
-const ORDRE: Phase[] = ['reflechir', 'ecrire', 'relire', 'corriger'];
+// Le référentiel FWB ne nomme que trois composantes en P1 (planification, mise en texte, révision) ;
+// la correction s'y ajoute à partir de P2. En P1, « corriger » est donc fusionné avec « relire ».
+export function phasesDe(annee: Annee): Phase[] {
+  return annee === 'P1' ? ['reflechir', 'ecrire', 'relire'] : ['reflechir', 'ecrire', 'relire', 'corriger'];
+}
+
+export function phaseFinale(annee: Annee): Phase {
+  const p = phasesDe(annee);
+  return p[p.length - 1];
+}
 
 export function initial(): EtatBoucle {
   return { phase: 'reflechir', critereActif: null, versions: 1 };
 }
 
-export function suivant(e: EtatBoucle): EtatBoucle {
-  const i = ORDRE.indexOf(e.phase);
-  return { ...e, phase: ORDRE[Math.min(i + 1, ORDRE.length - 1)] };
+export function suivant(e: EtatBoucle, annee: Annee = 'P2'): EtatBoucle {
+  const ordre = phasesDe(annee);
+  const i = ordre.indexOf(e.phase);
+  return { ...e, phase: ordre[Math.min(i + 1, ordre.length - 1)] };
 }
 
 export function decider(e: EtatBoucle, choix: Choix): { etat: EtatBoucle; rendu: boolean } {

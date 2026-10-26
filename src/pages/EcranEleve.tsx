@@ -6,7 +6,7 @@ import RepereProgramme from '../components/RepereProgramme';
 import TexteColore from '../components/TexteColore';
 import { AIDES, resoudreAides, type AideActive, type AideId } from '../lib/aides';
 import { dicteePossible, dicter, lire, synthesePossible } from '../lib/audio';
-import { choisirCritere, decider, initial, retourAutorise, suivant, type Choix, type EtatBoucle } from '../lib/boucle';
+import { choisirCritere, decider, initial, phaseFinale, phasesDe, retourAutorise, suivant, type Choix, type EtatBoucle } from '../lib/boucle';
 import { lireLocal, sauverLocal } from '../lib/brouillonLocal';
 import { itemParId } from '../lib/cecp';
 import { chargerColorisation, type ModeColorisation } from '../lib/colorisation';
@@ -32,7 +32,6 @@ interface Props {
 }
 
 const TITRES: Record<Phase, string> = { reflechir: 'Réfléchir', ecrire: 'Écrire', relire: 'Relire', corriger: 'Corriger' };
-const ORDRE: Phase[] = ['reflechir', 'ecrire', 'relire', 'corriger'];
 
 // Teinte d'une zone : les boutons qu'elle contient prennent la couleur du temps (variables lues par pop.css).
 const teinte = (p: Phase) => ({ background: PALETTE[p].pale, borderColor: PALETTE[p].fond, '--tuile-fond': PALETTE[p].fond, '--tuile-texte': PALETTE[p].texte }) as React.CSSProperties;
@@ -54,7 +53,7 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
   // Reprise : un texte déjà rendu reste rendu ; sinon la copie de l'appareil, puis celle du serveur.
   const departTexte = renduAvant ? reprise!.texte : (locale ?? reprise?.texte ?? '');
   const departVersion = renduAvant ? reprise!.version : locale !== null ? versionLocale : (reprise?.version ?? 1);
-  const departPhase: Phase = renduAvant ? 'corriger' : locale !== null || reprise ? 'ecrire' : 'reflechir';
+  const departPhase: Phase = renduAvant ? phaseFinale(activite.annee) : locale !== null || reprise ? 'ecrire' : 'reflechir';
   const [etat, setEtat] = useState<EtatBoucle>(() => ({ ...initial(), phase: departPhase, versions: departVersion }));
   const [texte, setTexte] = useState(departTexte);
   const [rendu, setRendu] = useState(renduAvant);
@@ -153,8 +152,8 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
 
   function aller(phase: 'suivant' | Choix) {
     if (phase === 'suivant') {
-      setEtat((e) => suivant(e));
-      evenements.current.push('phase:' + suivant(etat).phase);
+      setEtat((e) => suivant(e, activite.annee));
+      evenements.current.push('phase:' + suivant(etat, activite.annee).phase);
       return;
     }
     if (phase === 'reecrire') {
@@ -190,6 +189,8 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
     setChoisies((c) => (lies.every((id) => c.includes(id)) ? c.filter((id) => !lies.includes(id)) : [...new Set([...c, ...lies])]));
   }
 
+  const phases = phasesDe(activite.annee);
+
   const questionsPerso = (phase: Phase) => activite.principesPerso.filter((q) => q.phase === phase);
 
   const principes = (phase: Phase) => activite.principeIds.map((id) => principeParId(id)).filter((p) => p && p.phase === phase) as NonNullable<ReturnType<typeof principeParId>>[];
@@ -199,7 +200,11 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
       .filter((v) => !v.atteinte)
       .map((v) => ({ id: 'contrainte:' + v.contrainte, texte: v.message }));
     const perso = questionsPerso('relire').map((q, i) => ({ id: 'perso:relire:' + i, texte: q.question }));
-    return [...contraintes, ...principes('relire').map((p) => ({ id: p.id, texte: p.question })), ...perso];
+    // En P1, « corriger » est fusionné avec « relire » : ses questions arrivent ici.
+    const fusion = activite.annee === 'P1';
+    const fixes = [...principes('relire'), ...(fusion ? principes('corriger') : [])].map((p) => ({ id: p.id, texte: p.question }));
+    const persoFusion = fusion ? questionsPerso('corriger').map((q, i) => ({ id: 'perso:corriger:' + i, texte: q.question })) : [];
+    return [...contraintes, ...fixes, ...perso, ...persoFusion];
   }, [texte, activite]); // eslint-disable-line react-hooks/exhaustive-deps
   const critereId = choisirCritere(questionsRelire.map((q) => q.id), deja);
   const critere = questionsRelire.find((q) => q.id === critereId);
@@ -331,10 +336,73 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
     </div>
   );
 
+  const blocCorriger = (
+    <>
+          {signauxActifs.length > 0 ? (
+            <ul>
+              {signauxActifs.map((s, i) => (
+                <li key={i}>
+                  {s.indice}{' '}
+                  <q>
+                    {texte.slice(Math.max(0, s.debut - 12), s.debut)}
+                    <mark>{texte.slice(s.debut, Math.max(s.fin, s.debut + 1))}</mark>
+                    {texte.slice(Math.max(s.fin, s.debut + 1), s.fin + 12)}
+                  </q>{' '}
+                  <button type="button" className="plai-btn tuile" onClick={() => clarifier(s.categorie)}>
+                    Je ne comprends pas
+                  </button>
+                  {explique.includes(s.categorie) && (
+                    <div>
+                      <p>{explicationDe(s.categorie, activite.annee)}</p>
+                      <p>Demander de l’aide, c’est apprendre.</p>
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>Rien à signaler pour le moment.</p>
+          )}
+          {!rendu && (
+            <fieldset>
+              <legend>Deux étoiles et un souhait</legend>
+              <p className="text-sm">Avant de rendre : dis ce qui est réussi et ce que tu voudrais améliorer. Tu peux laisser vide.</p>
+              <label htmlFor="etoile1">Une chose réussie</label>
+              <input id="etoile1" className="plai-input" maxLength={200} value={etoile1} onChange={(e) => setEtoile1(e.target.value)} placeholder="J’ai décrit mon animal." />
+              <label htmlFor="etoile2">Une autre chose réussie</label>
+              <input id="etoile2" className="plai-input" maxLength={200} value={etoile2} onChange={(e) => setEtoile2(e.target.value)} placeholder="J’ai mis un point à la fin." />
+              <label htmlFor="souhait">Un souhait pour la prochaine fois</label>
+              <input id="souhait" className="plai-input" maxLength={200} value={souhait} onChange={(e) => setSouhait(e.target.value)} placeholder="Écrire une phrase de plus." />
+              {precedente !== '' && etat.versions > 1 && (
+                <>
+                  <label htmlFor="change">Ce qui est mieux dans ma nouvelle version</label>
+                  <input id="change" className="plai-input" maxLength={300} value={change} onChange={(e) => setChange(e.target.value)} placeholder="J’ai ajouté ce que fait mon animal." />
+                </>
+              )}
+            </fieldset>
+          )}
+          {!rendu ? (
+            <div className="flex gap-2 flex-wrap">
+              <button type="button" className="plai-btn tuile" onClick={() => aller('continuer')}>
+                Continuer à écrire
+              </button>
+              <button type="button" className="plai-btn tuile" onClick={() => aller('reecrire')}>
+                Essayer autrement : une nouvelle version
+              </button>
+              <button type="button" className="plai-btn tuile" onClick={() => aller('rendre')}>
+                Rendre mon texte
+              </button>
+            </div>
+          ) : (
+            <p role="status">{recapRendu(texte, etat.versions)}</p>
+          )}
+    </>
+  );
+
   return (
     <div className="space-y-4">
-      <ol className="tuiles-temps" aria-label="Les quatre temps">
-        {ORDRE.map((p, i) => {
+      <ol className="tuiles-temps" aria-label={phases.length === 3 ? 'Les trois temps' : 'Les quatre temps'}>
+        {phases.map((p, i) => {
           const actif = etat.phase === p;
           return (
             <li
@@ -455,9 +523,16 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
               ) : (
                 <p>Tu as regardé toutes les questions.</p>
               )}
-              <button type="button" className="plai-btn tuile" onClick={() => aller('suivant')}>
-                Passer à la correction
-              </button>
+              {activite.annee === 'P1' ? (
+                <>
+                  {zoneTexte}
+                  {blocCorriger}
+                </>
+              ) : (
+                <button type="button" className="plai-btn tuile" onClick={() => aller('suivant')}>
+                  Passer à la correction
+                </button>
+              )}
             </div>
           )}
         </section>
@@ -465,8 +540,11 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
 
       {etat.phase === 'corriger' && (
         <section data-phase="corriger" className="zone-temps" style={teinte('corriger')}>
-          {questionsPerso('corriger').length > 0 && (
+          {principes('corriger').length + questionsPerso('corriger').length > 0 && (
             <ul>
+              {principes('corriger').map((p) => (
+                <li key={p.id}>{p.question}</li>
+              ))}
               {questionsPerso('corriger').map((q, i) => (
                 <li key={'perso' + i}>{q.question}</li>
               ))}
@@ -474,64 +552,7 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
           )}
           {zoneTexte}
           {momentCalme}
-          {signauxActifs.length > 0 ? (
-            <ul>
-              {signauxActifs.map((s, i) => (
-                <li key={i}>
-                  {s.indice}{' '}
-                  <q>
-                    {texte.slice(Math.max(0, s.debut - 12), s.debut)}
-                    <mark>{texte.slice(s.debut, Math.max(s.fin, s.debut + 1))}</mark>
-                    {texte.slice(Math.max(s.fin, s.debut + 1), s.fin + 12)}
-                  </q>{' '}
-                  <button type="button" className="plai-btn tuile" onClick={() => clarifier(s.categorie)}>
-                    Je ne comprends pas
-                  </button>
-                  {explique.includes(s.categorie) && (
-                    <div>
-                      <p>{explicationDe(s.categorie, activite.annee)}</p>
-                      <p>Demander de l’aide, c’est apprendre.</p>
-                    </div>
-                  )}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>Rien à signaler pour le moment.</p>
-          )}
-          {!rendu && (
-            <fieldset>
-              <legend>Deux étoiles et un souhait</legend>
-              <p className="text-sm">Avant de rendre : dis ce qui est réussi et ce que tu voudrais améliorer. Tu peux laisser vide.</p>
-              <label htmlFor="etoile1">Une chose réussie</label>
-              <input id="etoile1" className="plai-input" maxLength={200} value={etoile1} onChange={(e) => setEtoile1(e.target.value)} placeholder="J’ai décrit mon animal." />
-              <label htmlFor="etoile2">Une autre chose réussie</label>
-              <input id="etoile2" className="plai-input" maxLength={200} value={etoile2} onChange={(e) => setEtoile2(e.target.value)} placeholder="J’ai mis un point à la fin." />
-              <label htmlFor="souhait">Un souhait pour la prochaine fois</label>
-              <input id="souhait" className="plai-input" maxLength={200} value={souhait} onChange={(e) => setSouhait(e.target.value)} placeholder="Écrire une phrase de plus." />
-              {precedente !== '' && etat.versions > 1 && (
-                <>
-                  <label htmlFor="change">Ce qui est mieux dans ma nouvelle version</label>
-                  <input id="change" className="plai-input" maxLength={300} value={change} onChange={(e) => setChange(e.target.value)} placeholder="J’ai ajouté ce que fait mon animal." />
-                </>
-              )}
-            </fieldset>
-          )}
-          {!rendu ? (
-            <div className="flex gap-2 flex-wrap">
-              <button type="button" className="plai-btn tuile" onClick={() => aller('continuer')}>
-                Continuer à écrire
-              </button>
-              <button type="button" className="plai-btn tuile" onClick={() => aller('reecrire')}>
-                Essayer autrement : une nouvelle version
-              </button>
-              <button type="button" className="plai-btn tuile" onClick={() => aller('rendre')}>
-                Rendre mon texte
-              </button>
-            </div>
-          ) : (
-            <p role="status">{recapRendu(texte, etat.versions)}</p>
-          )}
+          {blocCorriger}
         </section>
       )}
 

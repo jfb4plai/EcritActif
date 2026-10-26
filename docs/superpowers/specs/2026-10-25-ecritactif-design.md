@@ -173,7 +173,7 @@ Exigence de JF : l'ancrage dans la Fédération Wallonie-Bruxelles et le program
 **Ce qui le garantit (tests)** : chaque terme de vocabulaire est relié à un code d'item et vérifié contre les données ; chaque temps correspond à un terme de F282 ; chaque principe cite des codes existants ; un test refuse tout repère de l'école française (collège, lycée, CE1, CM2, cycle 3, GAR, ENT…) dans ce que lisent l'élève et l'enseignant.
 
 **Décisions en attente de JF** (non tranchées par Claude) :
-- **P1 et la correction** : le référentiel ne nomme que trois composantes en P1. L'app propose quatre temps dès P1. À décider : fusionner « Relire » et « Corriger » en P1 (trois temps), ou garder quatre temps partout. Source : référentiel P1, « Verbaliser les composantes de la production d'écrits ».
+- **P1 et la correction : DÉCIDÉ par JF (2026-10-26)** : trois temps en P1 (Réfléchir, Écrire, Relire), quatre à partir de P2. Le référentiel ne nomme que trois composantes en P1. En P1, les signaux, la modification du texte, « Deux étoiles et un souhait » et « Rendre » sont au temps Relire ; les questions fixes et personnelles « corriger » y arrivent comme questions de relecture. Code : `phasesDe`/`phaseFinale` dans `src/lib/boucle.ts`.
 - **Nouveaux principes tirés de l'attendu officiel** (en brouillon, à valider avec sources) : « Ton texte reste-t-il dans le sujet ? » ; « As-tu séparé chaque mot par un espace ? » (P1, P2) ; « As-tu relié tes phrases avec des mots comme « puis » ou « ensuite » ? » (organisateurs textuels, P3).
 
 ## 15ter. Adapter l'approche au niveau des élèves (2026-10-26)

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { choisirCritere, decider, initial, retourAutorise, suivant } from './boucle';
+import { choisirCritere, decider, initial, phaseFinale, phasesDe, retourAutorise, suivant } from './boucle';
 
 describe('boucle des quatre temps', () => {
   test('ordre des phases', () => {
@@ -39,6 +39,31 @@ describe('boucle des quatre temps', () => {
   test('rendre termine l’activité', () => {
     const e = { phase: 'corriger' as const, critereActif: null, versions: 1 };
     expect(decider(e, 'rendre').rendu).toBe(true);
+  });
+});
+
+describe('les temps dépendent de l’année (référentiel FWB : la correction n’est nommée qu’à partir de P2)', () => {
+  test('P1 : trois temps ; P2 et P3 : quatre', () => {
+    expect(phasesDe('P1')).toEqual(['reflechir', 'ecrire', 'relire']);
+    expect(phasesDe('P2')).toEqual(['reflechir', 'ecrire', 'relire', 'corriger']);
+    expect(phasesDe('P3')).toEqual(['reflechir', 'ecrire', 'relire', 'corriger']);
+  });
+
+  test('le dernier temps : relire en P1, corriger ensuite', () => {
+    expect(phaseFinale('P1')).toBe('relire');
+    expect(phaseFinale('P2')).toBe('corriger');
+  });
+
+  test('en P1, on ne passe jamais à « corriger »', () => {
+    let e = initial();
+    for (let i = 0; i < 6; i++) e = suivant(e, 'P1');
+    expect(e.phase).toBe('relire');
+  });
+
+  test('en P2, on y passe après relire', () => {
+    let e = initial();
+    for (let i = 0; i < 6; i++) e = suivant(e, 'P2');
+    expect(e.phase).toBe('corriger');
   });
 });
 

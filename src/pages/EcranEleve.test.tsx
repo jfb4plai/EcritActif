@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import EcranEleve, { type ApiEleve } from './EcranEleve';
@@ -7,7 +7,7 @@ import type { ActiviteEleve } from '../../api/_lib/eleve';
 function activite(surcharge: Partial<ActiviteEleve> = {}): ActiviteEleve {
   return {
     id: 'act1',
-    annee: 'P1',
+    annee: 'P2',
     consigne: 'Écrire trois phrases sur mon animal.',
     contraintes: { minMots: 5 },
     itemIds: [],
@@ -260,8 +260,8 @@ describe('EcranEleve : qualité de la rétroaction et littératie à la rétroac
     ['P1', /un point/i, /exclamation/i],
     ['P2', /point d.exclamation/i, null],
   ] as const)('l’explication sur la fin du texte suit le programme de %s', async (annee, attendu, interdit) => {
-    await jusquAuTemps('il pleut', 'corriger', activite({ annee, categories: ['point_fin_phrase'] }));
-    await userEvent.click(screen.getAllByRole('button', { name: /je ne comprends pas/i })[0]);
+    await jusquAuTemps('il pleut', annee === 'P1' ? 'relire' : 'corriger', activite({ annee, categories: ['point_fin_phrase'] }));
+    await userEvent.click(screen.getAllByRole('button', { name: /je ne comprends pas/i }).at(-1)!);
     expect(screen.getByText(attendu)).toBeInTheDocument();
     if (interdit) expect(screen.queryByText(interdit)).not.toBeInTheDocument();
   });
@@ -399,6 +399,96 @@ describe('EcranEleve : référence au programme CECP', () => {
     const detail = screen.getByText(/dans le programme/i).closest('details') as HTMLElement;
     expect(detail).toHaveTextContent('Rédiger un écrit lisible');
     expect(detail).not.toHaveTextContent('P9');
+  });
+});
+
+describe('EcranEleve : P1 en trois temps, comme le référentiel (correction nommée à partir de P2)', () => {
+  const p1 = (surcharge: Partial<ActiviteEleve> = {}) => activite({ annee: 'P1', contraintes: {}, categories: ['majuscule_debut_phrase'], principeIds: [], ...surcharge });
+
+  async function relirep1(texte: string, a = p1()) {
+    const api = apiDeTest();
+    render(<EcranEleve activite={a} eleveId="el1" jeton="j" api={api} delaiSauvegardeMs={0} />);
+    await versEcriture();
+    if (texte !== '') await userEvent.type(screen.getByLabelText(/mon texte/i), texte);
+    await userEvent.click(screen.getByRole('button', { name: /fini d.écrire/i }));
+    return api;
+  }
+
+  test('trois tuiles numérotées : Réfléchir, Écrire, Relire', () => {
+    render(<EcranEleve activite={p1()} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
+    const liste = screen.getByRole('list', { name: /les trois temps/i });
+    expect(within(liste).getAllByRole('listitem').map((t) => t.textContent)).toEqual(['1 Réfléchir', '2 Écrire', '3 Relire']);
+  });
+
+  test('en P2, il y a bien quatre tuiles', () => {
+    render(<EcranEleve activite={activite({ annee: 'P2' })} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
+    expect(within(screen.getByRole('list', { name: /les quatre temps/i })).getAllByRole('listitem')).toHaveLength(4);
+  });
+
+  test('à « Relire », plus de passage à la correction : les signaux, la modification du texte et le rendu sont au même endroit', async () => {
+    await relirep1('il pleut');
+    expect(screen.queryByRole('button', { name: /passer à la correction/i })).not.toBeInTheDocument();
+    expect(screen.getByText(/Regarde la première lettre de cette phrase/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/mon texte/i)).toBeEnabled();
+    expect(screen.getByRole('group', { name: /deux étoiles et un souhait/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /rendre mon texte/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /essayer autrement/i })).toBeInTheDocument();
+  });
+
+  test('« Je ne comprends pas » fonctionne aussi à ce temps fusionné, avec le vocabulaire de P1', async () => {
+    await relirep1('il pleut');
+    await userEvent.click(screen.getAllByRole('button', { name: /je ne comprends pas/i })[0]);
+    expect(screen.getByText(/une majuscule, une grande lettre/i)).toBeInTheDocument();
+  });
+
+  test('une question fixe « corriger » arrive comme une question de relecture', async () => {
+    await relirep1('Un chat qui dort sur le canapé.', p1({ principeIds: ['cor-majuscule'] }));
+    expect(screen.getByText('Chaque phrase commence-t-elle par une majuscule ?')).toBeInTheDocument();
+  });
+
+  test('une question de l’enseignant « corriger » arrive aussi à ce temps', async () => {
+    await relirep1('Un chat qui dort sur le canapé.', p1({ principesPerso: [{ phase: 'corriger', question: 'As-tu relu les noms propres ?' }] }));
+    expect(screen.getByText('As-tu relu les noms propres ?')).toBeInTheDocument();
+  });
+
+  test('le mot sur l’erreur n’apparaît qu’une fois', async () => {
+    await relirep1('il pleut');
+    expect(screen.getAllByText('Se tromper, c’est normal : on apprend en essayant autrement.')).toHaveLength(1);
+  });
+
+  test('rendre à ce temps : phase « rendu », bilan factuel', async () => {
+    const api = await relirep1('Un chat roux.');
+    await userEvent.click(screen.getByRole('button', { name: /rendre mon texte/i }));
+    expect(screen.getByText('Ton texte est rendu : 3 mots, 1 version.')).toBeInTheDocument();
+    await waitFor(() => {
+      const d = (api.sauver as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[0];
+      expect(d).toMatchObject({ phase: 'rendu', texte: 'Un chat roux.' });
+    });
+  });
+
+  test('texte vide : seulement l’invitation à écrire, pas de formulaire de fin', async () => {
+    await relirep1('');
+    expect(screen.getByText(/Écris d.abord quelques mots/i)).toBeInTheDocument();
+    expect(screen.queryByRole('group', { name: /deux étoiles et un souhait/i })).not.toBeInTheDocument();
+  });
+
+  test('un texte déjà rendu en P1 reprend au troisième temps, sans modification possible', () => {
+    render(<EcranEleve activite={p1({ reprise: { texte: 'Fini.', version: 1, phase: 'rendu' } })} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
+    const [, , t3] = within(screen.getByRole('list', { name: /les trois temps/i })).getAllByRole('listitem');
+    expect(t3).toHaveAttribute('aria-current', 'step');
+    expect(screen.getByText(/ton texte est rendu/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/mon texte/i)).toBeDisabled();
+  });
+});
+
+describe('EcranEleve : les questions fixes « corriger » ne sont plus perdues dès P2', () => {
+  test('en P2, la question fixe choisie par l’enseignant s’affiche au temps Corriger', async () => {
+    render(<EcranEleve activite={activite({ annee: 'P2', contraintes: {}, principeIds: ['cor-point'] })} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
+    await versEcriture();
+    await userEvent.type(screen.getByLabelText(/mon texte/i), 'Un chat qui dort.');
+    await userEvent.click(screen.getByRole('button', { name: /fini d.écrire/i }));
+    await userEvent.click(screen.getByRole('button', { name: /passer à la correction/i }));
+    expect(screen.getByText('Chaque phrase se termine-t-elle par un point ?')).toBeInTheDocument();
   });
 });
 

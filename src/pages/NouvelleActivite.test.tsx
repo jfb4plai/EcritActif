@@ -42,6 +42,17 @@ describe('NouvelleActivite : comportement', () => {
     expect(a.consigne).toBe('Écrire trois phrases sur mon animal.');
   });
 
+  test('en P1, l’enseignant est prévenu que « Corriger » est fusionné avec « Relire »', () => {
+    render(<NouvelleActivite annee="P1" onEnregistrer={vi.fn()} />);
+    expect(screen.getByRole('heading', { name: /Corriger \(avec Relire en P1\)/ })).toBeInTheDocument();
+    expect(screen.getByText(/En P1, ce temps est fusionné avec Relire/)).toBeInTheDocument();
+  });
+
+  test('en P2, rien de tel', () => {
+    formulaire();
+    expect(screen.queryByText(/En P1, ce temps est fusionné/)).not.toBeInTheDocument();
+  });
+
   test('l’attendu du référentiel de l’année est rappelé à côté des items CECP', () => {
     formulaire();
     expect(screen.getByText(/Rédiger un écrit lisible/)).toBeInTheDocument();
