@@ -21,7 +21,7 @@ export default function APropos() {
       <ul>
         <li>Comprendre la rétroaction : l’élève peut dire « Je ne comprends pas » et reçoit une explication.</li>
         <li>Porter un jugement sur son travail : « Deux étoiles et un souhait » avant de rendre.</li>
-        <li>Gérer ses émotions face à un retour : pas encore travaillée dans l’application.</li>
+        <li>Gérer ses émotions face à un retour : un mot sur l’erreur et un temps pour respirer, facultatif (essai avec des élèves à faire).</li>
         <li>Agir après un retour : « Essayer autrement » garde la version d’avant à côté de la nouvelle.</li>
       </ul>
       <h2>Programme</h2>

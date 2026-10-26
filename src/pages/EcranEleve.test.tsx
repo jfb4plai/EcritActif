@@ -318,6 +318,45 @@ describe('EcranEleve : qualité de la rétroaction et littératie à la rétroac
   });
 });
 
+describe('EcranEleve : gérer ses émotions face aux retours (compétence 3 du cadre RISS)', () => {
+  async function vers(temps: 'relire' | 'corriger', api = apiDeTest()) {
+    render(<EcranEleve activite={activite({ contraintes: {} })} eleveId="el1" jeton="j" api={api} delaiSauvegardeMs={0} />);
+    await versEcriture();
+    await userEvent.type(screen.getByLabelText(/mon texte/i), 'il pleut');
+    await userEvent.click(screen.getByRole('button', { name: /fini d.écrire/i }));
+    if (temps === 'corriger') await userEvent.click(screen.getByRole('button', { name: /passer à la correction/i }));
+    return api;
+  }
+
+  test.each(['relire', 'corriger'] as const)('au temps « %s », un mot sur l’erreur est visible sans rien cliquer', async (temps) => {
+    await vers(temps);
+    expect(screen.getByText('Se tromper, c’est normal : on apprend en essayant autrement.')).toBeVisible();
+  });
+
+  test('le temps pour respirer est proposé, fermé par défaut, jamais obligatoire', async () => {
+    await vers('corriger');
+    const detail = screen.getByText(/prendre un moment avant de lire les retours/i).closest('details') as HTMLElement;
+    expect(detail).not.toHaveAttribute('open');
+    // Les retours restent accessibles sans l'ouvrir.
+    expect(screen.getByRole('button', { name: /rendre mon texte/i })).toBeEnabled();
+  });
+
+  test('« J’ai respiré » est une trace pour l’enseignant, pas un passage obligé', async () => {
+    const api = await vers('corriger');
+    await userEvent.click(screen.getByRole('button', { name: /j.ai respiré/i }));
+    await waitFor(() => {
+      const tous = (api.sauver as ReturnType<typeof vi.fn>).mock.calls.flatMap((c) => c[0].evenements as string[]);
+      expect(tous).toContain('respiration:faite');
+    });
+  });
+
+  test('une fois le texte rendu, plus de consigne de respiration', async () => {
+    await vers('corriger');
+    await userEvent.click(screen.getByRole('button', { name: /rendre mon texte/i }));
+    expect(screen.queryByText(/prendre un moment avant de lire les retours/i)).not.toBeInTheDocument();
+  });
+});
+
 describe('EcranEleve : réfléchir', () => {
   test('affiche la consigne et les questions de la phase réfléchir', () => {
     render(<EcranEleve activite={activite()} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);

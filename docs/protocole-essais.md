@@ -11,6 +11,8 @@ Règle empruntée au projet « courrier simplifié » : les seuils sont écrits 
 
 5. Les élèves utilisent-ils les retours ? (demandes d'aide « Je ne comprends pas », « Essayer autrement », étoiles et souhait remplis : lisibles dans le tableau de bord.) Ce n'est pas un test de qualité : c'est un indicateur de littératie à la rétroaction, à lire avec l'enseignant.
 
+6. Le mot sur l'erreur et le temps pour respirer aident-ils ou gênent-ils ? (Observer si l'élève ouvre « Prendre un moment avant de lire les retours », s'il la trouve utile, ou s'il la juge enfantine ou moqueuse. La trace `respiration:faite` existe mais n'est pas encore affichée au tableau de bord.)
+
 ## Seuils (à fixer par JF)
 
 | Question | Proposition | Seuil fixé par JF |

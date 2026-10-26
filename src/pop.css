@@ -215,3 +215,16 @@ aside[aria-label='Aides'] li {
   color: #5a564f;
   opacity: 1;
 }
+
+/* Moment pour respirer : discret, jamais bloquant. */
+.zone-temps details > summary {
+  cursor: pointer;
+  font-weight: 700;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+.zone-temps details > summary:focus-visible {
+  outline: 4px solid #1a1814;
+  outline-offset: 2px;
+}

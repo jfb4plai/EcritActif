@@ -256,6 +256,27 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
     }
   }
 
+  // Gérer ses émotions face à un retour : l'erreur dédramatisée, et un temps pour respirer, facultatif.
+  // RISS : l'erreur est une occasion d'apprendre (hal-04646895) ; réévaluer plutôt que supprimer ses émotions (W4412804449) ;
+  // respiration guidée régulière, menée par l'enseignant : moins d'agitation en CP et CM1 (dumas-05337696). Un bouton ponctuel
+  // dans une app n'est étayé par aucune source lue : il reste une option, jamais un passage obligé.
+  const momentCalme = !rendu && (
+    <div className="plai-card">
+      <p>Se tromper, c’est normal : on apprend en essayant autrement.</p>
+      <details>
+        <summary>Prendre un moment avant de lire les retours</summary>
+        <ul>
+          <li>D’abord : gonfle doucement ton ventre en comptant jusqu’à 4.</li>
+          <li>Ensuite : souffle doucement en comptant jusqu’à 4.</li>
+          <li>Recommence 3 fois, puis relis.</li>
+        </ul>
+        <button type="button" className="plai-btn tuile" onClick={() => tracer('respiration:faite')}>
+          J’ai respiré
+        </button>
+      </details>
+    </div>
+  );
+
   const memoIdees = [plan.debut, plan.ensuite, plan.fin].some((x) => x.trim() !== '') && (
     <section aria-label="Mes idées" className="plai-card">
       <h2>Mes idées</h2>
@@ -403,6 +424,7 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
                 ) : (
                   <p className="text-sm">Ton navigateur ne peut pas lire à voix haute.</p>
                 ))}
+              {momentCalme}
               {retourAutorise(etat.phase) && critere ? (
                 <div className="plai-card">
                   <p>{critere.texte}</p>
@@ -445,6 +467,7 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
             </ul>
           )}
           {zoneTexte}
+          {momentCalme}
           {signauxActifs.length > 0 ? (
             <ul>
               {signauxActifs.map((s, i) => (

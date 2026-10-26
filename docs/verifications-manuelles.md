@@ -11,5 +11,6 @@ Statuts : **constaté** (vu, avec date), **non vérifié**.
 | Dictée vocale | non vérifié | Le micro exige HTTPS ; à tester sur l'URL publique. |
 | Colorisation sur l'écriture | non étayé | Le RISS (dumas-03282114) porte sur la lecture. |
 | Critères de qualité de la rétroaction | constaté (tests) | `src/lib/qualite.ts` : contrôle par expressions régulières ; il détecte les formes (compliment, validation, note, constat sans action, imprécision), pas le sens. Un retour mal formulé mais qui passe les critères reste possible. |
+| Mot sur l'erreur et temps pour respirer | non vérifié | Aucun enfant ne les a vus ; la respiration ponctuelle dans une app n'est étayée par aucune source lue (voir la spec). |
 | Rétroaction : essai avec des élèves | non vérifié | Aucun enfant n'a lu ces messages ; la lisibilité des explications « Je ne comprends pas » en P1 à P3 est à tester. |
 | Lecture à voix haute des retours | non vérifié | Les explications se lisent à l'écran ; leur lecture par la synthèse vocale n'est pas encore branchée. |

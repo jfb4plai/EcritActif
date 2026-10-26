@@ -44,6 +44,8 @@ describe('App : routes', () => {
       expect(screen.getByText(c)).toBeInTheDocument();
     }
     expect(screen.getByText(/Hausman/)).toBeInTheDocument();
+    expect(screen.queryByText(/pas encore travaillée/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/gérer ses émotions/i)).toHaveTextContent(/essai avec des élèves à faire/i);
     expect(screen.getByText(/Carless et Boud/)).toBeInTheDocument();
   });
 
