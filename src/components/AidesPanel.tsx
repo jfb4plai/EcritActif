@@ -17,7 +17,7 @@ export default function AidesPanel({ choisies, resolues, onBasculerGene }: Props
       <h2>Ce qui me gêne</h2>
       <p className="text-sm">Coche ce qui te gêne : l’application te propose des aides.</p>
       {GENES.map((g) => (
-        <label key={g} className="block">
+        <label key={g} className="choix-tuile">
           <input type="checkbox" checked={idsDeGene(g).every((id) => choisies.includes(id))} onChange={() => onBasculerGene(g)} /> {g}
         </label>
       ))}

@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import './plai-style.css';
 import './tailwind.css';
+import './pop.css';
 import App from './App';
 import { AuthProvider } from './auth/AuthContext';
 

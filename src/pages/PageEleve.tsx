@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import type { ActiviteEleve } from '../../api/_lib/eleve';
 import { apiEleve, ouvrirSession } from '../lib/apiEleve';
+import { PALETTE } from '../lib/palette';
 import EcranEleve from './EcranEleve';
 
 export default function PageEleve() {
@@ -25,20 +26,23 @@ export default function PageEleve() {
   if (session) {
     return (
       <section className="plai-section space-y-3">
-        <h1>Mes activités</h1>
+        <h1 className="titre-pop">Mes activités</h1>
         {session.activites.length === 0 && <p>Il n’y a pas encore d’activité. Demande à ton enseignant.</p>}
-        {session.activites.map((a) => (
-          <button key={a.id} type="button" className="plai-btn block" onClick={() => setChoix(a)}>
+        {session.activites.map((a, i) => {
+          const c = PALETTE[(['reflechir', 'ecrire', 'relire', 'corriger'] as const)[i % 4]];
+          return (
+          <button key={a.id} type="button" className="plai-btn tuile tuile-grande" style={{ background: c.fond, color: c.texte }} onClick={() => setChoix(a)}>
             {a.consigne}
           </button>
-        ))}
+          );
+        })}
       </section>
     );
   }
 
   return (
     <section className="plai-section">
-      <h1>Entrer</h1>
+      <h1 className="titre-pop">Entrer</h1>
       <form onSubmit={entrer} className="space-y-4">
         <div>
           <label htmlFor="code-classe">Code de la classe</label>
@@ -50,7 +54,7 @@ export default function PageEleve() {
           <input id="code-eleve" className="plai-input" value={codeEleve} onChange={(e) => setCodeEleve(e.target.value)} placeholder="KMN567" autoCapitalize="characters" autoComplete="off" aria-describedby="aide-eleve" required />
           <p id="aide-eleve" className="text-sm">C’est ton code à toi. Il ne contient pas ton nom.</p>
         </div>
-        <button type="submit" className="plai-btn">
+        <button type="submit" className="plai-btn tuile" style={{ background: PALETTE.eleve.fond, color: PALETTE.eleve.texte }}>
           Entrer
         </button>
         {erreur && <p role="alert">{erreur}</p>}

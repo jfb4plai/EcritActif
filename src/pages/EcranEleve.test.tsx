@@ -221,6 +221,15 @@ describe('EcranEleve : questions écrites par l’enseignant (amélioration 4)',
   });
 });
 
+describe('EcranEleve : quitter avant d’avoir écrit', () => {
+  test('ouvrir puis quitter sans rien écrire : à la réouverture, on recommence par « réfléchir »', () => {
+    const { unmount } = render(<EcranEleve activite={activite()} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
+    unmount();
+    render(<EcranEleve activite={activite()} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
+    expect(screen.getByRole('button', { name: /commencer à écrire/i })).toBeInTheDocument();
+  });
+});
+
 describe('EcranEleve : réfléchir', () => {
   test('affiche la consigne et les questions de la phase réfléchir', () => {
     render(<EcranEleve activite={activite()} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);

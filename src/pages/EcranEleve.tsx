@@ -8,6 +8,7 @@ import { dicteePossible, dicter, lire, synthesePossible } from '../lib/audio';
 import { choisirCritere, decider, initial, retourAutorise, suivant, type Choix, type EtatBoucle } from '../lib/boucle';
 import { lireLocal, sauverLocal } from '../lib/brouillonLocal';
 import { chargerColorisation, type ModeColorisation } from '../lib/colorisation';
+import { PALETTE, TEXTE_SOMBRE } from '../lib/palette';
 import { ATTRIBUTION_ARASAAC } from '../lib/pictos';
 import { principeParId } from '../lib/principes';
 import { detecterSignaux, verifierContraintes } from '../lib/retour';
@@ -28,6 +29,11 @@ interface Props {
 }
 
 const TITRES: Record<Phase, string> = { reflechir: 'Réfléchir', ecrire: 'Écrire', relire: 'Relire', corriger: 'Corriger' };
+const ORDRE: Phase[] = ['reflechir', 'ecrire', 'relire', 'corriger'];
+
+// Teinte d'une zone : les boutons qu'elle contient prennent la couleur du temps (variables lues par pop.css).
+const teinte = (p: Phase) => ({ background: PALETTE[p].pale, borderColor: PALETTE[p].fond, '--tuile-fond': PALETTE[p].fond, '--tuile-texte': PALETTE[p].texte }) as React.CSSProperties;
+
 const MODES: { id: ModeColorisation; libelle: string }[] = [
   { id: 'phonemes', libelle: 'Les sons' },
   { id: 'syllabes', libelle: 'Les syllabes' },
@@ -81,9 +87,11 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
 
   // Copie locale à chaque changement, envoi au serveur après une pause de frappe.
   useEffect(() => {
+    // Rien d'écrit et encore en « réfléchir » : ne pas laisser une copie vide qui ferait sauter ce temps à la réouverture.
+    if (etat.phase === 'reflechir' && texte === '') return;
     sauverLocal(cleTexte, texte);
     sauverLocal(`${cleTexte}:v`, String(etat.versions));
-  }, [texte, etat.versions, cleTexte]);
+  }, [texte, etat.versions, etat.phase, cleTexte]);
 
   useEffect(() => {
     if (renduAvant) return; // ne jamais écraser un texte déjà rendu
@@ -183,7 +191,7 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
     <div className="plai-card">
       <p>{activite.consigne}</p>
       {peutLire && (
-        <button type="button" className="plai-btn" onClick={() => lire(activite.consigne)}>
+        <button type="button" className="plai-btn tuile" onClick={() => lire(activite.consigne)}>
           Écouter la consigne
         </button>
       )}
@@ -242,7 +250,7 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
       {active('banque-mots') && !rendu && activite.banqueMots.length > 0 && (
         <div className="flex gap-2 flex-wrap" aria-label="Mots utiles">
           {activite.banqueMots.map((m) => (
-            <button key={m} type="button" className="plai-btn" onClick={() => ajouterMot(m)}>
+            <button key={m} type="button" className="plai-btn tuile" onClick={() => ajouterMot(m)}>
               {m}
             </button>
           ))}
@@ -250,7 +258,7 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
       )}
       {active('dictee-vocale') &&
         (dicteePossible() ? (
-          <button type="button" className="plai-btn" onClick={dicterTexte}>
+          <button type="button" className="plai-btn tuile" onClick={dicterTexte}>
             {ecoute ? 'Arrêter' : 'Parler pour écrire'}
           </button>
         ) : (
@@ -261,17 +269,25 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
 
   return (
     <div className="space-y-4">
-      <ol className="flex gap-2" aria-label="Les quatre temps">
-        {(Object.keys(TITRES) as Phase[]).map((p) => (
-          <li key={p} aria-current={etat.phase === p ? 'step' : undefined} style={{ fontWeight: etat.phase === p ? 700 : 400 }}>
-            {TITRES[p]}
-          </li>
-        ))}
+      <ol className="tuiles-temps" aria-label="Les quatre temps">
+        {ORDRE.map((p, i) => {
+          const actif = etat.phase === p;
+          return (
+            <li
+              key={p}
+              className="tuile-temps"
+              aria-current={actif ? 'step' : undefined}
+              style={{ background: actif ? PALETTE[p].fond : PALETTE[p].pale, color: actif ? PALETTE[p].texte : TEXTE_SOMBRE, borderColor: PALETTE[p].fond }}
+            >
+              {i + 1} {TITRES[p]}
+            </li>
+          );
+        })}
       </ol>
       {horsLigne && <p role="status">Texte enregistré seulement sur cet appareil. Garde cette page ouverte.</p>}
 
       {etat.phase === 'reflechir' && (
-        <section>
+        <section data-phase="reflechir" className="zone-temps" style={teinte('reflechir')}>
           {consigneBloc}
           <ul>
             {principes('reflechir').map((p) => (
@@ -282,7 +298,7 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
             ))}
           </ul>
           {peutLire && principes('reflechir').length + questionsPerso('reflechir').length > 0 && (
-            <button type="button" className="plai-btn" onClick={() => lire([...principes('reflechir').map((p) => p.question), ...questionsPerso('reflechir').map((q) => q.question)].join(' '))}>
+            <button type="button" className="plai-btn tuile" onClick={() => lire([...principes('reflechir').map((p) => p.question), ...questionsPerso('reflechir').map((q) => q.question)].join(' '))}>
               Écouter les questions
             </button>
           )}
@@ -297,29 +313,29 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
               <textarea id="plan-fin" className="plai-input" value={plan.fin} onChange={(e) => setPlan({ ...plan, fin: e.target.value })} />
             </fieldset>
           )}
-          <button type="button" className="plai-btn" onClick={() => aller('suivant')}>
+          <button type="button" className="plai-btn tuile" onClick={() => aller('suivant')}>
             Commencer à écrire
           </button>
         </section>
       )}
 
       {etat.phase === 'ecrire' && (
-        <section>
+        <section data-phase="ecrire" className="zone-temps" style={teinte('ecrire')}>
           {consigneBloc}
           {zoneTexte}
-          <button type="button" className="plai-btn" onClick={() => aller('suivant')}>
+          <button type="button" className="plai-btn tuile" onClick={() => aller('suivant')}>
             J’ai fini d’écrire
           </button>
         </section>
       )}
 
       {etat.phase === 'relire' && (
-        <section>
+        <section data-phase="relire" className="zone-temps" style={teinte('relire')}>
           {consigneBloc}
           {texte.trim() === '' ? (
             <div>
               <p>Écris d’abord quelques mots.</p>
-              <button type="button" className="plai-btn" onClick={() => aller('continuer')}>
+              <button type="button" className="plai-btn tuile" onClick={() => aller('continuer')}>
                 Retourner écrire
               </button>
             </div>
@@ -337,10 +353,10 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
                   </select>
                 </label>
               )}
-              <p style={{ fontFamily: 'Arial, sans-serif', fontSize: '1.25rem' }}>{active('colorisation') && colorPrete ? <TexteColore texte={texte} mode={modeColor} /> : texte}</p>
+              <p className="texte-relu">{active('colorisation') && colorPrete ? <TexteColore texte={texte} mode={modeColor} /> : texte}</p>
               {active('audio-relecture') &&
                 (peutLire ? (
-                  <button type="button" className="plai-btn" onClick={() => lire(texte)}>
+                  <button type="button" className="plai-btn tuile" onClick={() => lire(texte)}>
                     Écouter mon texte
                   </button>
                 ) : (
@@ -350,18 +366,18 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
                 <div className="plai-card">
                   <p>{critere.texte}</p>
                   {peutLire && (
-                    <button type="button" className="plai-btn" onClick={() => lire(critere.texte)}>
+                    <button type="button" className="plai-btn tuile" onClick={() => lire(critere.texte)}>
                       Écouter la question
                     </button>
                   )}
-                  <button type="button" className="plai-btn" onClick={() => setDeja([...deja, critere.id])}>
+                  <button type="button" className="plai-btn tuile" onClick={() => setDeja([...deja, critere.id])}>
                     J’ai regardé
                   </button>
                 </div>
               ) : (
                 <p>Tu as regardé toutes les questions.</p>
               )}
-              <button type="button" className="plai-btn" onClick={() => aller('suivant')}>
+              <button type="button" className="plai-btn tuile" onClick={() => aller('suivant')}>
                 Passer à la correction
               </button>
             </div>
@@ -370,7 +386,7 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
       )}
 
       {etat.phase === 'corriger' && (
-        <section>
+        <section data-phase="corriger" className="zone-temps" style={teinte('corriger')}>
           {questionsPerso('corriger').length > 0 && (
             <ul>
               {questionsPerso('corriger').map((q, i) => (
@@ -397,13 +413,13 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
           )}
           {!rendu ? (
             <div className="flex gap-2 flex-wrap">
-              <button type="button" className="plai-btn" onClick={() => aller('continuer')}>
+              <button type="button" className="plai-btn tuile" onClick={() => aller('continuer')}>
                 Continuer à écrire
               </button>
-              <button type="button" className="plai-btn" onClick={() => aller('reecrire')}>
+              <button type="button" className="plai-btn tuile" onClick={() => aller('reecrire')}>
                 Écrire une nouvelle version
               </button>
-              <button type="button" className="plai-btn" onClick={() => aller('rendre')}>
+              <button type="button" className="plai-btn tuile" onClick={() => aller('rendre')}>
                 Rendre mon texte
               </button>
             </div>

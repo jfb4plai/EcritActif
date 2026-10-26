@@ -1,0 +1,202 @@
+/* « Pop en tuiles colorées » : espace élève et accueil. Les couleurs viennent de src/lib/palette.ts (contrastes testés).
+   La couleur n'est jamais seule : chaque tuile porte un numéro ou un nom, le temps en cours a aussi une ombre. */
+
+.plai-btn.tuile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 56px;
+  padding: 0.9rem 1.4rem;
+  font-family: Arial, 'DM Sans', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  border: 3px solid #1a1814;
+  border-radius: 18px;
+  box-shadow: 0 6px 0 #1a1814;
+  cursor: pointer;
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+.plai-btn.tuile:hover {
+  opacity: 1;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 #1a1814;
+}
+.plai-btn.tuile:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #1a1814;
+}
+.plai-btn.tuile:focus-visible {
+  outline: 4px solid #1a1814;
+  outline-offset: 4px;
+}
+/* Désactivée : pas seulement plus pâle (contraste préservé), le contour devient pointillé. */
+.plai-btn.tuile:disabled {
+  background: #e5e2dc;
+  color: #4b4740;
+  border-style: dashed;
+  box-shadow: none;
+  opacity: 1;
+  cursor: not-allowed;
+}
+.tuile-grande {
+  min-height: 120px;
+  width: 100%;
+  max-width: 22rem;
+  font-size: 1.75rem !important;
+}
+
+/* Zone d'un temps : fond pâle, bord de la couleur du temps, boutons pleins de cette couleur. */
+.zone-temps {
+  border: 4px solid;
+  border-radius: 24px;
+  padding: 1.25rem;
+  color: #1a1814;
+}
+.zone-temps .plai-btn.tuile {
+  background: var(--tuile-fond);
+  color: var(--tuile-texte);
+  margin: 0.4rem 0.4rem 0.6rem 0;
+}
+.zone-temps .plai-card {
+  background: #fff;
+  border: 2px solid #1a1814;
+  border-radius: 16px;
+}
+.zone-temps label {
+  font-weight: 700;
+  font-size: 1.0625rem;
+}
+
+/* Les quatre temps. */
+.tuiles-temps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+  gap: 0.75rem;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+.tuile-temps {
+  border: 3px solid;
+  border-radius: 16px;
+  padding: 0.75rem 1rem;
+  font-family: Arial, 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 1.125rem;
+  text-align: center;
+}
+.tuile-temps[aria-current='step'] {
+  box-shadow: 0 6px 0 #1a1814;
+}
+
+/* Cases à cocher larges (aides). */
+.choix-tuile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 48px;
+  padding: 0.5rem 0.75rem;
+  margin: 0.4rem 0;
+  border: 2px solid #1a1814;
+  border-radius: 14px;
+  background: #fff;
+  font-size: 1.0625rem;
+}
+.choix-tuile input {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plai-btn.tuile {
+    transition: none;
+  }
+  .plai-btn.tuile:hover,
+  .plai-btn.tuile:active {
+    transform: none;
+  }
+}
+
+/* Lisibilité : espace élève en Arial, 20 px, questions en pastilles. */
+.zone-temps {
+  font-family: Arial, 'DM Sans', sans-serif;
+  font-size: 1.25rem;
+  line-height: 1.5;
+}
+.zone-temps ul {
+  list-style: none;
+  padding: 0;
+  margin: 0.75rem 0;
+}
+.zone-temps li {
+  background: #fff;
+  border: 2px solid #1a1814;
+  border-radius: 14px;
+  padding: 0.6rem 0.9rem;
+  margin: 0.5rem 0;
+}
+.zone-temps legend {
+  font-weight: 700;
+  font-size: 1.25rem;
+  padding: 0 0.4rem;
+}
+.zone-temps fieldset {
+  border: 2px solid #1a1814;
+  border-radius: 16px;
+  padding: 0.75rem 1rem;
+  margin: 0.75rem 0;
+  background: #fff;
+}
+.zone-temps textarea {
+  font-family: Arial, sans-serif;
+  font-size: 1.25rem;
+  border: 2px solid #1a1814;
+  border-radius: 14px;
+  background: #fff;
+}
+.titre-pop {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 2.25rem;
+  line-height: 1.15;
+  margin: 0 0 0.75rem;
+  color: #1a1814;
+}
+
+/* Panneau des aides. */
+aside[aria-label='Aides'] {
+  font-family: Arial, 'DM Sans', sans-serif;
+  font-size: 1.125rem;
+  border: 3px solid #1a1814;
+  border-radius: 24px;
+  background: #fff;
+  padding: 1rem 1.25rem;
+}
+aside[aria-label='Aides'] h2 {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 1.5rem;
+  margin: 0 0 0.25rem;
+}
+aside[aria-label='Aides'] ul {
+  list-style: none;
+  padding: 0;
+}
+aside[aria-label='Aides'] li {
+  margin: 0.35rem 0;
+}
+
+/* Texte relu : sur fond blanc, pour que la colorisation (rouge, bleu…) garde son contraste. */
+.texte-relu {
+  background: #fff;
+  border: 2px solid #1a1814;
+  border-radius: 14px;
+  padding: 0.75rem 1rem;
+  font-family: Arial, sans-serif;
+  font-size: 1.375rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
