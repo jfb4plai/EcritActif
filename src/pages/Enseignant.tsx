@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import ListeClasses from '../components/ListeClasses';
 import ChoixAnnee from '../components/ChoixAnnee';
 import { useAuth } from '../auth/AuthContext';
 import { creerClasse, listerClasses, type ClasseLigne } from '../lib/enseignant';
@@ -8,6 +9,7 @@ import type { Annee } from '../types';
 
 export default function Enseignant() {
   const { user, seDeconnecter } = useAuth();
+  const navigate = useNavigate();
   const [classes, setClasses] = useState<ClasseLigne[]>([]);
   const [nom, setNom] = useState('');
   const [niveau, setNiveau] = useState<Annee | ''>('');
@@ -23,6 +25,8 @@ export default function Enseignant() {
     try {
       const c = await creerClasse(getSupabase(), user.id, nom.trim(), niveau);
       setClasses([c, ...classes]);
+      // On entre directement dans la classe créée : la suite (élèves, activités) s'y trouve.
+      navigate(`/enseignant/classe/${c.id}`);
       setNom('');
       setNiveau('');
     } catch {
@@ -50,13 +54,7 @@ export default function Enseignant() {
         </button>
       </form>
       {erreur && <p role="alert">{erreur}</p>}
-      <ul>
-        {classes.map((c) => (
-          <li key={c.id}>
-            <Link to={`/enseignant/classe/${c.id}`}>{c.nom}</Link> ({c.niveau ?? 'année à préciser'}) : code de classe {c.code_classe}
-          </li>
-        ))}
-      </ul>
+      <ListeClasses classes={classes} />
       <button type="button" className="plai-btn" onClick={() => seDeconnecter()}>
         Se déconnecter
       </button>

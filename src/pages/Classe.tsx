@@ -66,10 +66,19 @@ export default function Classe() {
   return (
     <section className="plai-section space-y-6">
       <p>
-        <Link to="/enseignant">Mes classes</Link>
+        <Link to="/enseignant" className="plai-btn-ghost lien-bouton">← Retour à mes classes</Link>
       </p>
       <h1>{classe.nom}</h1>
       <p>Code de la classe à donner aux élèves : <strong>{classe.code_classe}</strong></p>
+      <section aria-label="Pour commencer" className="plai-card">
+        <h2>Pour commencer</h2>
+        <ol>
+          <li>Ajouter vos élèves : cliquer sur « Ajouter 5 élèves » dans la partie Élèves.</li>
+          <li>Créer une activité : cliquer sur « Nouvelle activité » dans la partie Activités.</li>
+          <li>Donner à chaque élève le code de la classe et son code personnel, à saisir sur la page des élèves.</li>
+          <li>Lire les traces dans le tableau en bas de cette page.</li>
+        </ol>
+      </section>
       {erreur && <p role="alert">{erreur}</p>}
 
       {classe.niveau === null ? (

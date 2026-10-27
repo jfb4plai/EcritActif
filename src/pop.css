@@ -266,3 +266,22 @@ aside[aria-label='Aides'] li {
 .choix-annee label { display: block; font-weight: 700; font-size: 1.0625rem; margin-bottom: 6px; }
 .choix-annee select.plai-input { font-size: 1.125rem; min-height: 48px; background: #fff; }
 .choix-annee p { margin: 6px 0 0; }
+
+/* Liens qui doivent se reconnaître comme des boutons (liste des classes, retour). */
+a.plai-btn, a.lien-bouton { display: inline-block; text-decoration: none; }
+a.plai-btn { color: #fff; }
+a.plai-btn-ghost { color: var(--text2); }
+.liste-classes { list-style: none; padding-left: 0; }
+
+/* Les zones qui se déplient (« Aides activées pour cet élève », « Dans le programme »…) se reconnaissent comme cliquables. */
+details > summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 8px 12px;
+  margin: 6px 0;
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  background: #fff;
+}
+details > summary:hover { border-color: var(--teal); }
+details > summary:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
