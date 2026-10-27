@@ -15,21 +15,27 @@ describe('ChoixAnnee : une année du programme, avec son aide', () => {
 
   test('par défaut, les années proposées aux enseignants', () => {
     render(<ChoixAnnee {...base} valeur="P1" onChange={vi.fn()} />);
-    expect(screen.getAllByRole('option').map((o) => o.textContent)).toEqual(['P1', 'P2', 'P3']);
+    expect(screen.getAllByRole('option').map((o) => o.textContent)).toEqual(['P1', 'P2', 'P3', 'P4', 'P5', 'P6']);
   });
 
   test('valeur vide : une première option « Choisir… » invite à décider ; elle ne compte pas comme une année', () => {
     render(<ChoixAnnee {...base} valeur="" onChange={vi.fn()} invite="Choisir l’année" />);
     const options = screen.getAllByRole('option').map((o) => o.textContent);
     expect(options[0]).toBe('Choisir l’année');
-    expect(options.slice(1)).toEqual(['P1', 'P2', 'P3']);
+    expect(options.slice(1)).toEqual(['P1', 'P2', 'P3', 'P4', 'P5', 'P6']);
     expect(screen.getByLabelText('Année scolaire de la classe')).toHaveValue('');
   });
 
-  test('une valeur hors des années proposées reste visible (activité existante, test de P4 avant ouverture)', () => {
+  test('une valeur hors des années proposées reste visible (donnée d’une année refermée ensuite)', () => {
+    render(<ChoixAnnee {...base} valeur={'P9' as never} onChange={vi.fn()} />);
+    expect(screen.getAllByRole('option').map((o) => o.textContent)).toContain('P9');
+    expect(screen.getByLabelText('Année scolaire de la classe')).toHaveValue('P9');
+  });
+
+  test('P4 à P6 sont proposées aux enseignants (ouverture du 2026-10-27)', () => {
     render(<ChoixAnnee {...base} valeur="P4" onChange={vi.fn()} />);
-    expect(screen.getAllByRole('option').map((o) => o.textContent)).toContain('P4');
-    expect(screen.getByLabelText('Année scolaire de la classe')).toHaveValue('P4');
+    const options = screen.getAllByRole('option').map((o) => o.textContent);
+    expect(options).toEqual(expect.arrayContaining(['P4', 'P5', 'P6']));
   });
 
   test('un changement renvoie l’année choisie', async () => {

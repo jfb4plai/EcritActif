@@ -3,9 +3,9 @@ export type Annee = 'P1' | 'P2' | 'P3' | 'P4' | 'P5' | 'P6';
 // Années dont les données (programme, référentiel) sont chargées.
 export const ANNEES: Annee[] = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6'];
 
-// Années proposées aux enseignants. P4 à P6 restent fermées tant que la migration de la contrainte d'année
-// n'est pas appliquée en base et que le contenu élève (vocabulaire, signaux) n'est pas validé par JF.
-export const ANNEES_PROPOSEES: Annee[] = ['P1', 'P2', 'P3'];
+// Années proposées aux enseignants : P1 à P6 depuis le 2026-10-27 (migration 20261027 appliquée dans Flashfwb).
+// Liste distincte de ANNEES pour pouvoir refermer une année sans toucher aux données chargées.
+export const ANNEES_PROPOSEES: Annee[] = ANNEES;
 
 // Deux étoiles et un souhait (Black et al. 2004, cité dans l'article de JF) : l'élève juge lui-même son travail avant de le rendre.
 export interface AutoEvaluation {
