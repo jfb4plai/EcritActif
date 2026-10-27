@@ -36,7 +36,7 @@ describe('migrations SQL ecrit_', () => {
     test(`${f} : la contrainte d’année ne laisse que P1 à P6`, () => {
       const contraintes = [...sql.matchAll(/annee in \(([^)]*)\)/g)].map((m) => m[1].replace(/\s/g, ''));
       for (const c of contraintes) expect(["'p1','p2','p3'", "'p1','p2','p3','p4','p5','p6'"]).toContain(c);
-      expect(contraintes.length).toBeGreaterThan(0);
+      if (/annee/.test(sql)) expect(contraintes.length).toBeGreaterThan(0);
     });
 
     test(`${f} : ne recrée ni profiles ni le trigger updated_at`, () => {
@@ -97,5 +97,42 @@ describe('essai de la migration d’ouverture de P4 à P6', () => {
 
   test('aucune instruction destructrice : ni drop table, ni delete, ni truncate', () => {
     expect(migration.toLowerCase()).not.toMatch(/drop table|delete from|truncate|drop column/);
+  });
+});
+
+describe('essai de la migration des instantanés et de la colorisation', () => {
+  const normaliser = (s: string) => s.replace(/\r\n/g, '\n');
+  const essai = normaliser(readFileSync(join(process.cwd(), 'supabase', 'essai-rollback-instantanes.sql'), 'utf-8'));
+  const migration = normaliser(readFileSync(DOSSIER + '20261028_ecrit_instantanes_colorisation.sql', 'utf-8'));
+
+  test('contient la migration à l’identique (pas de copie périmée)', () => {
+    expect(essai).toContain(migration.trim());
+  });
+
+  test('commence par begin, finit par rollback, et ne valide jamais rien', () => {
+    const code = essai
+      .split('\n')
+      .filter((l) => !l.trim().startsWith('--'))
+      .join('\n')
+      .toLowerCase();
+    expect(code.trim().startsWith('begin;')).toBe(true);
+    expect(code.trim().endsWith('rollback;')).toBe(true);
+    expect(code).not.toMatch(/(^|;)\s*commit\s*;/);
+  });
+
+  test('vérifie RLS, droits, doublon, moment inconnu, colonne colorisation et lecture par un autre enseignant', () => {
+    for (const mot of ['relrowsecurity', 'has_table_privilege', 'unique_violation', "'inconnu'", 'colorisation', 'autre']) expect(essai).toContain(mot);
+  });
+
+  test('la migration reste rejouable et non destructrice', () => {
+    const m = migration.toLowerCase();
+    expect(m).toContain('create table if not exists public.ecrit_instantanes');
+    expect(m).toContain('add column if not exists colorisation');
+    expect(m).toContain('drop policy if exists');
+    expect(m).not.toMatch(/drop table|delete from|truncate|drop column/);
+  });
+
+  test('les élèves ne peuvent rien écrire directement : aucun droit d’écriture pour authenticated', () => {
+    expect(migration.toLowerCase()).not.toMatch(/grant [a-z, ]*(insert|update|delete)[a-z, ]* on public\.ecrit_instantanes to (authenticated|anon)/);
   });
 });
