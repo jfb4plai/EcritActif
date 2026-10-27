@@ -1,6 +1,6 @@
 -- ESSAI de la migration 20261027_ecrit_annees_p4_p6.sql : TOUT EST ANNULÉ à la fin (rollback).
 -- À coller en une fois dans le SQL editor du projet Supabase « Flashfwb » (otiorljbujqzruulmqrs).
--- Résultat attendu : quatre tableaux dans l'onglet Results, dont le dernier dit « OK » sur chaque ligne.
+-- Résultat attendu : plusieurs tableaux dans l’onglet Results, dont le dernier dit « OK » sur chaque ligne.
 
 begin;
 
@@ -38,6 +38,13 @@ alter table public.ecrit_activites add column if not exists grammaire_3d boolean
 -- Format : {"verbe-sujet": {"verbe": ["consigne", ...]}}. Nettoyé côté serveur avant d'arriver à l'élève.
 alter table public.ecrit_activites add column if not exists atelier_perso jsonb;
 
+-- 6. Année scolaire de la classe : valeur de départ des nouvelles activités. Obligatoire pour les classes créées par
+-- l'application (contrôle dans l'application) ; vide pour les classes créées avant ce champ, qui demandent de la choisir.
+alter table public.ecrit_classes add column if not exists niveau text;
+alter table public.ecrit_classes drop constraint if exists ecrit_classes_niveau_check;
+alter table public.ecrit_classes add constraint ecrit_classes_niveau_check
+  check (niveau is null or niveau in ('P1', 'P2', 'P3', 'P4', 'P5', 'P6'));
+
 -- C. APRÈS : une seule contrainte sur l'année, qui va de P1 à P6 ; quatre colonnes ajoutées.
 select conname, pg_get_constraintdef(oid) as definition
 from pg_constraint
@@ -48,6 +55,14 @@ from information_schema.columns
 where table_schema = 'public' and table_name = 'ecrit_activites'
   and column_name in ('atelier', 'atelier_perso', 'chasse', 'grammaire_3d')
 order by column_name;
+
+select column_name, data_type, is_nullable
+from information_schema.columns
+where table_schema = 'public' and table_name = 'ecrit_classes' and column_name = 'niveau';
+
+select conname, pg_get_constraintdef(oid) as definition
+from pg_constraint
+where conrelid = 'public.ecrit_classes'::regclass and contype = 'c';
 
 -- D. COMPORTEMENT, avec des lignes d'essai (annulées) : P6 accepté, P7 refusé, valeurs par défaut des colonnes.
 create temp table essai_resultat (ligne text) on commit drop;
@@ -66,6 +81,15 @@ begin
     return;
   end if;
   insert into public.ecrit_classes (user_id, nom, code_classe) values (u, 'ESSAI', 'ESSAIZ') returning id into c;
+  insert into essai_resultat values ('OK : une classe sans année scolaire reste possible (classes créées avant le champ niveau)');
+  update public.ecrit_classes set niveau = 'P4' where id = c;
+  insert into essai_resultat values ('OK : le niveau P4 est accepté pour une classe');
+  begin
+    update public.ecrit_classes set niveau = 'P7' where id = c;
+    insert into essai_resultat values ('ÉCHEC : le niveau P7 a été accepté pour une classe');
+  exception when check_violation then
+    insert into essai_resultat values ('OK : le niveau P7 est refusé pour une classe');
+  end;
 
   insert into public.ecrit_activites (classe_id, user_id, annee, consigne) values (c, u, 'P6', 'essai') returning id into a;
   insert into essai_resultat values ('OK : une activité de P6 est acceptée');

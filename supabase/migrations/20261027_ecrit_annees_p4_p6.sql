@@ -20,3 +20,10 @@ alter table public.ecrit_activites add column if not exists grammaire_3d boolean
 -- 5. « Ma formulation » : consignes de l'enseignant pour l'atelier, par démarche et par étape.
 -- Format : {"verbe-sujet": {"verbe": ["consigne", ...]}}. Nettoyé côté serveur avant d'arriver à l'élève.
 alter table public.ecrit_activites add column if not exists atelier_perso jsonb;
+
+-- 6. Année scolaire de la classe : valeur de départ des nouvelles activités. Obligatoire pour les classes créées par
+-- l'application (contrôle dans l'application) ; vide pour les classes créées avant ce champ, qui demandent de la choisir.
+alter table public.ecrit_classes add column if not exists niveau text;
+alter table public.ecrit_classes drop constraint if exists ecrit_classes_niveau_check;
+alter table public.ecrit_classes add constraint ecrit_classes_niveau_check
+  check (niveau is null or niveau in ('P1', 'P2', 'P3', 'P4', 'P5', 'P6'));
