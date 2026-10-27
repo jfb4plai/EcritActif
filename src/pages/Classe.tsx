@@ -6,6 +6,8 @@ import AvertissementSurnoms from '../components/AvertissementSurnoms';
 import ChampSurnom from '../components/ChampSurnom';
 import ChoixAnnee from '../components/ChoixAnnee';
 import { AIDES, type AideId } from '../lib/aides';
+import ReglageColorisation from '../components/ReglageColorisation';
+import type { ReglagesColorisation } from '../lib/reglagesColorisation';
 import { itemsParAnnee } from '../lib/cecp';
 import {
   ajouterEleves,
@@ -17,6 +19,7 @@ import {
   modifierAidesRetirees,
   modifierNiveauClasse,
   reglerAides,
+  reglerColorisation,
   validerItem,
   type ActiviteLigne,
   type ClasseLigne,
@@ -70,6 +73,11 @@ export default function Classe() {
     const suite = e.aides.includes(aide) ? e.aides.filter((a) => a !== aide) : [...e.aides, aide];
     await reglerAides(getSupabase(), e.id, suite);
     setEleves(eleves.map((x) => (x.id === e.id ? { ...x, aides: suite } : x)));
+  };
+
+  const changerColorisation = async (e: EleveLigne, r: ReglagesColorisation) => {
+    await reglerColorisation(getSupabase(), e.id, r);
+    setEleves(eleves.map((x) => (x.id === e.id ? { ...x, colorisation: r } : x)));
   };
 
   return (
@@ -155,6 +163,7 @@ export default function Classe() {
                     <input type="checkbox" checked={e.aides.includes(a.id)} onChange={() => basculeAide(e, a.id)} /> {a.libelle}
                   </label>
                 ))}
+                {e.aides.includes('colorisation') && <ReglageColorisation valeur={e.colorisation} onChange={(r) => changerColorisation(e, r)} />}
               </details>
             </li>
           ))}

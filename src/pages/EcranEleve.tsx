@@ -14,6 +14,7 @@ import { lireLocal, sauverLocal } from '../lib/brouillonLocal';
 import { itemParId } from '../lib/cecp';
 import type { Verdict } from '../lib/chasse';
 import { chargerColorisation, type ModeColorisation } from '../lib/colorisation';
+import { MODES_COLORISATION, phraseMode } from '../lib/reglagesColorisation';
 import { PALETTE, TEXTE_SOMBRE } from '../lib/palette';
 import { ATTRIBUTION_ARASAAC } from '../lib/pictos';
 import { principeParId } from '../lib/principes';
@@ -41,13 +42,6 @@ const TITRES: Record<Phase, string> = { reflechir: 'Réfléchir', ecrire: 'Écri
 // Teinte d'une zone : les boutons qu'elle contient prennent la couleur du temps (variables lues par pop.css).
 const teinte = (p: Phase) => ({ background: PALETTE[p].pale, borderColor: PALETTE[p].fond, '--tuile-fond': PALETTE[p].fond, '--tuile-texte': PALETTE[p].texte }) as React.CSSProperties;
 
-const MODES: { id: ModeColorisation; libelle: string }[] = [
-  { id: 'phonemes', libelle: 'Les sons' },
-  { id: 'syllabes', libelle: 'Les syllabes' },
-  { id: 'bpdq', libelle: 'b, p, d, q' },
-  { id: 'voyelles-consonnes', libelle: 'Voyelles et consonnes' },
-];
-
 export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvegardeMs = 2000, reessaiMs = 5000 }: Props) {
   const cleTexte = `ecrit:${eleveId}:${activite.id}`;
   const locale = useMemo(() => lireLocal(cleTexte), [cleTexte]);
@@ -71,7 +65,7 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
   const [choisies, setChoisies] = useState<AideId[]>([]);
   const [deja, setDeja] = useState<string[]>([]);
   const [ecoute, setEcoute] = useState(false);
-  const [modeColor, setModeColor] = useState<ModeColorisation>('syllabes');
+  const [modeColor, setModeColor] = useState<ModeColorisation>(activite.colorisation?.defaut ?? 'syllabes');
   const [colorPrete, setColorPrete] = useState(false);
   const [collageRefuse, setCollageRefuse] = useState(false);
   const [plan, setPlan] = useState(() => {
@@ -106,6 +100,8 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
   }, [retraitsServeur, aidesServeur]);
   const ids = useMemo(() => [...new Set([...aidesServeur.map((a) => a.id), ...choisies])], [aidesServeur, choisies]);
   const resolues = useMemo(() => resoudreAides(ids, retirees), [ids, retirees]);
+  // Modes de colorisation que l'enseignant autorise pour cet élève (tous, sans réglage).
+  const modesColorisation = MODES_COLORISATION.filter((m) => !activite.colorisation || activite.colorisation.permis.includes(m.id));
   const active = (id: AideId) => resolues.some((a) => a.id === id && a.active);
 
   // Copie locale à chaque changement, envoi au serveur après une pause de frappe.
@@ -545,11 +541,11 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
             </div>
           ) : (
             <div>
-              {active('colorisation') && (
+              {active('colorisation') && modesColorisation.length > 1 && (
                 <label>
                   Colorer{' '}
                   <select value={modeColor} onChange={(e) => setModeColor(e.target.value as ModeColorisation)}>
-                    {MODES.map((m) => (
+                    {modesColorisation.map((m) => (
                       <option key={m.id} value={m.id}>
                         {m.libelle}
                       </option>
@@ -557,6 +553,7 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
                   </select>
                 </label>
               )}
+              {active('colorisation') && <p className="text-sm">{phraseMode(modeColor)}</p>}
               <p className="texte-relu">{active('colorisation') && colorPrete ? <TexteColore texte={texte} mode={modeColor} /> : texte}</p>
               {active('audio-relecture') &&
                 (peutLire ? (

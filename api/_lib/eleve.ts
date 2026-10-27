@@ -1,6 +1,7 @@
 import { resoudreAides, type AideActive, type AideId } from '../../src/lib/aides.js';
 import type { CategorieErreur, Contraintes } from '../../src/lib/retour.js';
 import { nettoyerPerso, type AtelierPerso } from '../../src/lib/atelierPerso.js';
+import { nettoyerReglages, type ReglagesColorisation } from '../../src/lib/reglagesColorisation.js';
 import { chasseVersEleve, type ChasseBrute, type ChasseEleve } from '../../src/lib/chasse.js';
 import type { Annee, AutoEvaluation, Phase } from '../../src/types.js';
 import { signerJeton, verifierJeton } from './session.js';
@@ -30,6 +31,8 @@ export interface ActiviteBrute {
 export interface EleveBrut {
   id: string;
   aides: AideId[];
+  // Réglages de colorisation choisis par l'enseignant (jsonb : nettoyé avant d'arriver à l'élève).
+  colorisation?: unknown;
 }
 
 export interface Depot {
@@ -63,6 +66,8 @@ export interface ActiviteEleve {
   banqueMots: string[];
   principesPerso: { phase: Phase; question: string }[];
   atelier: boolean;
+  // Colorisation : mode de départ et modes permis ; null = comportement habituel.
+  colorisation?: ReglagesColorisation | null;
   grammaire3d?: boolean;
   atelierPerso?: AtelierPerso;
   // Texte à corriger et nombre d'erreurs ; le corrigé reste côté serveur.
@@ -112,6 +117,7 @@ function versEleve(a: ActiviteBrute, eleve: EleveBrut, reprise: { texte: string;
     banqueMots: a.banqueMots,
     principesPerso: a.principesPerso,
     atelier: a.atelier,
+    colorisation: nettoyerReglages(eleve.colorisation),
     grammaire3d: a.grammaire3d,
     atelierPerso: nettoyerPerso(a.atelierPerso),
     chasse: a.chasse ? chasseVersEleve(a.chasse) : null,

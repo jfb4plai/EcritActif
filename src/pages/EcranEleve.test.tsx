@@ -833,3 +833,41 @@ describe('EcranEleve : contrainte d’écriture (jeu de lettre)', () => {
     expect(document.querySelectorAll('mark')).toHaveLength(0);
   });
 });
+
+describe('EcranEleve : réglages de colorisation de l’enseignant', () => {
+  const aides = [{ id: 'colorisation' as const, active: true }];
+  async function relire(colorisation: unknown) {
+    render(<EcranEleve activite={activite({ aides, colorisation } as Partial<ActiviteEleve>)} eleveId="el1" jeton="j" api={apiDeTest({ version: 1, aides })} delaiSauvegardeMs={0} />);
+    await versEcriture();
+    await userEvent.type(screen.getByLabelText(/mon texte/i), 'Un chat.');
+    await userEvent.click(screen.getByRole('button', { name: /fini d.écrire/i }));
+  }
+
+  test('le mode choisi par l’enseignant est celui du départ', async () => {
+    await relire({ defaut: 'bpdq', permis: ['bpdq', 'syllabes'] });
+    expect(screen.getByLabelText(/colorer/i)).toHaveValue('bpdq');
+  });
+
+  test('seuls les modes permis sont proposés', async () => {
+    await relire({ defaut: 'bpdq', permis: ['bpdq', 'syllabes'] });
+    const options = within(screen.getByLabelText(/colorer/i)).getAllByRole('option').map((o) => o.textContent);
+    expect(options).toEqual(['Les syllabes', 'b, p, d, q']);
+  });
+
+  test('un seul mode permis : pas de menu, le mode est dit', async () => {
+    await relire({ defaut: 'syllabes', permis: ['syllabes'] });
+    expect(screen.queryByLabelText(/colorer/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/les syllabes d’un mot ont des couleurs qui alternent/i)).toBeInTheDocument();
+  });
+
+  test('une phrase dit ce que montrent les couleurs du mode affiché', async () => {
+    await relire({ defaut: 'voyelles-consonnes', permis: ['voyelles-consonnes', 'syllabes'] });
+    expect(screen.getByText(/les voyelles ont une couleur, les consonnes une autre/i)).toBeInTheDocument();
+  });
+
+  test('sans réglage : comportement habituel (syllabes au départ, quatre modes)', async () => {
+    await relire(null);
+    expect(screen.getByLabelText(/colorer/i)).toHaveValue('syllabes');
+    expect(within(screen.getByLabelText(/colorer/i)).getAllByRole('option')).toHaveLength(4);
+  });
+});

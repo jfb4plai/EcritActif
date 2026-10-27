@@ -392,3 +392,25 @@ describe('sauverTexte : instantanés du texte (premier jet, rendu)', () => {
     expect(textes).toHaveLength(1);
   });
 });
+
+describe('ouvrirEleve : réglages de colorisation', () => {
+  const ouvrir = async (colorisation: unknown) => {
+    const { depot } = depotDeTest();
+    const eleveParCode = depot.eleveParCode;
+    depot.eleveParCode = async (c, code) => {
+      const e = await eleveParCode(c, code);
+      return e ? { ...e, colorisation } : e;
+    };
+    const r = await ouvrirEleve(depot, SECRET, { codeClasse: 'ABCDEF', codeEleve: 'KMNPQR' });
+    if (r.status !== 200) throw new Error('ouverture refusée');
+    return r.corps.activites[0];
+  };
+
+  test('un réglage valide arrive à l’élève', async () => {
+    expect((await ouvrir({ defaut: 'bpdq', permis: ['bpdq', 'syllabes'] })).colorisation).toEqual({ defaut: 'bpdq', permis: ['bpdq', 'syllabes'] });
+  });
+  test('sans réglage ou réglage abîmé : null', async () => {
+    expect((await ouvrir(undefined)).colorisation).toBeNull();
+    expect((await ouvrir({ defaut: 'x', permis: 'y' })).colorisation).toBeNull();
+  });
+});

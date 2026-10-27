@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { ActiviteNouvelle } from '../pages/NouvelleActivite';
 import type { LigneEleve } from '../pages/Tableau';
 import type { AideId } from './aides';
+import { nettoyerReglages, type ReglagesColorisation } from './reglagesColorisation';
 import { genererCode } from './codes';
 import { construireLignes } from './lignes';
 import { ANNEES, type Annee } from '../types';
@@ -21,6 +22,7 @@ export interface EleveLigne {
   id: string;
   code_eleve: string;
   aides: AideId[];
+  colorisation: ReglagesColorisation | null;
 }
 
 export interface ActiviteLigne {
@@ -61,9 +63,9 @@ export async function creerClasse(db: SupabaseClient, userId: string, nom: strin
 }
 
 export async function listerEleves(db: SupabaseClient, classeId: string): Promise<EleveLigne[]> {
-  const { data, error } = await db.from('ecrit_eleves').select('id, code_eleve, aides').eq('classe_id', classeId).order('created_at');
+  const { data, error } = await db.from('ecrit_eleves').select('id, code_eleve, aides, colorisation').eq('classe_id', classeId).order('created_at');
   if (error) throw error;
-  return data ?? [];
+  return (data ?? []).map((r) => ({ id: r.id, code_eleve: r.code_eleve, aides: r.aides ?? [], colorisation: nettoyerReglages(r.colorisation) }));
 }
 
 export async function ajouterEleves(db: SupabaseClient, classeId: string, n: number): Promise<void> {
@@ -75,6 +77,11 @@ export async function ajouterEleves(db: SupabaseClient, classeId: string, n: num
 
 export async function reglerAides(db: SupabaseClient, eleveId: string, aides: AideId[]): Promise<void> {
   const { error } = await db.from('ecrit_eleves').update({ aides }).eq('id', eleveId);
+  if (error) throw error;
+}
+
+export async function reglerColorisation(db: SupabaseClient, eleveId: string, reglages: ReglagesColorisation): Promise<void> {
+  const { error } = await db.from('ecrit_eleves').update({ colorisation: reglages }).eq('id', eleveId);
   if (error) throw error;
 }
 

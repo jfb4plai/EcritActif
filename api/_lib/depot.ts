@@ -26,7 +26,7 @@ export function depotSupabase(): Depot {
     atelierPerso: r.atelier_perso ?? undefined,
     chasse: r.chasse ?? null,
   });
-  const versEleve = (r: Record<string, any>): EleveBrut => ({ id: r.id, aides: r.aides ?? [] });
+  const versEleve = (r: Record<string, any>): EleveBrut => ({ id: r.id, aides: r.aides ?? [], colorisation: r.colorisation ?? undefined });
 
   return {
     async classeParCode(code) {
@@ -35,12 +35,12 @@ export function depotSupabase(): Depot {
       return data ? { id: data.id } : null;
     },
     async eleveParCode(classeId, code) {
-      const { data, error } = await db.from('ecrit_eleves').select('id, aides').eq('classe_id', classeId).eq('code_eleve', code).maybeSingle();
+      const { data, error } = await db.from('ecrit_eleves').select('id, aides, colorisation').eq('classe_id', classeId).eq('code_eleve', code).maybeSingle();
       if (error) throw error;
       return data ? versEleve(data) : null;
     },
     async eleve(id) {
-      const { data, error } = await db.from('ecrit_eleves').select('id, aides').eq('id', id).maybeSingle();
+      const { data, error } = await db.from('ecrit_eleves').select('id, aides, colorisation').eq('id', id).maybeSingle();
       if (error) throw error;
       return data ? versEleve(data) : null;
     },
