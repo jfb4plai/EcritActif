@@ -1,4 +1,4 @@
-// Extrait, du référentiel de français du tronc commun (FWB), ce qui concerne l'écriture en P1 à P3.
+// Extrait, du référentiel de français du tronc commun (FWB), ce qui concerne l'écriture en P1 à P6.
 // Le texte officiel est cité tel quel, jamais reformulé.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -7,7 +7,7 @@ const SOURCE = fileURLToPath(new URL('../../referentiels-fwb/francais/', import.
 const SORTIE = fileURLToPath(new URL('../src/data/referentiel-ecrire.json', import.meta.url));
 
 const sortie = {};
-for (const annee of ['P1', 'P2', 'P3']) {
+for (const annee of ['P1', 'P2', 'P3', 'P4', 'P5', 'P6']) {
   const d = JSON.parse(readFileSync(`${SOURCE}${annee}.json`, 'utf-8'));
   const pages = /p\.(\d+)-(\d+)/.exec(d.source);
   const ecrire = d.competences_production.ecrire;

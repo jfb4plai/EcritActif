@@ -1,3 +1,4 @@
+import { ANNEES_PROPOSEES } from '../types';
 import { PROGRAMME, REFERENTIEL, REFERENTIEL_ANNEE, SOURCES_CECP } from '../lib/ancrage';
 import { itemsParAnnee } from '../lib/cecp';
 import { ATTRIBUTION_ARASAAC } from '../lib/pictos';
@@ -32,7 +33,7 @@ export default function APropos() {
         {REFERENTIEL}. Pour les items découpés par année, avec leurs codes : {PROGRAMME}. Le texte officiel est cité tel quel, sans reformulation.
       </p>
       <ul>
-        {(['P1', 'P2', 'P3'] as const).map((a) => (
+        {ANNEES_PROPOSEES.map((a) => (
           <li key={a}>
             {a} : {itemsParAnnee(a).length} items « écrire » du programme, fichier {SOURCES_CECP[a].pdf} ; référentiel, p. {REFERENTIEL_ANNEE[a].pages}.
           </li>

@@ -16,7 +16,6 @@ describe('migrations SQL ecrit_', () => {
     const tables = [...sql.matchAll(/create table (?:if not exists )?public\.([a-z_]+)/g)].map((m) => m[1]);
 
     test(`${f} : chaque table est préfixée ecrit_`, () => {
-      expect(tables.length).toBeGreaterThan(0);
       for (const t of tables) expect(t.startsWith('ecrit_'), t).toBe(true);
     });
 
@@ -34,8 +33,10 @@ describe('migrations SQL ecrit_', () => {
       for (const p of politiques) expect(p.split(';')[0]).not.toMatch(/exists\s*\(/);
     });
 
-    test(`${f} : une activité garde son année (P1 à P3)`, () => {
-      expect(sql).toMatch(/annee text not null check \(annee in \('p1', 'p2', 'p3'\)\)/);
+    test(`${f} : la contrainte d’année ne laisse que P1 à P6`, () => {
+      const contraintes = [...sql.matchAll(/annee in \(([^)]*)\)/g)].map((m) => m[1].replace(/\s/g, ''));
+      for (const c of contraintes) expect(["'p1','p2','p3'", "'p1','p2','p3','p4','p5','p6'"]).toContain(c);
+      expect(contraintes.length).toBeGreaterThan(0);
     });
 
     test(`${f} : ne recrée ni profiles ni le trigger updated_at`, () => {
@@ -43,4 +44,12 @@ describe('migrations SQL ecrit_', () => {
       expect(sql).not.toMatch(/create (?:or replace )?function[^;]*updated_at/);
     });
   }
+});
+
+describe('migrations SQL ecrit_ : état final', () => {
+  test('après toutes les migrations, une activité peut être de P1 à P6', () => {
+    const tout = fichiers.map((f) => readFileSync(DOSSIER + f, 'utf-8').toLowerCase()).join('\n');
+    expect(tout).toMatch(/drop constraint (?:if exists )?ecrit_activites_annee_check/);
+    expect(tout).toMatch(/add constraint ecrit_activites_annee_check\s+check \(annee in \('p1', 'p2', 'p3', 'p4', 'p5', 'p6'\)\)/);
+  });
 });

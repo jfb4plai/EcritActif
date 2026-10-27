@@ -19,7 +19,7 @@ import {
   type EleveLigne,
 } from '../lib/enseignant';
 import { getSupabase } from '../lib/supabase';
-import type { Annee } from '../types';
+import { ANNEES_PROPOSEES, type Annee } from '../types';
 import NouvelleActivite from './NouvelleActivite';
 import Tableau, { type LigneEleve } from './Tableau';
 
@@ -70,7 +70,7 @@ export default function Classe() {
       <div>
         <label htmlFor="annee">Année du programme CECP</label>
         <select id="annee" value={annee} onChange={(e) => setAnnee(e.target.value as Annee)} aria-describedby="aide-annee">
-          {(['P1', 'P2', 'P3'] as Annee[]).map((a) => (
+          {ANNEES_PROPOSEES.map((a) => (
             <option key={a}>{a}</option>
           ))}
         </select>

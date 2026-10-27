@@ -29,7 +29,7 @@ export const INTRODUCTIONS: Introduction[] = [
   { terme: 'parenthèses', annee: 'P3', code: 'F295' },
 ];
 
-const RANG: Record<Annee, number> = { P1: 1, P2: 2, P3: 3 };
+const RANG: Record<Annee, number> = { P1: 1, P2: 2, P3: 3, P4: 4, P5: 5, P6: 6 };
 
 // Mots que le programme n'a pas encore fait nommer à cette année : l'app ne les emploie pas dans ses messages.
 export function termesNonEncore(annee: Annee): string[] {

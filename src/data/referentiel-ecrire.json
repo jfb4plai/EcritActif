@@ -33,5 +33,41 @@
    "correction"
   ],
   "attenduEcrire": "Rédiger un écrit lisible qui combine plusieurs des éléments suivants en mobilisant des ressources (référentiels) : en restant dans le sujet ; en tenant compte de l'intention et du destinataire ; en l'organisant selon une structure textuelle simple donnée ; en utilisant la majuscule et le point ; en orthographiant correctement les mots connus ; en mobilisant les ressources de la classe (référentiels) ; en utilisant les organisateurs textuels adéquats ; en utilisant les substituts lexicaux."
+ },
+ "P4": {
+  "pages": "88-108",
+  "palierScripteur": "scripteur en transition",
+  "formesCorrectes": 60,
+  "composantes": [
+   "planification",
+   "mise en texte",
+   "révision",
+   "correction"
+  ],
+  "attenduEcrire": "Rédiger un écrit qui combine plusieurs des éléments suivants en mobilisant des ressources (référentiels) : en restant dans le sujet ; en tenant compte de l'intention et du destinataire ; en l'organisant selon une structure textuelle simple donnée ; en utilisant les principaux traits de ponctuation ; en orthographiant correctement les mots connus et en appliquant les règles d'orthographe grammaticale ; en utilisant les connecteurs* logiques, chronologiques, spatiaux, de cause/explication, d'addition ; en utilisant les substituts lexicaux ; en utilisant les modes et les temps appropriés pour assurer la cohérence temporelle* ; en recourant aux lexiques courant et spécifique à une thématique ou champ disciplinaire."
+ },
+ "P5": {
+  "pages": "109-131",
+  "palierScripteur": "scripteur confirmé (en cheminement vers)",
+  "formesCorrectes": null,
+  "composantes": [
+   "planification",
+   "mise en texte",
+   "révision",
+   "correction"
+  ],
+  "attenduEcrire": "Rédiger un écrit qui combine plusieurs des éléments suivants en mobilisant des ressources (référentiels) : en restant dans le sujet ; en tenant compte de l'intention et du destinataire ; en l'organisant selon une structure textuelle simple donnée ; en utilisant les traits de ponctuation adéquats ; en orthographiant correctement les mots connus et inconnus et en appliquant les règles d'orthographes grammaticale et lexicale ; en utilisant les connecteurs* ; en utilisant les modes et les temps appropriés pour assurer la cohérence temporelle* ; en utilisant les substituts lexicaux et grammaticaux ; en recourant aux lexiques courant et spécifique à une thématique ou un champ disciplinaire."
+ },
+ "P6": {
+  "pages": "132-153",
+  "palierScripteur": "scripteur confirmé (en cheminement vers), 80 % de formes correctes en fin de 6e primaire",
+  "formesCorrectes": 80,
+  "composantes": [
+   "planification",
+   "mise en texte",
+   "révision",
+   "correction"
+  ],
+  "attenduEcrire": "Rédiger un écrit qui combine certains des éléments suivants en mobilisant des ressources (référentiels) : en restant dans le sujet ; en tenant compte de l'intention et du destinataire ; en l'organisant selon une structure textuelle simple donnée ; en utilisant les traits de ponctuation adéquats ; en orthographiant correctement les mots connus et inconnus et en appliquant les règles d'orthographes grammaticale et lexicale ; en utilisant les connecteurs* ; en utilisant les modes et les temps appropriés pour assurer la cohérence temporelle* ; en utilisant les substituts lexicaux et grammaticaux ; en recourant aux lexiques courant et spécifique à une thématique ou un champ disciplinaire ; en utilisant l'outil numérique pour présenter sa production."
  }
 }

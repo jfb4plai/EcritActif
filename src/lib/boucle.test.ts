@@ -46,7 +46,9 @@ describe('les temps dépendent de l’année (référentiel FWB : la correction 
   test('P1 : trois temps ; P2 et P3 : quatre', () => {
     expect(phasesDe('P1')).toEqual(['reflechir', 'ecrire', 'relire']);
     expect(phasesDe('P2')).toEqual(['reflechir', 'ecrire', 'relire', 'corriger']);
-    expect(phasesDe('P3')).toEqual(['reflechir', 'ecrire', 'relire', 'corriger']);
+    for (const a of ['P3', 'P4', 'P5', 'P6'] as const) {
+      expect(phasesDe(a)).toEqual(['reflechir', 'ecrire', 'relire', 'corriger']);
+    }
   });
 
   test('le dernier temps : relire en P1, corriger ensuite', () => {

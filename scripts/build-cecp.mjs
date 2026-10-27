@@ -6,7 +6,7 @@ const SOURCE = fileURLToPath(new URL('../../referentiels-fwb/', import.meta.url)
 const SORTIE = fileURLToPath(new URL('../src/data/cecp-ecrire.json', import.meta.url));
 
 const items = [];
-for (const annee of ['P1', 'P2', 'P3']) {
+for (const annee of ['P1', 'P2', 'P3', 'P4', 'P5', 'P6']) {
   const d = JSON.parse(readFileSync(`${SOURCE}${annee}/francais.json`, 'utf-8'));
   for (const i of d.referentiel.items) {
     if (!(i.tags || []).includes('écrire')) continue;
@@ -26,7 +26,7 @@ writeFileSync(SORTIE, JSON.stringify(items, null, 1), 'utf-8');
 
 // Fichier source et date d'extraction de chaque année : l'app cite d'où viennent les items.
 const sources = {};
-for (const annee of ['P1', 'P2', 'P3']) {
+for (const annee of ['P1', 'P2', 'P3', 'P4', 'P5', 'P6']) {
   const m = JSON.parse(readFileSync(`${SOURCE}${annee}/francais.json`, 'utf-8')).meta;
   sources[annee] = { pdf: m.source_pdf, extraitLe: m.extrait_le };
 }

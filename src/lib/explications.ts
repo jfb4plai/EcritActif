@@ -7,6 +7,15 @@ import type { CategorieErreur } from './retour';
 const MAJUSCULE = 'Une phrase commence par une majuscule, une grande lettre. Regarde la lettre marquée : est-ce une majuscule ?';
 const MOT_REPETE = 'Tu as écrit deux fois le même mot, l’un après l’autre. Relis ces deux mots à voix haute : sont-ils tous les deux utiles ?';
 
+const P3_ET_APRES = {
+  majuscule_debut_phrase: MAJUSCULE,
+  point_fin_phrase:
+    'Une phrase se termine par un signe de ponctuation : le point, le point d’interrogation ou le point d’exclamation. Regarde la fin de ton texte : y a-t-il un signe de ponctuation ?',
+  mot_repete: MOT_REPETE,
+};
+
+// P4 à P6 : en attendant le contenu validé par JF, les trois signaux existants gardent l'explication de P3
+// (aucun mot nouveau : le vocabulaire de P3 est connu en P4 à P6).
 export const EXPLICATIONS: Record<Annee, Record<CategorieErreur, string>> = {
   P1: {
     majuscule_debut_phrase: MAJUSCULE,
@@ -18,12 +27,10 @@ export const EXPLICATIONS: Record<Annee, Record<CategorieErreur, string>> = {
     point_fin_phrase: 'Une phrase se termine par un point, un point d’interrogation ou un point d’exclamation. Regarde la fin de ton texte : y a-t-il un de ces signes ?',
     mot_repete: MOT_REPETE,
   },
-  P3: {
-    majuscule_debut_phrase: MAJUSCULE,
-    point_fin_phrase:
-      'Une phrase se termine par un signe de ponctuation : le point, le point d’interrogation ou le point d’exclamation. Regarde la fin de ton texte : y a-t-il un signe de ponctuation ?',
-    mot_repete: MOT_REPETE,
-  },
+  P3: P3_ET_APRES,
+  P4: P3_ET_APRES,
+  P5: P3_ET_APRES,
+  P6: P3_ET_APRES,
 };
 
 export function explicationDe(categorie: CategorieErreur, annee: Annee): string {

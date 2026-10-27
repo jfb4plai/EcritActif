@@ -1284,5 +1284,1623 @@
    "Ajuster sa production en fonction des pistes de révision issues d’un échange avec l’enseignant ou les pairs"
   ],
   "pagePdf": 779
+ },
+ {
+  "id": "P4:F414+F415",
+  "annee": "P4",
+  "codes": [
+   "F414",
+   "F415"
+  ],
+  "type": "Savoir",
+  "rubrique": "Orienter sa prise de parole, son écoute, sa lecture, son écrit",
+  "contenu": "Composantes de la situation de\ncommunication",
+  "attendus": [
+   "Citer les paramètres de la communication : énonciateur, destinataire, intention dominante, message, contexte (temps et lieu) et les niveaux de langue.",
+   "Repérer la diversité des interlocuteurs :\n- connu/inconnu ;\n- familier/non familier ;\n- un/plusieurs ;\n- du même âge plus jeune/plus âgé"
+  ],
+  "pagePdf": 858
+ },
+ {
+  "id": "P4:F417",
+  "annee": "P4",
+  "codes": [
+   "F417"
+  ],
+  "type": "Savoir",
+  "rubrique": "Orienter sa prise de parole, son écoute, sa lecture, son écrit",
+  "contenu": "Intentions de communication\nparler",
+  "attendus": [
+   "Connaitre les intentions :\n- informer ;\n- donner du plaisir/susciter des émotions ;\n- enjoindre ;\n- persuader/convaincre"
+  ],
+  "pagePdf": 858
+ },
+ {
+  "id": "P4:F419",
+  "annee": "P4",
+  "codes": [
+   "F419"
+  ],
+  "type": "Savoir",
+  "rubrique": "Orienter sa prise de parole, son écoute, sa lecture, son écrit",
+  "contenu": "Niveaux de langue\nparler",
+  "attendus": [
+   "Connaitre les caractéristiques :\n- du niveau familier ;\n- du niveau courant"
+  ],
+  "pagePdf": 858
+ },
+ {
+  "id": "P4:F420+F421",
+  "annee": "P4",
+  "codes": [
+   "F420",
+   "F421"
+  ],
+  "type": "Savoir",
+  "rubrique": "Construire un message significatif",
+  "contenu": "Caractéristiques graphiques de la phrase\nlire",
+  "attendus": [
+   "Nommer les signes de ponctuation rencontrés dans les phrases et les textes : le point, le point d’interrogation, le point d’exclamation, les guillemets, le tiret, les points de suspension et la virgule (dans une énumération), les deux points, l'apostrophe et les parenthèses Connaitre la fonction d’un hyperlien"
+  ],
+  "pagePdf": 858
+ },
+ {
+  "id": "P4:F422",
+  "annee": "P4",
+  "codes": [
+   "F422"
+  ],
+  "type": "Savoir",
+  "rubrique": "Construire un message significatif",
+  "contenu": "Termes du langage technique de la lecture-\nécriture",
+  "attendus": [
+   "Connaitre les notions de voyelles et de consonnes, accent aigu, accent grave, accent circonflexe, cédille."
+  ],
+  "pagePdf": 858
+ },
+ {
+  "id": "P4:F423",
+  "annee": "P4",
+  "codes": [
+   "F423"
+  ],
+  "type": "Savoir",
+  "rubrique": "Construire un message significatif",
+  "contenu": "Lexique spécifique.",
+  "attendus": [
+   "Connaitre et comprendre les mots du lexique spécifique à une thématique ou à un champ disciplinaire"
+  ],
+  "pagePdf": 858
+ },
+ {
+  "id": "P4:F424+F425+F426",
+  "annee": "P4",
+  "codes": [
+   "F424",
+   "F425",
+   "F426"
+  ],
+  "type": "Savoir",
+  "rubrique": "Construire un message significatif",
+  "contenu": "Règles d’orthographe lexicale : construction\ndes mots (morphologie).",
+  "attendus": [
+   "Connaitre les notions de famille de mots, de racine Connaitre les constantes orthographiques liées à l’emploi :\n- de certains graphèmes (en lien avec une famille morphologique*) ;\n- de certains phonèmes (le son /ɛj/ s’écrit -eil d’un mot masculin, -eille d’un mot féminin et -eill à l’intérieur du mot…) ;\n- de certains accents (a/à, ou/où…).",
+   "Connaitre les règles de positions :\n- c et ç ;\n- g et ge ;\n- g et gu ;\n- s entre deux voyelles ;\n- m devant p, b et m"
+  ],
+  "pagePdf": 858
+ },
+ {
+  "id": "P4:F427+F428",
+  "annee": "P4",
+  "codes": [
+   "F427",
+   "F428"
+  ],
+  "type": "Savoir",
+  "rubrique": null,
+  "contenu": "Relations sémantiques entre les mots\nparler",
+  "attendus": [
+   "Connaitre les notions de champ lexical*, substitut lexical Connaitre des homogrammes* et des homophones*"
+  ],
+  "pagePdf": 859
+ },
+ {
+  "id": "P4:F429",
+  "annee": "P4",
+  "codes": [
+   "F429"
+  ],
+  "type": "Savoir",
+  "rubrique": null,
+  "contenu": "Facteurs de cohérence\nparler",
+  "attendus": [
+   "Connaitre :\n- des connecteurs* de temps, d’espace et de lieu, d’énumération, de cause/explication, d’addition ;\n- les techniques de reprise de l’information (anaphorique*)."
+  ],
+  "pagePdf": 859
+ },
+ {
+  "id": "P4:F430",
+  "annee": "P4",
+  "codes": [
+   "F430"
+  ],
+  "type": "Savoir",
+  "rubrique": null,
+  "contenu": "Termes du langage technique de la\ngrammaire",
+  "attendus": [
+   "Connaitre les notions : classe, fonction, accord, genre, nombre et personne, substitut grammatical, anaphore, référent, mode, radical et terminaison"
+  ],
+  "pagePdf": 859
+ },
+ {
+  "id": "P4:F431",
+  "annee": "P4",
+  "codes": [
+   "F431"
+  ],
+  "type": "Savoir",
+  "rubrique": null,
+  "contenu": "Classe des mots\nlire",
+  "attendus": [
+   "Connaitre les critères qui permettent de définir la classe :\n- du déterminant (possessif, démonstratif, interrogatif et exclamatif) ;\n- du pronom personnel ;\n- de l’adverbe ;\n- du connecteur*"
+  ],
+  "pagePdf": 859
+ },
+ {
+  "id": "P4:F441",
+  "annee": "P4",
+  "codes": [
+   "F441"
+  ],
+  "type": "Savoir",
+  "rubrique": null,
+  "contenu": "Fonction des constituants de la phrase\nlire",
+  "attendus": [
+   "Connaitre les critères pour identifier la fonction :\n- sujet ;\n- prédicat ;\n- complément direct du verbe ;\n- complément indirect du verbe ;\n- complément circonstanciel"
+  ],
+  "pagePdf": 860
+ },
+ {
+  "id": "P4:F455+F456",
+  "annee": "P4",
+  "codes": [
+   "F455",
+   "F456"
+  ],
+  "type": "Savoir",
+  "rubrique": null,
+  "contenu": "Composantes* de la production d’un\nmessage oral ou écrit",
+  "attendus": [
+   "Maitriser les composantes de la production d’écrit :\n- planification ;\n- mise en texte ;\n- révision ;\n- correction",
+   "Maitriser les étapes d’une prise de parole préparée :\n- se présenter et introduire le sujet ;\n- présenter le sujet ;\n- conclure ;\n- connaitre les freins et les facilitateurs de la communication (niveau de langue, vocabulaire, formulations, prosodie*)."
+  ],
+  "pagePdf": 861
+ },
+ {
+  "id": "P4:F457",
+  "annee": "P4",
+  "codes": [
+   "F457"
+  ],
+  "type": "Savoir",
+  "rubrique": null,
+  "contenu": "Structures textuelles dominantes\nlire",
+  "attendus": [
+   "Connaitre les caractéristiques générales des cinq structures textuelles :\n- narrative ;\n- argumentative ;\n- descriptive ;\n- dialoguée ;\n- explicative"
+  ],
+  "pagePdf": 861
+ },
+ {
+  "id": "P4:F458",
+  "annee": "P4",
+  "codes": [
+   "F458"
+  ],
+  "type": "Savoir",
+  "rubrique": null,
+  "contenu": "Procédés utilisés par les autrices et auteurs",
+  "attendus": [
+   "Connaitre des procédés langagiers et artistiques utilisés par les autrices et auteurs découverts dans des supports de la classe"
+  ],
+  "pagePdf": 861
+ },
+ {
+  "id": "P4:F461+F462+F463",
+  "annee": "P4",
+  "codes": [
+   "F461",
+   "F462",
+   "F463"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Orienter sa prise de parole, son écoute, sa lecture, son écrit",
+  "contenu": "Tenir compte des paramètres de la situation\nde communication",
+  "attendus": [
+   "Identifier l’énonciateur, le destinataire, l’intention dominante, le message et le contexte pour planifier sa prise de parole, son écoute, sa lecture et son écrit Tenir compte du niveau de langue (familier, courant).",
+   "S’adapter à la diversité des interlocuteurs :\n- connu/inconnu ;\n- familier/non familier ;\n- un/plusieurs ;\n- du même âge/plus jeune/plus âgé"
+  ],
+  "pagePdf": 861
+ },
+ {
+  "id": "P4:F467+F468",
+  "annee": "P4",
+  "codes": [
+   "F467",
+   "F468"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": null,
+  "contenu": "Planifier* son message oral ou écrit en tenant\ncompte de l’intention et du destinataire",
+  "attendus": [
+   "Rassembler ses idées et les grouper par blocs de sens en tenant compte de la structure textuelle à produire Tenir compte des freins et des facilitateurs de la communication"
+  ],
+  "pagePdf": 862
+ },
+ {
+  "id": "P4:F470",
+  "annee": "P4",
+  "codes": [
+   "F470"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Utiliser le code",
+  "contenu": "Utiliser les caractéristiques graphiques de la\nphrase",
+  "attendus": [
+   "Utiliser dans sa production personnelle et à bon escient la majuscule, le point, le point d’interrogation, le point d’exclamation, les guillemets, le tiret, les points de suspension, la virgule (dans une énumération), les deux points, l'apostrophe et les parenthèses"
+  ],
+  "pagePdf": 862
+ },
+ {
+  "id": "P4:F472+F473+F474+F475+F476+F477+F478",
+  "annee": "P4",
+  "codes": [
+   "F472",
+   "F473",
+   "F474",
+   "F475",
+   "F476",
+   "F477",
+   "F478"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Construire du sens à l’aide de stratégies",
+  "contenu": "Structurer sa pensée dans des écrits ou\néchanges oraux réflexifs (croisement avec les\nautres disciplines).",
+  "attendus": [
+   "Mettre en mots sa pensée :\n- verbaliser un raisonnement (grammatical, mathématique…) ;\n- verbaliser l’usage d’une stratégie cognitive* ;\n- verbaliser une suite d’actions réalisées par soi ou par autrui ;\n- exprimer une émotion, un sentiment Partager ses écrits réflexifs :\n- chercher à préciser sa pensée ;\n- expliciter ses idées, apporter des exemples",
+   "Consigner dans un journal personnel (écrit de travail) :\n- les apprentissages effectués dans les disciplines au terme de deux journées ;\n- une suite d’actions réalisées par soi ou par autrui Schématiser un raisonnement (grammatical, mathématique…).",
+   "Schématiser des relations entre des éléments Exprimer une émotion, un sentiment Annoter un texte (mots clés, traces d’un doute orthographique)."
+  ],
+  "pagePdf": 862
+ },
+ {
+  "id": "P4:F520+F521+F522+F523",
+  "annee": "P4",
+  "codes": [
+   "F520",
+   "F521",
+   "F522",
+   "F523"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": null,
+  "contenu": "Organiser un message selon une structure\ntextuelle dominante",
+  "attendus": [
+   "Organiser (graphiquement) les éléments donnés d’un texte selon les caractéristiques de la structure dominante donnée Utiliser les mots ou expressions qui assurent l’enchainement des phrases Utiliser des connecteurs* de temps, d’espace et de lieu, de cause/explication, d’addition Utiliser les modes et les temps appropriés pour assurer la cohérence temporelle*"
+  ],
+  "pagePdf": 865
+ },
+ {
+  "id": "P4:F524+F525+F526",
+  "annee": "P4",
+  "codes": [
+   "F524",
+   "F525",
+   "F526"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": null,
+  "contenu": "Utiliser des reprises d’informations d’une\nphrase à l’autre pour construire du sens",
+  "attendus": [
+   "Identifier un référent et sa reprise anaphorique* :\n- substitut lexical (synonyme, terme générique…) ;\n- substitut grammatical (pronoms).",
+   "Repérer la (les) voix du (des) locuteur(s).",
+   "Assurer la reprise d’une information d’une phrase à l’autre en utilisant :\n- des substituts lexicaux ;\n- des pronoms personnels"
+  ],
+  "pagePdf": 865
+ },
+ {
+  "id": "P4:F527+F528+F529+F530",
+  "annee": "P4",
+  "codes": [
+   "F527",
+   "F528",
+   "F529",
+   "F530"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Traiter/utiliser les unités lexicales",
+  "contenu": "Observer le fonctionnement de la langue pour\ndégager des régularités",
+  "attendus": [
+   "Repérer des différences et des similitudes morphologiques et de relations sémantiques (synonymes, parties d’un tout, ordre d’intensité) entre des mots écrits.",
+   "Observer la construction des mots formés par composition et par dérivation Justifier une particularité orthographique en s’appuyant sur le préfixe ou le suffixe.",
+   "Classer les mots selon leur intensité"
+  ],
+  "pagePdf": 865
+ },
+ {
+  "id": "P4:F531+F532+F533",
+  "annee": "P4",
+  "codes": [
+   "F531",
+   "F532",
+   "F533"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Traiter/utiliser les unités lexicales",
+  "contenu": "Utiliser les règles d’orthographe lexicale pour\nproduire du sens",
+  "attendus": [
+   "Émettre des hypothèses sur le sens d’un mot inconnu à partir de sa forme et le vérifier",
+   "Émettre des hypothèses sur l’orthographe d’un mot inconnu et laisser une trace du doute pour la vérifier.",
+   "Utiliser les éléments qui composent le mot (racine) pour identifier les différents sens d’un mot."
+  ],
+  "pagePdf": 865
+ },
+ {
+  "id": "P4:F534+F535",
+  "annee": "P4",
+  "codes": [
+   "F534",
+   "F535"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Traiter/utiliser les unités lexicales",
+  "contenu": "Repérer les homonymes*\nlire",
+  "attendus": [
+   "Prendre appui sur le contexte pour distinguer des homophones* Choisir la graphie correcte d'un homophone* en s'appuyant sur le contexte"
+  ],
+  "pagePdf": 865
+ },
+ {
+  "id": "P4:F536+F537+F538+F539+F540",
+  "annee": "P4",
+  "codes": [
+   "F536",
+   "F537",
+   "F538",
+   "F539",
+   "F540"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Traiter/utiliser les unités lexicales",
+  "contenu": "Utiliser le lexique\nparler",
+  "attendus": [
+   "Utiliser, en tenant compte de la situation de communication, les mots du lexique courant et du lexique spécifique à une thématique ou un champ disciplinaire.",
+   "Réinvestir de nouveaux mots et de nouvelles expressions ayant émergé en classe, issus d’œuvres de littérature de jeunesse Utiliser des mots ou expressions qui modulent l’intensité des noms et verbes Remplacer un mot par un mot du même champ lexical Remplacer un mot par un autre de même sens"
+  ],
+  "pagePdf": 865
+ },
+ {
+  "id": "P4:F541+F542",
+  "annee": "P4",
+  "codes": [
+   "F541",
+   "F542"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Traiter/utiliser les unités grammaticales",
+  "contenu": "Utiliser l’unité phrase\nlire",
+  "attendus": [
+   "Reconnaitre les trois constituants* principaux d’une phrase simple : groupe sujet, groupe prédicat et groupe complément circonstanciel* de la phrase",
+   "Respecter la structure des phrases simples dans une production écrite en utilisant la ponctuation de manière adéquate"
+  ],
+  "pagePdf": 866
+ },
+ {
+  "id": "P4:F543",
+  "annee": "P4",
+  "codes": [
+   "F543"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Traiter/utiliser les unités grammaticales",
+  "contenu": "Utiliser la notion de classe de mots\nlire",
+  "attendus": [
+   "Identifier la classe des mots dans une phrase :\n- noms ;\n- verbes ;\n- déterminants (possessif, démonstratif, interrogatif et exclamatif) ;\n- adjectifs ;\n- pronoms personnels ;\n- adverbes ;\n- connecteurs*"
+  ],
+  "pagePdf": 866
+ },
+ {
+  "id": "P4:F552+F553",
+  "annee": "P4",
+  "codes": [
+   "F552",
+   "F553"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Traiter/utiliser les unités grammaticales",
+  "contenu": "Conjuguer\nparler",
+  "attendus": [
+   "Conjuguer à toutes les personnes les verbes :\n- en -ER avec un radical stable ;\n- en -IR avec un participe présent en -issant ;\n- « aller », « avoir » et « être » ; aux modes et temps suivants :\n- indicatif (présent, futur simple, futur proche, passé composé, conditionnel présent, imparfait) ;\n- impératif (présent) des verbes.",
+   "Distinguer le radical de la terminaison"
+  ],
+  "pagePdf": 866
+ },
+ {
+  "id": "P4:F554+F555+F556+F557",
+  "annee": "P4",
+  "codes": [
+   "F554",
+   "F555",
+   "F556",
+   "F557"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": null,
+  "contenu": "Utiliser les règles d’orthographe\ngrammaticale",
+  "attendus": [
+   "Accorder le verbe avec le sujet Accorder les déterminants et les adjectifs en genre et en nombre Appliquer les règles particulières de la formation du pluriel des noms et des adjectifs (voir savoirs).",
+   "Appliquer les règles particulières de la formation du féminin des noms et des adjectifs (voir savoirs)."
+  ],
+  "pagePdf": 867
+ },
+ {
+  "id": "P4:F558",
+  "annee": "P4",
+  "codes": [
+   "F558"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": null,
+  "contenu": "Utiliser les critères qui permettent d’identifier\nla fonction",
+  "attendus": [
+   "Identifier les fonctions des constituants* de la phrase (voir savoirs)."
+  ],
+  "pagePdf": 867
+ },
+ {
+  "id": "P4:F559",
+  "annee": "P4",
+  "codes": [
+   "F559"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": null,
+  "contenu": "Respecter le système temporel choisi\nparler",
+  "attendus": [
+   "Utiliser les formes verbales assurant la construction grammaticale correcte des phrases et la cohérence temporelle*"
+  ],
+  "pagePdf": 867
+ },
+ {
+  "id": "P4:F600+F601",
+  "annee": "P4",
+  "codes": [
+   "F600",
+   "F601"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Vérifier et ajuster sa production",
+  "contenu": "Réviser sa production écrite\nécrire",
+  "attendus": [
+   "Relire sa production et vérifier :\n- le contenu des idées ;\n- leur organisation dans des phrases respectant une structure dominante choisie (à l’aide d’une grille de révision) ;\n- le respect de l’intention poursuivie ;\n- le respect des critères spécifiques déterminés par l’enseignant",
+   "Ajuster sa production en fonction des pistes de révision issues d’un échange avec les pairs"
+  ],
+  "pagePdf": 869
+ },
+ {
+  "id": "P5:F603+F604",
+  "annee": "P5",
+  "codes": [
+   "F603",
+   "F604"
+  ],
+  "type": "Savoir",
+  "rubrique": "Orienter sa prise de parole, son écoute, sa lecture, son écrit",
+  "contenu": "Composantes de la situation de\ncommunication.",
+  "attendus": [
+   "Citer les paramètres de la communication : énonciateur, destinataire, intention dominante, message, contexte (temps et lieu) et les niveaux de langue.",
+   "Repérer la diversité des interlocuteurs :\n- connu/inconnu ;\n- familier/non familier ;\n- un/plusieurs ;\n- du même âge/plus jeune/plus âgé ;\n- d’ici/d’ailleurs."
+  ],
+  "pagePdf": 1009
+ },
+ {
+  "id": "P5:F606",
+  "annee": "P5",
+  "codes": [
+   "F606"
+  ],
+  "type": "Savoir",
+  "rubrique": "Orienter sa prise de parole, son écoute, sa lecture, son écrit",
+  "contenu": "Intentions de communication.",
+  "attendus": [
+   "Connaitre les intentions :\n- informer ;\n- donner du plaisir/susciter des émotions ;\n- enjoindre ;\n- persuader/convaincre."
+  ],
+  "pagePdf": 1009
+ },
+ {
+  "id": "P5:F608",
+  "annee": "P5",
+  "codes": [
+   "F608"
+  ],
+  "type": "Savoir",
+  "rubrique": "Orienter sa prise de parole, son écoute, sa lecture, son écrit",
+  "contenu": "Niveaux de langue.",
+  "attendus": [
+   "Connaitre les caractéristiques :\n- du niveau familier ;\n- du niveau courant ;\n- du niveau soutenu."
+  ],
+  "pagePdf": 1009
+ },
+ {
+  "id": "P5:F611",
+  "annee": "P5",
+  "codes": [
+   "F611"
+  ],
+  "type": "Savoir",
+  "rubrique": "Construire un message significatif",
+  "contenu": "Lexique spécifique.",
+  "attendus": [
+   "Connaitre et comprendre les mots du lexique spécifique à une thématique ou à un champ disciplinaire."
+  ],
+  "pagePdf": 1009
+ },
+ {
+  "id": "P5:F612+F613+F614+F615",
+  "annee": "P5",
+  "codes": [
+   "F612",
+   "F613",
+   "F614",
+   "F615"
+  ],
+  "type": "Savoir",
+  "rubrique": "Construire un message significatif",
+  "contenu": "Règles d’orthographe lexicale : construction\ndes mots (morphologie).",
+  "attendus": [
+   "Connaitre les notions de famille de mots, racine et préfixe.",
+   "Connaitre les procédés de construction des mots :\n- la dérivation ;\n- la composition (juxtaposé, soudé, avec un trait d’union, avec un connecteur*).",
+   "Connaitre les constantes orthographiques liées à l’emploi ou non de certains accents (a/à, ou/où…).",
+   "Connaitre les règles de positions :\n- c et ç ;\n- g et ge ;\n- g et gu ;\n- s entre deux voyelles ;\n- m devant p, b et m."
+  ],
+  "pagePdf": 1009
+ },
+ {
+  "id": "P5:F616+F617+F618",
+  "annee": "P5",
+  "codes": [
+   "F616",
+   "F617",
+   "F618"
+  ],
+  "type": "Savoir",
+  "rubrique": null,
+  "contenu": "Relations sémantiques entre les mots.",
+  "attendus": [
+   "Connaitre les notions de synonyme, antonyme et homonyme*, homophone*, homogramme*, champ lexical*, substitut lexical.",
+   "Connaitre des homogrammes et des homophones.",
+   "Connaitre les liens qui unissent un terme générique avec des termes spécifiques."
+  ],
+  "pagePdf": 1010
+ },
+ {
+  "id": "P5:F619",
+  "annee": "P5",
+  "codes": [
+   "F619"
+  ],
+  "type": "Savoir",
+  "rubrique": null,
+  "contenu": "Facteurs de cohérence.",
+  "attendus": [
+   "Connaitre :\n- des connecteurs d’opposition, de conséquence, de conclusion, de synthèse ;\n- les techniques de reprise de l’information (anaphorique*)."
+  ],
+  "pagePdf": 1010
+ },
+ {
+  "id": "P5:F620",
+  "annee": "P5",
+  "codes": [
+   "F620"
+  ],
+  "type": "Savoir",
+  "rubrique": null,
+  "contenu": "Termes du langage technique de la\ngrammaire.",
+  "attendus": [
+   "Connaitre les notions de classe, fonction, accord, genre, nombre et personne, substitut grammatical, anaphore, référent, mode, radical, terminaison, auxiliaire."
+  ],
+  "pagePdf": 1010
+ },
+ {
+  "id": "P5:F621",
+  "annee": "P5",
+  "codes": [
+   "F621"
+  ],
+  "type": "Savoir",
+  "rubrique": null,
+  "contenu": "Classe des mots.",
+  "attendus": [
+   "Connaitre les critères qui permettent de définir la classe :\n- du déterminant (cardinal, indéfini) ;\n- du pronom (démonstratif, possessif, numéral, indéfini) ;\n- de connecteurs."
+  ],
+  "pagePdf": 1010
+ },
+ {
+  "id": "P5:F622+F623+F624+F625+F626",
+  "annee": "P5",
+  "codes": [
+   "F622",
+   "F623",
+   "F624",
+   "F625",
+   "F626"
+  ],
+  "type": "Savoir",
+  "rubrique": null,
+  "contenu": "Règles d’orthographe grammaticale.",
+  "attendus": [
+   "Connaitre la règle particulière de la formation du pluriel des noms et des adjectifs.",
+   "Connaitre les exceptions aux règles de formation du pluriel des noms.",
+   "Connaitre la règle particulière de la formation du féminin des noms et des adjectifs.",
+   "Connaitre les règles générales de formation de l’adverbe.",
+   "Connaitre les règles particulières de formation des adverbes."
+  ],
+  "pagePdf": 1010
+ },
+ {
+  "id": "P5:F627+F628+F629+F630+F631",
+  "annee": "P5",
+  "codes": [
+   "F627",
+   "F628",
+   "F629",
+   "F630",
+   "F631"
+  ],
+  "type": "Savoir",
+  "rubrique": null,
+  "contenu": "Conjugaison.",
+  "attendus": [
+   "Connaitre les règles générales d’accord du participe passé (cas recouvrant les emplois du PP employé sans auxiliaire, avec « avoir », avec « être » à l’exception des cas de l’accord du participe passé des verbes pronominaux).",
+   "Connaitre la conjugaison aux modes :\n- indicatif (passé simple) ;\n- impératif (présent).",
+   "Connaitre l’infinitif.",
+   "Connaitre le participe présent et le participe passé.",
+   "Connaitre la conjugaison des verbes :\n- en -ER avec variation du radical ;\n- en -IR (tous) ;\n- en -(D)RE qui forment un participé présent en -dant ;\n- irréguliers : « prendre », « mettre », « tenir », « venir » et leurs dérivés « faire », « dire », « devoir », « partir », « pouvoir », « savoir », « voir », « vouloir » et les verbes comme « ouvrir »."
+  ],
+  "pagePdf": 1010
+ },
+ {
+  "id": "P5:F632",
+  "annee": "P5",
+  "codes": [
+   "F632"
+  ],
+  "type": "Savoir",
+  "rubrique": null,
+  "contenu": "Notion de phrase simple.",
+  "attendus": [
+   "Connaitre les trois constituants principaux de la phrase* simple :\n- groupe sujet ;\n- groupe prédicat ;\n- groupe complément circonstanciel de phrase."
+  ],
+  "pagePdf": 1011
+ },
+ {
+  "id": "P5:F633",
+  "annee": "P5",
+  "codes": [
+   "F633"
+  ],
+  "type": "Savoir",
+  "rubrique": null,
+  "contenu": "Fonction des constituants de la phrase*.",
+  "attendus": [
+   "Connaitre les critères pour identifier la fonction :\n- sujet ;\n- prédicat* ;\n- complément circonstanciel* ;\n- complément direct du verbe ;\n- complément indirect du verbe ;\n- complément du nom ;\n- attribut ;\n- épithète."
+  ],
+  "pagePdf": 1011
+ },
+ {
+  "id": "P5:F647+F648+F649",
+  "annee": "P5",
+  "codes": [
+   "F647",
+   "F648",
+   "F649"
+  ],
+  "type": "Savoir",
+  "rubrique": null,
+  "contenu": "Composantes de la production d’un message\noral ou écrit.",
+  "attendus": [
+   "Maitriser les composantes de la production d’écrits :\n- planification ;\n- mise en texte ;\n- révision ;\n- correction.",
+   "Maitriser les étapes d’une prise de parole préparée :\n- se présenter et introduire le sujet ;\n- annoncer le plan ;\n- présenter le sujet ;\n- conclure.",
+   "Connaitre les freins et les facilitateurs de la communication (niveau de langue, vocabulaire, formulations, prosodie)."
+  ],
+  "pagePdf": 1012
+ },
+ {
+  "id": "P5:F650",
+  "annee": "P5",
+  "codes": [
+   "F650"
+  ],
+  "type": "Savoir",
+  "rubrique": null,
+  "contenu": "Structures textuelles dominantes.",
+  "attendus": [
+   "Connaitre les caractéristiques générales des cinq structures textuelles :\n- narrative ;\n- argumentative ;\n- descriptive ;\n- dialoguée ;\n- explicative."
+  ],
+  "pagePdf": 1012
+ },
+ {
+  "id": "P5:F651",
+  "annee": "P5",
+  "codes": [
+   "F651"
+  ],
+  "type": "Savoir",
+  "rubrique": null,
+  "contenu": "Procédés utilisés par les autrices et auteurs.",
+  "attendus": [
+   "Connaitre des procédés langagiers et artistiques utilisés par les autrices et auteurs découverts dans des supports de la classe."
+  ],
+  "pagePdf": 1012
+ },
+ {
+  "id": "P5:F654+F655+F656",
+  "annee": "P5",
+  "codes": [
+   "F654",
+   "F655",
+   "F656"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Orienter sa prise de parole, son écoute, sa lecture, son écrit",
+  "contenu": "Tenir compte des paramètres de la situation\nde communication.",
+  "attendus": [
+   "Identifier l’énonciateur, le destinataire, l’intention dominante, le message et le contexte pour planifier* sa prise de parole, son écoute, sa lecture et son écrit.",
+   "Tenir compte du niveau de langue (familier, courant, soutenu).",
+   "S’adapter à la diversité des interlocuteurs :\n- connu/inconnu ;\n- familier/non familier ;\n- un/plusieurs ;\n- du même âge/plus jeune/plus âgé ;\n- d’ici/d’ailleurs."
+  ],
+  "pagePdf": 1013
+ },
+ {
+  "id": "P5:F660+F661",
+  "annee": "P5",
+  "codes": [
+   "F660",
+   "F661"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Orienter sa prise de parole, son écoute, sa lecture, son écrit",
+  "contenu": "Planifier* son message oral ou écrit en tenant\ncompte de l’intention et du destinataire.",
+  "attendus": [
+   "Rassembler ses idées et les grouper par blocs de sens en tenant compte de la structure textuelle à produire.",
+   "Tenir compte des freins et des facilitateurs de la communication."
+  ],
+  "pagePdf": 1013
+ },
+ {
+  "id": "P5:F663",
+  "annee": "P5",
+  "codes": [
+   "F663"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Utiliser le code",
+  "contenu": "Utiliser les caractéristiques de la phrase.",
+  "attendus": [
+   "Utiliser toutes les marques de ponctuation dans une production personnelle."
+  ],
+  "pagePdf": 1013
+ },
+ {
+  "id": "P5:F665+F666+F667+F668+F669+F670+F671",
+  "annee": "P5",
+  "codes": [
+   "F665",
+   "F666",
+   "F667",
+   "F668",
+   "F669",
+   "F670",
+   "F671"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Construire du sens à l’aide de stratégies",
+  "contenu": "Structurer sa pensée dans des écrits ou\néchanges oraux réflexifs (croisement avec les\nautres disciplines).",
+  "attendus": [
+   "Mettre en mots sa pensée :\n- formuler des questions en lien avec des apprentissages ;\n- verbaliser un raisonnement (grammatical, mathématique…) ;\n- verbaliser l’usage d’une stratégie cognitive* ;\n- verbaliser une suite d’actions réalisées par soi ou par autrui ;\n- exprimer une émotion, un sentiment.",
+   "Partager ses écrits réflexifs :\n- chercher à préciser sa pensée ;\n- expliciter ses idées, apporter des exemples, évoquer des faits ;\n- confronter des idées entre elles.",
+   "Consigner dans un journal personnel (écrit de travail) :\n- les apprentissages effectués dans les disciplines au terme d’une semaine ;\n- une suite d’actions réalisées par soi ou par autrui ;\n- les mots dont l’orthographe pose problème.",
+   "Schématiser un raisonnement (grammatical, mathématique, scientifique…).",
+   "Schématiser des relations entre des éléments.",
+   "Exprimer une émotion, un sentiment.",
+   "Annoter un texte (mots clés, traces d’un doute orthographique)."
+  ],
+  "pagePdf": 1014
+ },
+ {
+  "id": "P5:F714+F715+F716+F717",
+  "annee": "P5",
+  "codes": [
+   "F714",
+   "F715",
+   "F716",
+   "F717"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Dégager et assurer la cohérence du message/texte",
+  "contenu": "Organiser un message selon une structure\ntextuelle dominante.",
+  "attendus": [
+   "Organiser (graphiquement) les éléments donnés d’un texte selon les caractéristiques de la structure dominante donnée.",
+   "Utiliser les mots ou expressions qui assurent l’enchainement des phrases.",
+   "Utiliser des connecteurs* d’opposition/concession/ restriction, de conséquence, de conclusion, de synthèse.",
+   "Utiliser les modes et les temps appropriés pour assurer la cohérence temporelle*."
+  ],
+  "pagePdf": 1016
+ },
+ {
+  "id": "P5:F718+F719+F720",
+  "annee": "P5",
+  "codes": [
+   "F718",
+   "F719",
+   "F720"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": null,
+  "contenu": "Utiliser des reprises d’informations d’une\nphrase à l’autre pour construire du sens.",
+  "attendus": [
+   "Repérer la (les) voix du (des) locuteur(s).",
+   "Relier des informations (référents) et leurs reprises anaphoriques* :\n- des substituts lexicaux (synonymes, termes génériques…) ;\n- des substituts grammaticaux (pronoms).",
+   "Assurer la reprise d’une information d’une phrase à l’autre en utilisant :\n- des substituts lexicaux ;\n- des substituts grammaticaux."
+  ],
+  "pagePdf": 1017
+ },
+ {
+  "id": "P5:F721+F722+F723",
+  "annee": "P5",
+  "codes": [
+   "F721",
+   "F722",
+   "F723"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Traiter/utiliser les unités lexicales",
+  "contenu": "Observer le fonctionnement de la langue pour\ndégager des régularités.",
+  "attendus": [
+   "Repérer des différences et des similitudes morphologiques et de relations sémantiques (synonymes, antonymes, parties d’un tout, ordre d’intensité, mots génériques et spécifiques) entre des mots écrits.",
+   "Observer la construction des mots formés par composition et par dérivation.",
+   "Justifier une particularité orthographique en s’appuyant sur le préfixe."
+  ],
+  "pagePdf": 1017
+ },
+ {
+  "id": "P5:F724+F725+F726",
+  "annee": "P5",
+  "codes": [
+   "F724",
+   "F725",
+   "F726"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Traiter/utiliser les unités lexicales",
+  "contenu": "Utiliser les règles d’orthographe lexicale pour\nproduire du sens.",
+  "attendus": [
+   "Émettre des hypothèses sur le sens d’un mot inconnu à partir de sa forme et le vérifier.",
+   "Émettre des hypothèses sur l’orthographe d’un mot inconnu et laisser une trace du doute pour la vérifier.",
+   "Utiliser les éléments qui composent le mot (préfixe, racine) pour identifier les différents sens d’un mot."
+  ],
+  "pagePdf": 1017
+ },
+ {
+  "id": "P5:F727+F728",
+  "annee": "P5",
+  "codes": [
+   "F727",
+   "F728"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Traiter/utiliser les unités lexicales",
+  "contenu": "Repérer les homonymes*.",
+  "attendus": [
+   "Prendre appui sur le contexte pour distinguer des homophones*.",
+   "Prendre appui sur le contexte pour distinguer des homogrammes*."
+  ],
+  "pagePdf": 1017
+ },
+ {
+  "id": "P5:F729+F730+F731+F732+F733+F734+F735",
+  "annee": "P5",
+  "codes": [
+   "F729",
+   "F730",
+   "F731",
+   "F732",
+   "F733",
+   "F734",
+   "F735"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Traiter/utiliser les unités lexicales",
+  "contenu": "Utiliser le lexique.",
+  "attendus": [
+   "Utiliser, en tenant compte de la situation de communication, les mots du lexique spécifique à une thématique ou un champ disciplinaire.",
+   "Réinvestir de nouveaux mots et de nouvelles expressions ayant émergé en classe, issus d’œuvres de littérature de jeunesse et provenant d’autres disciplines scolaires.",
+   "Utiliser des mots ou expressions qui modulent l’intensité des noms et verbes.",
+   "Utiliser des mots et expressions qui marquent la négation, la certitude, la probabilité des informations envisagées.",
+   "Remplacer un mot par un mot du même champ lexical.",
+   "Remplacer un mot par un autre de même sens ou de sens contraire.",
+   "Remplacer un mot générique par un spécifique ou l’inverse."
+  ],
+  "pagePdf": 1017
+ },
+ {
+  "id": "P5:F736+F737",
+  "annee": "P5",
+  "codes": [
+   "F736",
+   "F737"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Traiter/utiliser les unités grammaticales",
+  "contenu": "Utiliser la notion de phrase.",
+  "attendus": [
+   "Reconnaitre les trois constituants principaux d’une phrase* simple : groupe sujet, groupe verbal et groupe complément circonstanciel* de phrase.",
+   "Respecter la structure des phrases simples dans une production écrite en utilisant la ponctuation adaptée."
+  ],
+  "pagePdf": 1018
+ },
+ {
+  "id": "P5:F738",
+  "annee": "P5",
+  "codes": [
+   "F738"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Traiter/utiliser les unités grammaticales",
+  "contenu": "Utiliser la notion de classe de mots.",
+  "attendus": [
+   "Identifier la classe des mots dans une phrase :\n- noms ;\n- verbes ;\n- déterminants (possessifs, démonstratifs, interrogatifs, exclamatifs, cardinaux, indéfinis) ;\n- adjectifs ;\n- pronoms personnels, démonstratifs, possessifs, numéraux, indéfinis ;\n- connecteurs* ;\n- adverbes."
+  ],
+  "pagePdf": 1018
+ },
+ {
+  "id": "P5:F750+F751",
+  "annee": "P5",
+  "codes": [
+   "F750",
+   "F751"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Traiter/utiliser les unités grammaticales",
+  "contenu": "Conjuguer.",
+  "attendus": [
+   "Conjuguer à toutes les personnes les verbes (voir savoirs) aux modes et temps suivants :\n- indicatif : présent, futur simple, futur proche, passé composé, conditionnel présent, imparfait, passé simple ;\n- impératif présent.",
+   "Distinguer le radical de la terminaison."
+  ],
+  "pagePdf": 1018
+ },
+ {
+  "id": "P5:F752+F753+F754+F755+F756+F757",
+  "annee": "P5",
+  "codes": [
+   "F752",
+   "F753",
+   "F754",
+   "F755",
+   "F756",
+   "F757"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": null,
+  "contenu": "Utiliser les règles d’orthographe\ngrammaticale.",
+  "attendus": [
+   "Accorder le verbe avec le sujet.",
+   "Appliquer les règles générales d’accord du participe.",
+   "Accorder les déterminants et les adjectifs en genre et en nombre.",
+   "Appliquer les règles particulières de la formation du pluriel des noms et des adjectifs (voir savoirs), y compris les exceptions.",
+   "Appliquer les règles particulières de la formation du féminin des noms et des adjectifs (voir savoirs).",
+   "Appliquer la règle générale et les règles particulières de formation des adverbes (voir savoirs)."
+  ],
+  "pagePdf": 1019
+ },
+ {
+  "id": "P5:F758",
+  "annee": "P5",
+  "codes": [
+   "F758"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": null,
+  "contenu": "Utiliser les critères qui permettent d’identifier\nla fonction.",
+  "attendus": [
+   "Identifier les fonctions des constituants de la phrase* (voir savoirs)."
+  ],
+  "pagePdf": 1019
+ },
+ {
+  "id": "P5:F759",
+  "annee": "P5",
+  "codes": [
+   "F759"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": null,
+  "contenu": "Utiliser une procédure de raisonnement\ngrammatical.",
+  "attendus": [
+   "Appliquer une procédure pour choisir une graphie (-é/-er, a/à …)."
+  ],
+  "pagePdf": 1019
+ },
+ {
+  "id": "P5:F760",
+  "annee": "P5",
+  "codes": [
+   "F760"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": null,
+  "contenu": "Respecter le système temporel choisi.",
+  "attendus": [
+   "Utiliser les formes verbales assurant la construction grammaticale correcte des phrases et la cohérence temporelle*."
+  ],
+  "pagePdf": 1019
+ },
+ {
+  "id": "P5:F780+F781",
+  "annee": "P5",
+  "codes": [
+   "F780",
+   "F781"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": null,
+  "contenu": "Soigner la présentation de son écrit.",
+  "attendus": [
+   "Assurer la lisibilité et adapter la présentation à son destinataire.",
+   "Utiliser l’outil numérique pour présenter sa production personnelle."
+  ],
+  "pagePdf": 1020
+ },
+ {
+  "id": "P5:F788+F789+F790+F791+F792",
+  "annee": "P5",
+  "codes": [
+   "F788",
+   "F789",
+   "F790",
+   "F791",
+   "F792"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": null,
+  "contenu": "Élargir sa connaissance du monde (apprendre\nà apprendre).",
+  "attendus": [
+   "Intégrer de nouvelles informations à son réseau de connaissances et les verbaliser.",
+   "Recourir à des sources documentaires pertinentes.",
+   "Choisir un moyen de consigner des traces de ses apprentissages (schéma, notes, tableau, carnet de terrain).",
+   "Recourir à une diversité de sources.",
+   "Recourir à des techniques et des outils de consultation (mots clés, moteur de recherche, index…)."
+  ],
+  "pagePdf": 1021
+ },
+ {
+  "id": "P5:F809+F810+F811",
+  "annee": "P5",
+  "codes": [
+   "F809",
+   "F810",
+   "F811"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": null,
+  "contenu": "Réviser sa production écrite.",
+  "attendus": [
+   "Relire sa production et vérifier :\n- le contenu des idées ;\n- leur organisation dans des phrases respectant une structure dominante choisie (à l’aide d’une grille de révision) ;\n- le respect de l’intention poursuivie.",
+   "Définir des pistes de révision.",
+   "Ajuster sa production en fonction des pistes de révision."
+  ],
+  "pagePdf": 1022
+ },
+ {
+  "id": "P5:F812",
+  "annee": "P5",
+  "codes": [
+   "F812"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": null,
+  "contenu": "Communiquer sa production écrite.",
+  "attendus": [
+   "Corriger une production de son choix à l’aide d’une grille de vérification et des référentiels (dictionnaire -en ligne-, correcteur orthographique, conjugueur…) de la classe en vue de la partager."
+  ],
+  "pagePdf": 1022
+ },
+ {
+  "id": "P6:F813+F814",
+  "annee": "P6",
+  "codes": [
+   "F813",
+   "F814"
+  ],
+  "type": "Savoir",
+  "rubrique": "Orienter sa prise de parole, son écoute, sa lecture, son écrit",
+  "contenu": "Composantes de la situation de\ncommunication\nparler",
+  "attendus": [
+   "Citer les paramètres de la communication : énonciateur, destinataire, intention dominante, message, contexte (temps et lieu) et les niveaux de langue.",
+   "Repérer la diversité des interlocuteurs :\n- connu/inconnu ;\n- familier/non familier ;\n- un/plusieurs ;\n- du même âge/plus jeune/plus âgé ;\n- d’ici/d’ailleurs"
+  ],
+  "pagePdf": 1099
+ },
+ {
+  "id": "P6:F816",
+  "annee": "P6",
+  "codes": [
+   "F816"
+  ],
+  "type": "Savoir",
+  "rubrique": "Orienter sa prise de parole, son écoute, sa lecture, son écrit",
+  "contenu": "Intentions de communication\nparler",
+  "attendus": [
+   "Connaitre les intentions :\n- informer ;\n- donner du plaisir/susciter des émotions ;\n- enjoindre ;\n- persuader/convaincre"
+  ],
+  "pagePdf": 1099
+ },
+ {
+  "id": "P6:F818",
+  "annee": "P6",
+  "codes": [
+   "F818"
+  ],
+  "type": "Savoir",
+  "rubrique": "Orienter sa prise de parole, son écoute, sa lecture, son écrit",
+  "contenu": "Niveaux de langue\nparler",
+  "attendus": [
+   "Connaitre les caractéristiques :\n- du niveau familier ;\n- du niveau courant ;\n- du niveau soutenu"
+  ],
+  "pagePdf": 1099
+ },
+ {
+  "id": "P6:F821",
+  "annee": "P6",
+  "codes": [
+   "F821"
+  ],
+  "type": "Savoir",
+  "rubrique": "Construire un message significatif",
+  "contenu": "Lexique spécifique.",
+  "attendus": [
+   "Connaitre et comprendre les mots du lexique spécifique à une thématique ou à un champ disciplinaire"
+  ],
+  "pagePdf": 1099
+ },
+ {
+  "id": "P6:F822+F823+F824+F825",
+  "annee": "P6",
+  "codes": [
+   "F822",
+   "F823",
+   "F824",
+   "F825"
+  ],
+  "type": "Savoir",
+  "rubrique": "Construire un message significatif",
+  "contenu": "Règles d’orthographe lexicale : construction\ndes mots (morphologie).",
+  "attendus": [
+   "Connaitre les notions de famille de mots, racine, préfixe et suffixe.",
+   "Connaitre les procédés de construction des mots :\n- la dérivation ;\n- la composition (juxtaposé, soudé, avec un trait d’union, avec un connecteur*).",
+   "Connaitre les préfixes et leur impact sur le sens des mots :\n- in- (im-, il-, ir-) : donne un sens de négation (« immortel », « irréel ») ou donne le sens «dans» au mot (« intérieur ») ;\n- en- : donne le sens «dans» au mot (« enterrer ») ;\n- re- (ré-, r-) : donne le sens «à nouveau» (« revenir ») ;\n- de- (dés) : donne un sens de séparation (« décolorer », « désespoir »).",
+   "Connaitre les constantes orthographiques liées à l’emploi ou non de certains accents (a/à, ou/où…)."
+  ],
+  "pagePdf": 1099
+ },
+ {
+  "id": "P6:F826+F827+F828",
+  "annee": "P6",
+  "codes": [
+   "F826",
+   "F827",
+   "F828"
+  ],
+  "type": "Savoir",
+  "rubrique": null,
+  "contenu": "Relations sémantiques entre les mots\nparler",
+  "attendus": [
+   "Connaitre les notions de synonyme, antonyme et homonyme* (homophone*, homogramme*), champ lexical, substitut lexical Connaitre des homogrammes et des homophones Connaitre les liens qui unissent un terme générique avec des termes spécifiques."
+  ],
+  "pagePdf": 1100
+ },
+ {
+  "id": "P6:F829",
+  "annee": "P6",
+  "codes": [
+   "F829"
+  ],
+  "type": "Savoir",
+  "rubrique": null,
+  "contenu": "Facteurs de cohérence\nparler",
+  "attendus": [
+   "Connaitre :\n- des connecteurs d’opposition, de conséquence, de conclusion, de synthèse ;\n- les techniques de reprise de l’information* (reprise anaphorique*)."
+  ],
+  "pagePdf": 1100
+ },
+ {
+  "id": "P6:F830",
+  "annee": "P6",
+  "codes": [
+   "F830"
+  ],
+  "type": "Savoir",
+  "rubrique": null,
+  "contenu": "Termes du langage technique de la\ngrammaire\nlire",
+  "attendus": [
+   "Connaitre les notions de classe, fonction, accord, genre, nombre et personne, substitut grammatical, anaphore, référent*, mode, radical, terminaison, auxiliaire"
+  ],
+  "pagePdf": 1100
+ },
+ {
+  "id": "P6:F831",
+  "annee": "P6",
+  "codes": [
+   "F831"
+  ],
+  "type": "Savoir",
+  "rubrique": null,
+  "contenu": "Classe des mots\nlire",
+  "attendus": [
+   "Connaitre les critères qui permettent de définir la classe :\n- du déterminant (cardinal, indéfini) ;\n- du pronom démonstratif, possessif, numéral, indéfini ;\n- du connecteur"
+  ],
+  "pagePdf": 1100
+ },
+ {
+  "id": "P6:F834+F835+F836+F837+F838",
+  "annee": "P6",
+  "codes": [
+   "F834",
+   "F835",
+   "F836",
+   "F837",
+   "F838"
+  ],
+  "type": "Savoir",
+  "rubrique": null,
+  "contenu": "Conjugaison\nparler",
+  "attendus": [
+   "Connaitre les règles générales d’accord du participe passé (cas recouvrant les emplois du PP employé sans auxiliaire, avec « avoir », avec « être » à l’exception des cas de l’accord du participe passé des verbes pronominaux).",
+   "Connaitre la conjugaison au mode indicatif (plus-que-parfait, futur antérieur, conditionnel passé).",
+   "Connaitre l’infinitif.",
+   "Connaitre le participe présent et le participe passé Connaitre la conjugaison des verbes en -ER avec variation du radical"
+  ],
+  "pagePdf": 1100
+ },
+ {
+  "id": "P6:F840",
+  "annee": "P6",
+  "codes": [
+   "F840"
+  ],
+  "type": "Savoir",
+  "rubrique": null,
+  "contenu": "Fonction des constituants de la phrase*\nlire",
+  "attendus": [
+   "Connaitre les critères pour identifier la fonction :\n- sujet ;\n- prédicat* ;\n- complément circonstanciel* ;\n- complément direct du verbe ;\n- complément indirect du verbe ;\n- complément du nom ;\n- attribut ;\n- épithète."
+  ],
+  "pagePdf": 1100
+ },
+ {
+  "id": "P6:F857",
+  "annee": "P6",
+  "codes": [
+   "F857"
+  ],
+  "type": "Savoir",
+  "rubrique": null,
+  "contenu": "Structures textuelles dominantes\nlire",
+  "attendus": [
+   "Connaitre les caractéristiques générales des cinq structures textuelles :\n- narrative ;\n- argumentative ;\n- descriptive ;\n- dialoguée ;\n- explicative"
+  ],
+  "pagePdf": 1102
+ },
+ {
+  "id": "P6:F858",
+  "annee": "P6",
+  "codes": [
+   "F858"
+  ],
+  "type": "Savoir",
+  "rubrique": null,
+  "contenu": "Procédés utilisés par les autrices et auteurs",
+  "attendus": [
+   "Connaitre des procédés langagiers et artistiques utilisés par les autrices et auteurs découverts dans des supports de la classe"
+  ],
+  "pagePdf": 1102
+ },
+ {
+  "id": "P6:F861+F862+F863",
+  "annee": "P6",
+  "codes": [
+   "F861",
+   "F862",
+   "F863"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Orienter sa prise de parole, son écoute, sa lecture, son écrit",
+  "contenu": "Tenir compte des paramètres de la situation\nde communication\nparler",
+  "attendus": [
+   "Identifier l’énonciateur, le destinataire, l’intention dominante, le message et le contexte pour planifier* sa prise de parole, son écoute, sa lecture et son écrit Adapter/tenir compte du niveau de langue (familier, courant, soutenu).",
+   "S’adapter à la diversité des interlocuteurs :\n- connu/inconnu ;\n- familier/non familier ;\n- un/plusieurs ;\n- du même âge/plus jeune/plus âgé ;\n- d’ici/d’ailleurs"
+  ],
+  "pagePdf": 1102
+ },
+ {
+  "id": "P6:F867+F868",
+  "annee": "P6",
+  "codes": [
+   "F867",
+   "F868"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": null,
+  "contenu": "Planifier* son message oral ou écrit en tenant\ncompte de l’intention et du destinataire",
+  "attendus": [
+   "Rassembler ses idées et les grouper par blocs de sens en tenant compte de la structure textuelle à produire Tenir compte des freins et des facilitateurs de la communication"
+  ],
+  "pagePdf": 1103
+ },
+ {
+  "id": "P6:F870",
+  "annee": "P6",
+  "codes": [
+   "F870"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Utiliser le code",
+  "contenu": "Utiliser les caractéristiques de la phrase",
+  "attendus": [
+   "Utiliser toutes les marques de ponctuation apprises dans une production personnelle"
+  ],
+  "pagePdf": 1103
+ },
+ {
+  "id": "P6:F872+F873+F874+F875+F876+F877+F878",
+  "annee": "P6",
+  "codes": [
+   "F872",
+   "F873",
+   "F874",
+   "F875",
+   "F876",
+   "F877",
+   "F878"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Construire du sens à l'aide de stratégies",
+  "contenu": "Structurer sa pensée dans des écrits ou\néchanges oraux réflexifs (croisement avec les\nautres disciplines).",
+  "attendus": [
+   "Mettre en mots sa pensée :\n- formuler des questions en lien avec des apprentissages ;\n- verbaliser un raisonnement (grammatical, mathématique…) ;\n- verbaliser l’usage d’une stratégie cognitive* ;\n- verbaliser une suite d’actions réalisées par soi ou par autrui ;\n- exprimer une émotion, un sentiment Partager ses écrits réflexifs :\n- chercher à préciser sa pensée ;\n- expliciter ses idées, apporter des exemples, évoquer des faits ;\n- confronter des idées entre elles",
+   "Consigner dans un journal personnel (écrit de travail) :\n- les apprentissages effectués dans les disciplines au terme d’une semaine ;\n- une suite d’actions réalisées par soi ou par autrui ;\n- les mots dont l’orthographe pose problème Schématiser un raisonnement (grammatical, mathématique, scientifique…).",
+   "Schématiser des relations entre des éléments Exprimer une émotion, un sentiment Annoter un texte (mots clés, traces d’un doute orthographique)."
+  ],
+  "pagePdf": 1103
+ },
+ {
+  "id": "P6:F916+F917",
+  "annee": "P6",
+  "codes": [
+   "F916",
+   "F917"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": null,
+  "contenu": "Prendre des notes\nécouter",
+  "attendus": [
+   "Noter des mots clés du message lu ou entendu Organiser ses notes (schéma, ligne du temps, carte mentale…)."
+  ],
+  "pagePdf": 1105
+ },
+ {
+  "id": "P6:F924+F925+F926+F927",
+  "annee": "P6",
+  "codes": [
+   "F924",
+   "F925",
+   "F926",
+   "F927"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Dégager et assurer la cohérence du message/texte",
+  "contenu": "Organiser un message selon une structure\ntextuelle dominante\nparler",
+  "attendus": [
+   "Organiser (graphiquement) les éléments donnés d’un texte selon les caractéristiques de la structure dominante donnée Utiliser les mots ou expressions qui assurent l’enchainement des phrases Utiliser des connecteurs* d’opposition/concession/ restriction, de conséquence, de conclusion, de synthèse Utiliser les modes et les temps appropriés pour assurer la cohérence temporelle*"
+  ],
+  "pagePdf": 1106
+ },
+ {
+  "id": "P6:F928+F929+F930",
+  "annee": "P6",
+  "codes": [
+   "F928",
+   "F929",
+   "F930"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Dégager et assurer la cohérence du message/texte",
+  "contenu": "Utiliser des reprises d’informations d’une\nphrase à l’autre pour construire du sens",
+  "attendus": [
+   "Repérer la (les) voix du (des) locuteur(s).",
+   "Relier des informations (référents) et leurs reprises anaphoriques* :\n- des substituts lexicaux (synonymes, termes génériques…) ;\n- des substituts grammaticaux (déterminants, pronoms).",
+   "Assurer la reprise d’une information d’une phrase à l’autre en utilisant :\n- des substituts lexicaux ;\n- des substituts grammaticaux (déterminants, pronoms)."
+  ],
+  "pagePdf": 1106
+ },
+ {
+  "id": "P6:F931+F932+F933",
+  "annee": "P6",
+  "codes": [
+   "F931",
+   "F932",
+   "F933"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Traiter/utiliser les unités lexicales",
+  "contenu": "Observer le fonctionnement de la langue pour\ndégager des régularités\nlire",
+  "attendus": [
+   "Repérer des différences et des similitudes morphologiques et de relations sémantiques (synonymes, antonymes, parties d’un tout, ordre d’intensité, mots génériques et spécifiques) entre des mots écrits.",
+   "Observer la construction des mots formés par composition et par dérivation Justifier une particularité orthographique en s’appuyant sur le préfixe ou le suffixe."
+  ],
+  "pagePdf": 1107
+ },
+ {
+  "id": "P6:F934+F935+F936",
+  "annee": "P6",
+  "codes": [
+   "F934",
+   "F935",
+   "F936"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Traiter/utiliser les unités lexicales",
+  "contenu": "Utiliser les règles d’orthographe lexicale pour\nproduire du sens\nlire",
+  "attendus": [
+   "Émettre des hypothèses sur le sens d’un mot inconnu à partir de sa forme et le vérifier.",
+   "Émettre des hypothèses sur l’orthographe d’un mot inconnu et laisser une trace du doute pour la vérifier.",
+   "Utiliser les éléments qui composent le mot (préfixe, racine, suffixe) pour identifier les différents sens d’un mot."
+  ],
+  "pagePdf": 1107
+ },
+ {
+  "id": "P6:F937+F938",
+  "annee": "P6",
+  "codes": [
+   "F937",
+   "F938"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Traiter/utiliser les unités lexicales",
+  "contenu": "Repérer les homonymes*\nlire",
+  "attendus": [
+   "Prendre appui sur le contexte pour distinguer des homophones* Prendre appui sur le contexte pour distinguer des homogrammes*"
+  ],
+  "pagePdf": 1107
+ },
+ {
+  "id": "P6:F939+F940+F941+F942+F943+F944+F945",
+  "annee": "P6",
+  "codes": [
+   "F939",
+   "F940",
+   "F941",
+   "F942",
+   "F943",
+   "F944",
+   "F945"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Traiter/utiliser les unités lexicales",
+  "contenu": "Utiliser le lexique\nparler",
+  "attendus": [
+   "Utiliser, en tenant compte de la situation de communication, les mots du lexique spécifique à une thématique ou un champ disciplinaire Réinvestir de nouveaux mots et de nouvelles expressions ayant émergé en classe, issus d’œuvres de littérature de jeunesse et provenant d’autres disciplines scolaires Utiliser des mots ou expressions qui modulent l’intensité des noms et verbes Utiliser des mots et expressions qui marquent la négation, la certitude, la probabilité des informations envisagées Remplacer un mot par un mot du même champ lexical Remplacer un mot par un autre de même sens ou de sens contraire Remplacer un mot générique par un spécifique ou l’inverse"
+  ],
+  "pagePdf": 1107
+ },
+ {
+  "id": "P6:F946+F947",
+  "annee": "P6",
+  "codes": [
+   "F946",
+   "F947"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Traiter/utiliser les unités grammaticales",
+  "contenu": "Utiliser la notion de phrase\nlire",
+  "attendus": [
+   "Reconnaitre les trois constituants principaux d’une phrase simple* : groupe sujet, groupe prédicat et groupe complément circonstanciel de phrase",
+   "Respecter la structure des phrases simples dans une production écrite en utilisant la ponctuation de manière adéquate"
+  ],
+  "pagePdf": 1107
+ },
+ {
+  "id": "P6:F965",
+  "annee": "P6",
+  "codes": [
+   "F965"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": null,
+  "contenu": "Utiliser les critères qui permettent d’identifier\nla fonction\nlire",
+  "attendus": [
+   "Identifier les fonctions des constituants de la phrase* (voir savoirs)."
+  ],
+  "pagePdf": 1109
+ },
+ {
+  "id": "P6:F967",
+  "annee": "P6",
+  "codes": [
+   "F967"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": null,
+  "contenu": "Respecter le système temporel choisi\nparler",
+  "attendus": [
+   "Utiliser les formes verbales assurant la construction grammaticale correcte des phrases et la cohérence temporelle*"
+  ],
+  "pagePdf": 1109
+ },
+ {
+  "id": "P6:F996+F997+F998+F999+F1000",
+  "annee": "P6",
+  "codes": [
+   "F996",
+   "F997",
+   "F998",
+   "F999",
+   "F1000"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Apprécier, agir/réagir, réviser",
+  "contenu": "Élargir sa connaissance du monde (apprendre\nà apprendre).",
+  "attendus": [
+   "Intégrer de nouvelles informations à son réseau de connaissances et les verbaliser Recourir à des sources documentaires pertinentes Choisir un moyen de consigner des traces de ses apprentissages (schéma, notes, tableau, carnet de terrain).",
+   "Recourir à une diversité de sources Recourir à des techniques et des outils de consultation (mots clés, moteur de recherche, index…)."
+  ],
+  "pagePdf": 1110
+ },
+ {
+  "id": "P6:F1008+F1009+F1010+F1011+F1012",
+  "annee": "P6",
+  "codes": [
+   "F1008",
+   "F1009",
+   "F1010",
+   "F1011",
+   "F1012"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": null,
+  "contenu": "Porter un jugement critique sur un document\n(papier ou numérique).",
+  "attendus": [
+   "Évaluer/donner un avis sur les procédés utilisés par les autrices et auteurs.",
+   "Évaluer/donner un avis sur la qualité de l’information (crédibilité des sources, pertinence du contenu).",
+   "Comparer (corroborer) les informations issues de deux sources différentes.",
+   "Évaluer/donner un avis sur la présentation visuelle (mise en page, illustrations.",
+   "Évaluer/donner un avis sur le message transmis (les valeurs défendues, le ou les thème(s) abordé(s))."
+  ],
+  "pagePdf": 1111
+ },
+ {
+  "id": "P6:F1017+F1018+F1019",
+  "annee": "P6",
+  "codes": [
+   "F1017",
+   "F1018",
+   "F1019"
+  ],
+  "type": "Savoir-faire",
+  "rubrique": "Vérifier et ajuster sa production",
+  "contenu": "Réviser sa production écrite\nécrire",
+  "attendus": [
+   "Relire sa production et vérifier :\n- le contenu des idées ;\n- leur organisation dans des phrases respectant une structure dominante choisie (à l’aide d’une grille de révision) ;\n- le respect de l’intention poursuivie ;\n- la précision du vocabulaire Définir des pistes de révision.",
+   "Ajuster sa production en fonction des pistes de révision"
+  ],
+  "pagePdf": 1111
  }
 ]

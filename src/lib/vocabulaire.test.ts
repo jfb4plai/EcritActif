@@ -5,7 +5,7 @@ import { EXPLICATIONS, explicationDe } from './explications';
 import { detecterSignaux, type CategorieErreur } from './retour';
 import type { Annee } from '../types';
 
-const ANNEES: Annee[] = ['P1', 'P2', 'P3'];
+const ANNEES: Annee[] = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6'];
 const CATEGORIES: CategorieErreur[] = ['majuscule_debut_phrase', 'point_fin_phrase', 'mot_repete'];
 
 const normaliser = (s: string) => s.toLowerCase().replace(/[’']/g, "'").replace(/\s+/g, ' ');

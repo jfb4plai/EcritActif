@@ -2,13 +2,16 @@ import { describe, expect, test } from 'vitest';
 import { itemParCode, itemsParAnnee } from './cecp';
 import type { Annee } from '../types';
 
-const ANNEES: Annee[] = ['P1', 'P2', 'P3'];
+const ANNEES: Annee[] = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6'];
 
-describe('données CECP écrire P1-P3', () => {
+describe('données CECP écrire P1-P6', () => {
   test('nombre d’items écrire par année', () => {
     expect(itemsParAnnee('P1')).toHaveLength(24);
     expect(itemsParAnnee('P2')).toHaveLength(25);
     expect(itemsParAnnee('P3')).toHaveLength(33);
+    expect(itemsParAnnee('P4')).toHaveLength(32);
+    expect(itemsParAnnee('P5')).toHaveLength(37);
+    expect(itemsParAnnee('P6')).toHaveLength(30);
   });
 
   test('les identifiants sont uniques', () => {
@@ -25,10 +28,10 @@ describe('données CECP écrire P1-P3', () => {
     }
   });
 
-  test('itemParCode retrouve l’item pour chacun des 161 codes', () => {
+  test('itemParCode retrouve l’item pour chacun des 398 codes', () => {
     const items = ANNEES.flatMap((a) => itemsParAnnee(a));
     const codes = items.flatMap((i) => i.codes);
-    expect(new Set(codes).size).toBe(161);
+    expect(new Set(codes).size).toBe(398);
     for (const c of codes) {
       expect(itemParCode(c)?.codes).toContain(c);
     }
