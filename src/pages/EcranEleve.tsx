@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useRef, useState, type ClipboardEvent, type DragEvent } from 'react';
 import type { ActiviteEleve } from '../../api/_lib/eleve';
 import AidesPanel from '../components/AidesPanel';
+import Atelier from '../components/Atelier';
 import Picto from '../components/Picto';
 import RepereProgramme from '../components/RepereProgramme';
 import TexteColore from '../components/TexteColore';
 import { AIDES, resoudreAides, type AideActive, type AideId } from '../lib/aides';
 import { dicteePossible, dicter, lire, synthesePossible } from '../lib/audio';
 import { choisirCritere, decider, initial, phaseFinale, phasesDe, retourAutorise, suivant, type Choix, type EtatBoucle } from '../lib/boucle';
+import { ANNEES_ATELIER } from '../lib/atelier';
 import { lireLocal, sauverLocal } from '../lib/brouillonLocal';
 import { itemParId } from '../lib/cecp';
 import { chargerColorisation, type ModeColorisation } from '../lib/colorisation';
@@ -58,6 +60,7 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
   const [texte, setTexte] = useState(departTexte);
   const [rendu, setRendu] = useState(renduAvant);
   const [essai, setEssai] = useState(0);
+  const [atelierOuvert, setAtelierOuvert] = useState(false);
   const [horsLigne, setHorsLigne] = useState(false);
   const [aidesServeur, setAidesServeur] = useState<AideActive[]>(activite.aides);
   const [retraitsServeur, setRetraitsServeur] = useState(activite.aidesRetirees);
@@ -336,6 +339,9 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
     </div>
   );
 
+  // Atelier de grammaire : option de l'enseignant, pour les années où le programme demande d'accorder (P4 à P6).
+  const atelierDispo = activite.atelier && ANNEES_ATELIER.includes(activite.annee);
+
   const blocCorriger = (
     <>
           {signauxActifs.length > 0 ? (
@@ -362,6 +368,25 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
             </ul>
           ) : (
             <p>Rien à signaler pour le moment.</p>
+          )}
+          {atelierDispo && !rendu && (
+            <div>
+              {atelierOuvert ? (
+                <Atelier
+                  texte={texte}
+                  tracer={tracer}
+                  onFermer={() => setAtelierOuvert(false)}
+                  onModifier={() => {
+                    setAtelierOuvert(false);
+                    document.getElementById('mon-texte')?.focus();
+                  }}
+                />
+              ) : (
+                <button type="button" className="plai-btn tuile" onClick={() => setAtelierOuvert(true)}>
+                  Raisonner sur une phrase
+                </button>
+              )}
+            </div>
           )}
           {!rendu && (
             <fieldset>

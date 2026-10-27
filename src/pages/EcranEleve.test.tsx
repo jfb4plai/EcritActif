@@ -17,6 +17,7 @@ function activite(surcharge: Partial<ActiviteEleve> = {}): ActiviteEleve {
     aidesRetirees: [],
     banqueMots: [],
     principesPerso: [],
+    atelier: false,
     ...surcharge,
   };
 }
@@ -659,5 +660,83 @@ describe('EcranEleve : aides', () => {
     render(<EcranEleve activite={activite({ aides: [{ id: 'pictogrammes', active: true }] })} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
     expect(screen.getByText(/Sergio Palao/)).toBeInTheDocument();
     vi.unstubAllGlobals();
+  });
+});
+
+describe('EcranEleve : atelier de raisonnement grammatical (voie A)', () => {
+  const TEXTE = 'Les élèves prépare leur sortie.';
+  async function auTempsCorriger(surcharge: Partial<ActiviteEleve>) {
+    const api = apiDeTest();
+    render(<EcranEleve activite={activite({ contraintes: {}, categories: [], principeIds: [], ...surcharge })} eleveId="el1" jeton="j" api={api} delaiSauvegardeMs={0} />);
+    await versEcriture();
+    await userEvent.type(screen.getByLabelText(/mon texte/i), TEXTE);
+    await userEvent.click(screen.getByRole('button', { name: /fini d.écrire/i }));
+    await userEvent.click(screen.getByRole('button', { name: /passer à la correction/i }));
+    return api;
+  }
+  const evenements = (api: ApiEleve) => (api.sauver as ReturnType<typeof vi.fn>).mock.calls.flatMap((c) => c[0].evenements as string[]);
+
+  test('P4 avec atelier activé : le bouton « Raisonner sur une phrase » apparaît au temps Corriger', async () => {
+    await auTempsCorriger({ annee: 'P4', atelier: true });
+    expect(screen.getByRole('button', { name: /raisonner sur une phrase/i })).toBeInTheDocument();
+  });
+
+  test('atelier non activé par l’enseignant : pas de bouton', async () => {
+    await auTempsCorriger({ annee: 'P4', atelier: false });
+    expect(screen.queryByRole('button', { name: /raisonner sur une phrase/i })).not.toBeInTheDocument();
+  });
+
+  test('année qui n’a pas l’atelier (P2) : pas de bouton, même si la case est cochée', async () => {
+    await auTempsCorriger({ annee: 'P2', atelier: true });
+    expect(screen.queryByRole('button', { name: /raisonner sur une phrase/i })).not.toBeInTheDocument();
+  });
+
+  test('le bouton ouvre l’atelier sur le texte de l’élève ; « Quitter l’atelier » le referme', async () => {
+    await auTempsCorriger({ annee: 'P4', atelier: true });
+    await userEvent.click(screen.getByRole('button', { name: /raisonner sur une phrase/i }));
+    expect(screen.getByRole('button', { name: /Phrase 1/ })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /quitter l’atelier/i }));
+    expect(screen.queryByRole('button', { name: /Phrase 1/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /raisonner sur une phrase/i })).toBeInTheDocument();
+  });
+
+  test('« Modifier mon texte » ferme l’atelier et laisse le texte modifiable', async () => {
+    await auTempsCorriger({ annee: 'P4', atelier: true });
+    await userEvent.click(screen.getByRole('button', { name: /raisonner sur une phrase/i }));
+    await userEvent.click(screen.getByRole('button', { name: /Phrase 1/ }));
+    await userEvent.click(screen.getByRole('button', { name: 'prépare' }));
+    await userEvent.click(screen.getByRole('button', { name: /étape suivante/i }));
+    await userEvent.click(screen.getByRole('button', { name: 'élèves' }));
+    await userEvent.click(screen.getByRole('radio', { name: 'ils' }));
+    for (let i = 0; i < 3; i++) await userEvent.click(screen.getByRole('button', { name: /étape suivante/i }));
+    await userEvent.click(screen.getByRole('button', { name: /modifier mon texte/i }));
+    expect(screen.queryByRole('heading', { name: /Raisonner sur une phrase/ })).not.toBeInTheDocument();
+    expect(screen.getByLabelText(/mon texte/i)).toBeEnabled();
+  });
+
+  test('la trace de l’atelier arrive au serveur avec le texte', async () => {
+    const api = await auTempsCorriger({ annee: 'P4', atelier: true });
+    await userEvent.click(screen.getByRole('button', { name: /raisonner sur une phrase/i }));
+    await userEvent.click(screen.getByRole('button', { name: /Phrase 1/ }));
+    await userEvent.click(screen.getByRole('button', { name: 'prépare' }));
+    await userEvent.click(screen.getByRole('button', { name: /étape suivante/i }));
+    await userEvent.click(screen.getByRole('button', { name: 'élèves' }));
+    await userEvent.click(screen.getByRole('radio', { name: 'ils' }));
+    for (let i = 0; i < 3; i++) await userEvent.click(screen.getByRole('button', { name: /étape suivante/i }));
+    await userEvent.click(screen.getByRole('button', { name: /je ne suis pas sûr/i }));
+    await userEvent.click(screen.getByRole('button', { name: /garder la phrase/i }));
+    await userEvent.type(screen.getByLabelText(/mon texte/i), ' ');
+    await waitFor(() => {
+      const ev = evenements(api);
+      expect(ev).toContain('atelier:phrase:1');
+      expect(ev).toContain('atelier:pas-sur');
+      expect(ev).toContain('atelier:decision:garder');
+      expect(ev.some((e) => e.startsWith('atelier:justification:'))).toBe(true);
+    });
+  });
+
+  test('texte rendu : plus de bouton d’atelier', async () => {
+    render(<EcranEleve activite={activite({ annee: 'P4', atelier: true, reprise: { texte: TEXTE, version: 1, phase: 'rendu' } })} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
+    expect(screen.queryByRole('button', { name: /raisonner sur une phrase/i })).not.toBeInTheDocument();
   });
 });

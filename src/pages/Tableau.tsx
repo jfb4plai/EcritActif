@@ -13,6 +13,14 @@ export interface LigneEleve {
   // Littératie à la rétroaction : demandes d'aide (« Je ne comprends pas ») et auto-évaluation avant de rendre.
   clarifications: number;
   autoEvaluation: AutoEvaluation | null;
+  // Atelier de raisonnement grammatical : ce que l'élève a fait, sans jugement de l'application sur la grammaire.
+  atelier?: { phrases: number; pasSur: number; justifications: string[] };
+}
+
+// « sujet|pronom|verbe|fin » (trace de l'atelier) lu comme la phrase que l'élève a complétée.
+export function justificationEnPhrase(trace: string): string {
+  const [s = '', p = '', v = '', f = ''] = trace.split('|');
+  return `Le sujet est ${s}. Je peux le remplacer par ${p}. Le verbe ${v} se termine par ${f}.`;
 }
 
 interface Props {
@@ -30,6 +38,7 @@ export default function Tableau({ annee, items, eleves, activites, validations, 
   const statuts = statutParItem(items, activites, validations, eleves.map((e) => e.id));
   const libelleAide = (id: string) => AIDES.find((a) => a.id === id)?.libelle ?? id;
   const itemParId = (id: string) => items.find((i) => i.id === id);
+  const avecAtelier = eleves.some((e) => (e.atelier?.phrases ?? 0) > 0 || (e.atelier?.pasSur ?? 0) > 0);
   const valide = (eleveId: string, itemId: string) => validations.some((v) => v.eleveId === eleveId && v.itemId === itemId);
 
   return (
@@ -44,6 +53,7 @@ export default function Tableau({ annee, items, eleves, activites, validations, 
               <th>Aides utilisées</th>
               <th>Demandes d’aide</th>
               <th>Auto-évaluation</th>
+              {avecAtelier && <th>Atelier de grammaire</th>}
               <th>Items travaillés</th>
             </tr>
           </thead>
@@ -77,6 +87,24 @@ export default function Tableau({ annee, items, eleves, activites, validations, 
                     'Pas d’auto-évaluation'
                   )}
                 </td>
+                {avecAtelier && (
+                  <td>
+                    {e.atelier && (e.atelier.phrases > 0 || e.atelier.pasSur > 0) ? (
+                      <div>
+                        <p>
+                          {e.atelier.phrases} phrase{e.atelier.phrases > 1 ? 's' : ''} · {e.atelier.pasSur} « pas sûr »
+                        </p>
+                        <ul>
+                          {e.atelier.justifications.map((j, i) => (
+                            <li key={i}>{justificationEnPhrase(j)}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : (
+                      'Pas utilisé'
+                    )}
+                  </td>
+                )}
                 <td>
                   {e.itemsTravailles.map((id) => {
                     const item = itemParId(id);

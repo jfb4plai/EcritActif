@@ -21,6 +21,7 @@ export function depotSupabase(): Depot {
     aidesRetirees: r.aides_retirees ?? [],
     banqueMots: r.banque_mots ?? [],
     principesPerso: r.principes_perso ?? [],
+    atelier: r.atelier === true,
   });
   const versEleve = (r: Record<string, any>): EleveBrut => ({ id: r.id, aides: r.aides ?? [] });
 

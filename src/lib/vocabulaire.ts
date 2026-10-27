@@ -27,6 +27,12 @@ export const INTRODUCTIONS: Introduction[] = [
   { terme: 'les deux points', annee: 'P3', code: 'F295' },
   { terme: 'apostrophe', annee: 'P3', code: 'F295' },
   { terme: 'parenthèses', annee: 'P3', code: 'F295' },
+  { terme: 'terminaison', annee: 'P4', code: 'F430' },
+  { terme: 'anaphore', annee: 'P4', code: 'F430' },
+  { terme: 'préfixe', annee: 'P4', code: 'F527' },
+  { terme: 'suffixe', annee: 'P4', code: 'F527' },
+  { terme: 'homogramme', annee: 'P4', code: 'F427' },
+  { terme: 'complément circonstanciel', annee: 'P4', code: 'F441' },
 ];
 
 const RANG: Record<Annee, number> = { P1: 1, P2: 2, P3: 3, P4: 4, P5: 5, P6: 6 };

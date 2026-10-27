@@ -19,6 +19,7 @@ function depotDeTest() {
     aidesRetirees: [{ id: 'dictee-vocale', raison: 'On vérifie le geste d’écrire.' }],
     banqueMots: ['chat', 'dormir'],
     principesPerso: [{ phase: 'relire', question: 'As-tu décrit son pelage ?' }],
+    atelier: true,
   };
   const depot: Depot = {
     classeParCode: async (code) => (code === 'ABCDEF' ? { id: 'cl1' } : null),
@@ -98,6 +99,14 @@ describe('ouvrirEleve : niveau de l’activité', () => {
   });
 });
 
+describe('ouvrirEleve : atelier de grammaire', () => {
+  test('l’activité dit si l’enseignant a activé l’atelier', async () => {
+    const { depot } = depotDeTest();
+    const r = await ouvrirEleve(depot, SECRET, { codeClasse: 'ABCDEF', codeEleve: 'KMNPQR' });
+    expect(r.status === 200 && r.corps.activites[0].atelier).toBe(true);
+  });
+});
+
 describe('ouvrirEleve : apports de l’enseignant', () => {
   test('la banque de mots et les questions de l’enseignant arrivent à l’élève', async () => {
     const { depot } = depotDeTest();
@@ -154,6 +163,14 @@ describe('sauverTexte', () => {
     // Les retraits courants de l'activité sont renvoyés : l'élève ne peut pas garder une aide que l'enseignant vient de retirer.
     expect(r.corps.aidesRetirees).toEqual([{ id: 'dictee-vocale', raison: 'On vérifie le geste d’écrire.' }]);
     expect(textes).toHaveLength(1);
+  });
+
+  test('un événement de trace est limité à 300 signes : jamais un texte entier dans les traces', async () => {
+    const { depot, textes } = depotDeTest();
+    const r = await sauverTexte(depot, SECRET, { jeton: jeton(), activiteId: 'act1', texte: 'Mon chat dort.', phase: 'corriger', version: 1, evenements: ['atelier:justification:' + 'x'.repeat(2000), 'frappe'] });
+    expect(r.status).toBe(200);
+    expect(textes[0].evenements[0].length).toBe(300);
+    expect(textes[0].evenements[1]).toBe('frappe');
   });
 
   test('même version : le texte est mis à jour, pas dupliqué ; nouvelle version : nouvelle ligne', async () => {

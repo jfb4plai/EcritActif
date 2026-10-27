@@ -32,8 +32,14 @@ describe('termesNonEncore : ce que le programme ne nomme pas encore', () => {
     expect(t).not.toContain('point d’exclamation');
     expect(t).toContain('voyelle');
   });
-  test('P3 connaît tout ce qui est listé', () => {
-    expect(termesNonEncore('P3')).toEqual([]);
+  test('P3 ne connaît pas encore la terminaison ni l’anaphore (P4)', () => {
+    const t = termesNonEncore('P3');
+    expect(t).toContain('terminaison');
+    expect(t).toContain('anaphore');
+    expect(t).not.toContain('virgule');
+  });
+  test('P4 connaît tout ce qui est listé jusqu’à P4', () => {
+    expect(termesNonEncore('P4')).toEqual([]);
   });
 });
 

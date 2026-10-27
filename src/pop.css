@@ -228,3 +228,27 @@ aside[aria-label='Aides'] li {
   outline: 4px solid #1a1814;
   outline-offset: 2px;
 }
+
+/* Atelier de grammaire : mots cliquables. Cible d'au moins 44 px, état marqué par une bordure épaisse en plus de la couleur. */
+.phrase-atelier { font-size: 1.25rem; line-height: 2.6; }
+.mot-cliquable {
+  min-height: 44px;
+  min-width: 44px;
+  margin: 0 2px;
+  padding: 0 8px;
+  font: inherit;
+  background: #fff;
+  color: #1a1814;
+  border: 2px solid #8a8478;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.mot-cliquable[aria-pressed='true'] { background: #fff1d0; border: 4px solid #1a1814; font-weight: 700; }
+.mot-cliquable:disabled { opacity: 0.45; cursor: not-allowed; }
+.mot-cliquable:focus-visible { outline: 3px solid #0f6e56; outline-offset: 2px; }
+.etapes-atelier { display: flex; flex-wrap: wrap; gap: 8px; padding-left: 0; list-style: none; }
+.etapes-atelier li { padding: 4px 10px; border: 2px solid #8a8478; border-radius: 8px; }
+.etapes-atelier li[aria-current='step'] { border-color: #1a1814; font-weight: 700; background: #fff1d0; }
+.pronom-choix { display: inline-block; margin-right: 16px; font-size: 1.1rem; }
+.liste-phrases { list-style: none; padding-left: 0; }
+.liste-phrases li { margin-bottom: 8px; }

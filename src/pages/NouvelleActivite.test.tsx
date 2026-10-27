@@ -20,6 +20,40 @@ describe('NouvelleActivite : guidage de chaque champ', () => {
   });
 });
 
+describe('NouvelleActivite : atelier de grammaire (voie A)', () => {
+  test('en P4, la case est proposée avec un texte d’aide, décochée par défaut', () => {
+    render(<NouvelleActivite annee="P4" onEnregistrer={vi.fn()} />);
+    const case_ = screen.getByLabelText(/atelier de raisonnement grammatical/i);
+    expect(case_).not.toBeChecked();
+    const id = case_.getAttribute('aria-describedby');
+    expect(id).toBeTruthy();
+    expect(document.getElementById(id as string)?.textContent).toMatch(/ne dit jamais/i);
+  });
+
+  test.each(['P1', 'P2', 'P3'] as const)('en %s, la case n’est pas proposée', (annee) => {
+    render(<NouvelleActivite annee={annee} onEnregistrer={vi.fn()} />);
+    expect(screen.queryByLabelText(/atelier de raisonnement grammatical/i)).not.toBeInTheDocument();
+  });
+
+  test('cochée, la case est enregistrée avec l’activité ; sinon false', async () => {
+    const onEnregistrer = vi.fn();
+    render(<NouvelleActivite annee="P4" onEnregistrer={onEnregistrer} />);
+    await userEvent.type(screen.getByLabelText(/consigne pour les élèves/i), 'Écrire.');
+    await userEvent.click(screen.getByRole('button', { name: /enregistrer/i }));
+    expect(onEnregistrer).toHaveBeenLastCalledWith(expect.objectContaining({ atelier: false }));
+    await userEvent.click(screen.getByLabelText(/atelier de raisonnement grammatical/i));
+    await userEvent.click(screen.getByRole('button', { name: /enregistrer/i }));
+    expect(onEnregistrer).toHaveBeenLastCalledWith(expect.objectContaining({ atelier: true }));
+  });
+
+  test('une activité de P2 enregistre toujours atelier : false', async () => {
+    const { onEnregistrer } = formulaire();
+    await userEvent.type(screen.getByLabelText(/consigne pour les élèves/i), 'Écrire.');
+    await userEvent.click(screen.getByRole('button', { name: /enregistrer/i }));
+    expect(onEnregistrer).toHaveBeenCalledWith(expect.objectContaining({ atelier: false }));
+  });
+});
+
 describe('NouvelleActivite : comportement', () => {
   test('enregistrer est désactivé tant que la consigne est vide', () => {
     formulaire();

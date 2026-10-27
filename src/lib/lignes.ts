@@ -8,6 +8,7 @@ export function construireLignes(
   traces: { eleveId: string; evenement: string }[],
 ): LigneEleve[] {
   return eleves.map((e) => {
+    const siennes = traces.filter((t) => t.eleveId === e.id);
     const siens = textes.filter((t) => t.eleveId === e.id);
     // Le texte le plus récemment modifié (toutes activités confondues), pas la version la plus haute.
     const dernier = siens.reduce<(typeof siens)[number] | null>((m, t) => (m === null || t.updatedAt > m.updatedAt ? t : m), null);
@@ -23,6 +24,11 @@ export function construireLignes(
       autoEvaluation: dernier?.autoEvaluation ?? null,
       aides,
       itemsTravailles: items,
+      atelier: {
+        phrases: siennes.filter((t) => t.evenement.startsWith('atelier:phrase:')).length,
+        pasSur: siennes.filter((t) => t.evenement === 'atelier:pas-sur').length,
+        justifications: siennes.filter((t) => t.evenement.startsWith('atelier:justification:')).map((t) => t.evenement.slice('atelier:justification:'.length)),
+      },
     };
   });
 }

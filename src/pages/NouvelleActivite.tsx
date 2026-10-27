@@ -2,6 +2,7 @@ import { useMemo, useState, type FormEvent } from 'react';
 import { AIDES, type AideId } from '../lib/aides';
 import RepereProgramme from '../components/RepereProgramme';
 import { TEMPS_CECP } from '../lib/ancrage';
+import { ANNEES_ATELIER } from '../lib/atelier';
 import { itemsParAnnee } from '../lib/cecp';
 import { principesPour } from '../lib/principes';
 import type { CategorieErreur, Contraintes } from '../lib/retour';
@@ -18,6 +19,7 @@ export interface ActiviteNouvelle {
   aidesRetirees: { id: AideId; raison: string }[];
   banqueMots: string[];
   principesPerso: { phase: Phase; question: string }[];
+  atelier: boolean;
 }
 
 const CATEGORIES: { id: CategorieErreur; libelle: string }[] = [
@@ -44,6 +46,8 @@ export default function NouvelleActivite({ annee, onEnregistrer }: { annee: Anne
   const [brouillons, setBrouillons] = useState(false);
   const [motsUtiles, setMotsUtiles] = useState('');
   const [perso, setPerso] = useState<Record<string, string>>({});
+  const [atelier, setAtelier] = useState(false);
+  const atelierPossible = ANNEES_ATELIER.includes(annee);
 
   const suggeres = useMemo(() => suggererItems(consigne, items), [consigne, items]);
   const codes = useMemo(() => (itemIds.length > 0 ? items.filter((i) => itemIds.includes(i.id)) : items).flatMap((i) => i.codes), [items, itemIds]);
@@ -68,6 +72,7 @@ export default function NouvelleActivite({ annee, onEnregistrer }: { annee: Anne
       aidesRetirees: Object.entries(retirees).map(([id, raison]) => ({ id: id as AideId, raison: raison.trim() })),
       banqueMots: motsUtiles.split(',').map((m) => m.trim()).filter((m) => m !== ''),
       principesPerso: PHASES.map((p) => ({ phase: p.id, question: (perso[p.id] ?? '').trim() })).filter((q) => q.question !== ''),
+      atelier: atelierPossible && atelier,
     });
   }
 
@@ -170,6 +175,18 @@ export default function NouvelleActivite({ annee, onEnregistrer }: { annee: Anne
           </label>
         ))}
       </fieldset>
+
+      {atelierPossible && (
+        <fieldset>
+          <legend>Grammaire</legend>
+          <label className="block">
+            <input type="checkbox" checked={atelier} onChange={() => setAtelier(!atelier)} aria-describedby="aide-atelier" /> Atelier de raisonnement grammatical
+          </label>
+          <p id="aide-atelier" className="text-sm">
+            Au temps « Corriger », l’élève peut choisir une phrase de son texte et suivre une démarche : trouver le verbe, trouver le sujet, regarder la terminaison, justifier. L’application ne dit jamais si ses choix sont bons : vous voyez les étapes faites, sa justification et ses « Je ne suis pas sûr ».
+          </p>
+        </fieldset>
+      )}
 
       <fieldset>
         <legend>Aides à retirer pour cette activité</legend>

@@ -15,6 +15,8 @@ export interface ActiviteBrute {
   aidesRetirees: { id: AideId; raison: string }[];
   banqueMots: string[];
   principesPerso: { phase: Phase; question: string }[];
+  // Atelier de raisonnement grammatical (P4 à P6), activé par l'enseignant pour cette activité.
+  atelier: boolean;
 }
 
 export interface EleveBrut {
@@ -47,6 +49,7 @@ export interface ActiviteEleve {
   // Apports propres à l'enseignant : ses mots utiles et ses questions s'ajoutent aux questions fixes.
   banqueMots: string[];
   principesPerso: { phase: Phase; question: string }[];
+  atelier: boolean;
   // Dernier texte enregistré de cet élève : permet de reprendre sur un autre appareil et de ne pas écraser un texte rendu.
   reprise?: { texte: string; version: number; phase: string };
 }
@@ -57,6 +60,8 @@ const erreur = (status: 400 | 401 | 404 | 413, message: string): Reponse<never> 
 
 const PHASES = ['reflechir', 'ecrire', 'relire', 'corriger', 'rendu'];
 export const TEXTE_MAX = 20_000;
+// Un événement de trace est court (un identifiant, au plus la justification de l'atelier) : jamais un texte entier.
+export const EVENEMENT_MAX = 300;
 
 function court(x: unknown, max: number): x is string {
   return typeof x === 'string' && x.length <= max;
@@ -89,6 +94,7 @@ function versEleve(a: ActiviteBrute, eleve: EleveBrut, reprise: { texte: string;
     aidesRetirees: a.aidesRetirees,
     banqueMots: a.banqueMots,
     principesPerso: a.principesPerso,
+    atelier: a.atelier,
     ...(reprise ? { reprise } : {}),
   };
 }
@@ -135,7 +141,7 @@ export async function sauverTexte(depot: Depot, secret: string, body: unknown): 
   const activite = await depot.activite(b.activiteId);
   const eleve = await depot.eleve(session.eleveId);
   if (!activite || !eleve || activite.classeId !== session.classeId) return erreur(404, 'Activité inconnue');
-  const evenements = b.evenements.filter((e): e is string => typeof e === 'string').slice(0, 50);
+  const evenements = b.evenements.filter((e): e is string => typeof e === 'string').map((e) => e.slice(0, EVENEMENT_MAX)).slice(0, 50);
   await depot.enregistrer({ activiteId: activite.id, eleveId: eleve.id, version: b.version as number, texte: b.texte, phase: b.phase, evenements, ...(auto ? { autoEvaluation: auto } : {}) });
   return { status: 200, corps: { version: b.version as number, aides: resoudreAides(eleve.aides, activite.aidesRetirees), aidesRetirees: activite.aidesRetirees } };
 }

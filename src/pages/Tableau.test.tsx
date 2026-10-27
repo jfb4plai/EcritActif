@@ -89,3 +89,41 @@ describe('Tableau', () => {
     expect(within(carte).getByText(/Travaillé · 0 sur 2 validé/)).toBeInTheDocument();
   });
 });
+
+describe('Tableau : atelier de grammaire', () => {
+  const unAtelier = { phrases: 2, pasSur: 1, justifications: ['élèves|ils|prépare|e'] };
+  const montrer = (atelier?: { phrases: number; pasSur: number; justifications: string[] }) =>
+    render(
+      <Tableau
+        annee="P4"
+        items={[I1]}
+        eleves={[{ id: 'e1', code: 'KMNPQR', dernierePhase: 'corriger', versions: 1, aides: [], itemsTravailles: [], clarifications: 0, autoEvaluation: null, ...(atelier ? { atelier } : {}) }]}
+        activites={[{ id: 'a1', itemIds: [] }]}
+        validations={[]}
+        onValider={vi.fn()}
+      />,
+    );
+
+  test('la colonne apparaît quand un élève a travaillé l’atelier : phrases et « pas sûr »', () => {
+    montrer(unAtelier);
+    expect(screen.getByRole('columnheader', { name: /atelier de grammaire/i })).toBeInTheDocument();
+    const ligne = screen.getByText('KMNPQR').closest('tr') as HTMLElement;
+    expect(within(ligne).getByText(/2 phrases/)).toBeInTheDocument();
+    expect(within(ligne).getByText(/1 « pas sûr »/)).toBeInTheDocument();
+  });
+
+  test('la justification de l’élève est lisible, en phrase', () => {
+    montrer(unAtelier);
+    expect(screen.getByText(/Le sujet est élèves\. Je peux le remplacer par ils\. Le verbe prépare se termine par e\./)).toBeInTheDocument();
+  });
+
+  test('aucun élève n’a utilisé l’atelier : pas de colonne', () => {
+    montrer({ phrases: 0, pasSur: 0, justifications: [] });
+    expect(screen.queryByRole('columnheader', { name: /atelier de grammaire/i })).not.toBeInTheDocument();
+  });
+
+  test('ligne sans information d’atelier (ancienne donnée) : pas de colonne, pas d’erreur', () => {
+    montrer();
+    expect(screen.queryByRole('columnheader', { name: /atelier de grammaire/i })).not.toBeInTheDocument();
+  });
+});

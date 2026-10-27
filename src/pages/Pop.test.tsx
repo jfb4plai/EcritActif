@@ -19,6 +19,7 @@ const activite: ActiviteEleve = {
   aidesRetirees: [],
   banqueMots: [],
   principesPerso: [],
+  atelier: false,
 };
 
 beforeEach(() => localStorage.clear());
