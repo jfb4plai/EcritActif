@@ -91,6 +91,7 @@ export function ligneActivite(userId: string, classeId: string, a: ActiviteNouve
     // les activités sans atelier (P1 à P3) s'enregistrent comme avant.
     ...(a.atelier ? { atelier: true } : {}),
     ...(a.chasse ? { chasse: a.chasse } : {}),
+    ...(a.grammaire3d ? { grammaire_3d: true } : {}),
   };
 }
 

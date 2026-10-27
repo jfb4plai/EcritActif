@@ -54,6 +54,38 @@ describe('NouvelleActivite : atelier de grammaire (voie A)', () => {
   });
 });
 
+describe('NouvelleActivite : Grammaire 3D (option pédagogique de l’atelier)', () => {
+  test('en P5, une case à cocher, décochée par défaut, avec une aide qui dit que le programme reste la référence', () => {
+    render(<NouvelleActivite annee="P5" onEnregistrer={vi.fn()} />);
+    const c = screen.getByLabelText(/grammaire 3d/i);
+    expect(c).not.toBeChecked();
+    const aide = document.getElementById(c.getAttribute('aria-describedby') as string)?.textContent ?? '';
+    expect(aide).toMatch(/fonctions/i);
+    expect(aide).toMatch(/programme/i);
+  });
+
+  test.each(['P1', 'P2', 'P3'] as const)('en %s, pas d’option Grammaire 3D', (annee) => {
+    render(<NouvelleActivite annee={annee} onEnregistrer={vi.fn()} />);
+    expect(screen.queryByLabelText(/grammaire 3d/i)).not.toBeInTheDocument();
+  });
+
+  test('cochée, l’option est enregistrée ; sinon false', async () => {
+    const onEnregistrer = vi.fn();
+    render(<NouvelleActivite annee="P5" onEnregistrer={onEnregistrer} />);
+    await userEvent.type(screen.getByLabelText(/consigne pour les élèves/i), 'Écrire.');
+    await userEvent.click(screen.getByRole('button', { name: /enregistrer/i }));
+    expect(onEnregistrer).toHaveBeenLastCalledWith(expect.objectContaining({ grammaire3d: false }));
+    await userEvent.click(screen.getByLabelText(/grammaire 3d/i));
+    await userEvent.click(screen.getByRole('button', { name: /enregistrer/i }));
+    expect(onEnregistrer).toHaveBeenLastCalledWith(expect.objectContaining({ grammaire3d: true }));
+  });
+
+  test('le formulaire dit que les verbes pronominaux ne sont pas dans l’atelier, puisque hors programme', () => {
+    render(<NouvelleActivite annee="P5" onEnregistrer={vi.fn()} />);
+    expect(screen.getByText(/verbes pronominaux/i)).toBeInTheDocument();
+  });
+});
+
 describe('NouvelleActivite : chasse aux erreurs (voie B)', () => {
   const TEXTE = 'Les élèves de 4e année prépare leur sortie. Ils emporte un pique-nique.';
 

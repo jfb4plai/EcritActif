@@ -28,6 +28,7 @@ function depotDeTest() {
     banqueMots: ['chat', 'dormir'],
     principesPerso: [{ phase: 'relire', question: 'As-tu décrit son pelage ?' }],
     atelier: true,
+    grammaire3d: true,
     chasse: r.chasse,
   };
   const depot: Depot = {
@@ -116,6 +117,7 @@ describe('ouvrirEleve : atelier de grammaire', () => {
     const { depot } = depotDeTest();
     const r = await ouvrirEleve(depot, SECRET, { codeClasse: 'ABCDEF', codeEleve: 'KMNPQR' });
     expect(r.status === 200 && r.corps.activites[0].atelier).toBe(true);
+    expect(r.status === 200 && r.corps.activites[0].grammaire3d).toBe(true);
   });
 });
 

@@ -21,6 +21,8 @@ export interface ActiviteNouvelle {
   banqueMots: string[];
   principesPerso: { phase: Phase; question: string }[];
   atelier: boolean;
+  // Option pédagogique : noms et pronoms de Grammaire 3D pour les fonctions de l'atelier.
+  grammaire3d: boolean;
   chasse: ChasseBrute | null;
 }
 
@@ -51,6 +53,7 @@ export default function NouvelleActivite({ annee, onEnregistrer }: { annee: Anne
   const [motsUtiles, setMotsUtiles] = useState('');
   const [perso, setPerso] = useState<Record<string, string>>({});
   const [atelier, setAtelier] = useState(false);
+  const [grammaire3d, setGrammaire3d] = useState(false);
   const [avecChasse, setAvecChasse] = useState(false);
   const [texteChasse, setTexteChasse] = useState('');
   const [lignesChasse, setLignesChasse] = useState<LigneErreurSaisie[]>([ligneVide()]);
@@ -91,6 +94,7 @@ export default function NouvelleActivite({ annee, onEnregistrer }: { annee: Anne
       banqueMots: motsUtiles.split(',').map((m) => m.trim()).filter((m) => m !== ''),
       principesPerso: PHASES.map((p) => ({ phase: p.id, question: (perso[p.id] ?? '').trim() })).filter((q) => q.question !== ''),
       atelier: atelierPossible && atelier,
+      grammaire3d: atelierPossible && grammaire3d,
       chasse,
     });
   }
@@ -203,6 +207,16 @@ export default function NouvelleActivite({ annee, onEnregistrer }: { annee: Anne
           </label>
           <p id="aide-atelier" className="text-sm">
             Au temps « Corriger », l’élève peut choisir une phrase de son texte et suivre une démarche : trouver le verbe, trouver le sujet, regarder la terminaison, justifier. L’application ne dit jamais si ses choix sont bons : vous voyez les étapes faites, sa justification et ses « Je ne suis pas sûr ».
+          </p>
+        
+          <label className="block">
+            <input type="checkbox" checked={grammaire3d} onChange={() => setGrammaire3d(!grammaire3d)} aria-describedby="aide-grammaire3d" /> Grammaire 3D
+          </label>
+          <p id="aide-grammaire3d" className="text-sm">
+            Option pédagogique pour les fonctions des groupes : l’élève voit les noms de Grammaire 3D (par exemple « complément de phrase ») et les pronoms utiles pour chaque fonction. Le programme reste la référence : toutes les fonctions du programme restent proposées, et sans cette case l’atelier emploie les noms du programme.
+          </p>
+          <p className="text-sm">
+            Les verbes pronominaux ne figurent pas dans l’atelier : le programme exclut l’accord de leur participe passé (F627, F834).
           </p>
         </fieldset>
       )}

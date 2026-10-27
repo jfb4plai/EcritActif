@@ -178,3 +178,16 @@ Ce que cela suppose : un champ JSON `atelier_perso` sur l'activité (non appliqu
 - **« Moment » est ambigu : toujours le contextualiser ou utiliser le mot du programme.** Appliqué : « Changer le temps de la phrase (le moment où l'action se passe) ». Un test refuse « moment » sans « temps » dans les consignes de l'atelier, et « groupe de mots » sans « groupe sujet ».
 - **Pour la démarche « fonctions » (section 10)** : utiliser « groupe sujet », « groupe prédicat » et « groupe complément circonstanciel » dans le cadre « Programme ». Le cadre « Grammaire 3D » les traduit par ses propres noms (« groupe sujet », « prédicat », « compl. de phrase » dans son fichier `fonctions.ts`).
 - Valable pour tout futur module : mot courant ambigu = le contextualiser, ou employer le mot du programme.
+
+## 15. Décisions de JF (2026-10-27, fin) : appliquées dans le code
+
+1. **Règle numéro 1 : le respect du programme.** Toute démarche n'emploie que les termes du programme de l'année (test par démarche, par année et par cadre) et ne cite que des codes d'items de l'année ou d'avant.
+2. **Verbes pronominaux : retirés.** Seuls F627 (P5) et F834 (P6) en parlent, et ils les excluent de l'accord du participe passé (constaté dans tous les items P1 à P6). La démarche « participe passé » ne propose que trois cas : employé seul, avec « être », avec « avoir ». Un test refuse toute mention de verbe pronominal dans l'atelier ; le formulaire de l'enseignant le dit. Cela corrige ma section 9 (ligne « verbe pronominal » supprimée) et la décision antérieure de JF « toutes les règles ».
+3. **Grammaire 3D : option cochable par l'enseignant, par activité.** Elle ne change que les fonctions : noms (par exemple « complément de phrase » à la place de « groupe complément circonstanciel ») et pronoms utiles par fonction. Elle ne retire aucune fonction du programme : « complément du nom » et « épithète », absents de Grammaire 3D, gardent le nom du programme. Les manipulations sont les mêmes dans les deux cadres. Les noms et les pronoms viennent des fichiers `fonctions.ts` et `pronouns.ts` de Grammaire 3D (lus). En P4, l'aide de Grammaire 3D ne cite pas « attribut du sujet » (terme de P5).
+4. **Ordre** : groupe nominal, participe passé, fonctions : construits dans cet ordre.
+5. **Construit** : participe passé (P5, P6), fonctions (P4 à P6, cinq fonctions en P4, huit en P5 et P6), option Grammaire 3D.
+
+**Statut des contenus (à faire relire par JF) :**
+- Les rappels du participe passé (employé seul : accord avec le nom ; avec « être » : avec le sujet ; avec « avoir » : avec le complément direct seulement s'il est placé avant le verbe) sont les règles générales usuelles, **écrites par moi** ; le programme ne les énonce pas.
+- La liste des manipulations (déplacer, effacer, remplacer par un pronom, encadrer) est celle de la grammaire nouvelle ; le programme ne la donne pas.
+- Non construit : « Ma formulation » (consignes de l'enseignant à la place de celles de l'application), section 11.

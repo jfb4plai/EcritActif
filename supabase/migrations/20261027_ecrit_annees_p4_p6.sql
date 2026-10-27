@@ -13,3 +13,6 @@ alter table public.ecrit_activites add column if not exists atelier boolean not 
 -- 3. Chasse aux erreurs : texte, positions des mots, formes attendues et indices de l'enseignant.
 -- Lecture réservée au serveur (service_role) ; l'élève n'en reçoit que le texte et le nombre d'erreurs.
 alter table public.ecrit_activites add column if not exists chasse jsonb;
+
+-- 4. Grammaire 3D : option pédagogique de l'atelier (noms et pronoms des fonctions). Le programme reste la référence.
+alter table public.ecrit_activites add column if not exists grammaire_3d boolean not null default false;

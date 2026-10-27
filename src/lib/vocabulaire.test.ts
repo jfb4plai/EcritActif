@@ -38,8 +38,16 @@ describe('termesNonEncore : ce que le programme ne nomme pas encore', () => {
     expect(t).toContain('anaphore');
     expect(t).not.toContain('virgule');
   });
-  test('P4 connaît tout ce qui est listé jusqu’à P4', () => {
-    expect(termesNonEncore('P4')).toEqual([]);
+  test('P4 ne connaît pas encore le participe passé ni l’épithète (P5), mais connaît le complément direct', () => {
+    const t = termesNonEncore('P4');
+    expect(t).toContain('participe passé');
+    expect(t).toContain('épithète');
+    expect(t).not.toContain('complément direct');
+    expect(t).not.toContain('terminaison');
+  });
+  test('P5 connaît tout ce qui est listé', () => {
+    expect(termesNonEncore('P5')).toEqual([]);
+    expect(termesNonEncore('P6')).toEqual([]);
   });
 });
 

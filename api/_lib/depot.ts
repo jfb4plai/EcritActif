@@ -22,6 +22,7 @@ export function depotSupabase(): Depot {
     banqueMots: r.banque_mots ?? [],
     principesPerso: r.principes_perso ?? [],
     atelier: r.atelier === true,
+    grammaire3d: r.grammaire_3d === true,
     chasse: r.chasse ?? null,
   });
   const versEleve = (r: Record<string, any>): EleveBrut => ({ id: r.id, aides: r.aides ?? [] });

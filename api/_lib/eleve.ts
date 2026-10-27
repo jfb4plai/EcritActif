@@ -18,6 +18,8 @@ export interface ActiviteBrute {
   principesPerso: { phase: Phase; question: string }[];
   // Atelier de raisonnement grammatical (P4 à P6), activé par l'enseignant pour cette activité.
   atelier: boolean;
+  // Option pédagogique : noms et pronoms de Grammaire 3D pour les fonctions de l'atelier.
+  grammaire3d: boolean;
   // Chasse aux erreurs : texte et corrigé de l'enseignant (jamais envoyés tels quels à l'élève).
   chasse: ChasseBrute | null;
 }
@@ -54,6 +56,7 @@ export interface ActiviteEleve {
   banqueMots: string[];
   principesPerso: { phase: Phase; question: string }[];
   atelier: boolean;
+  grammaire3d?: boolean;
   // Texte à corriger et nombre d'erreurs ; le corrigé reste côté serveur.
   chasse?: ChasseEleve | null;
   // Dernier texte enregistré de cet élève : permet de reprendre sur un autre appareil et de ne pas écraser un texte rendu.
@@ -101,6 +104,7 @@ function versEleve(a: ActiviteBrute, eleve: EleveBrut, reprise: { texte: string;
     banqueMots: a.banqueMots,
     principesPerso: a.principesPerso,
     atelier: a.atelier,
+    grammaire3d: a.grammaire3d,
     chasse: a.chasse ? chasseVersEleve(a.chasse) : null,
     ...(reprise ? { reprise } : {}),
   };
