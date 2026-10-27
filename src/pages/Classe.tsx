@@ -72,7 +72,7 @@ export default function Classe() {
       <p>Code de la classe à donner aux élèves : <strong>{classe.code_classe}</strong></p>
       <section aria-label="Pour commencer" className="plai-card">
         <h2>Pour commencer</h2>
-        <ol>
+        <ol className="liste-numerotee">
           <li>Ajouter vos élèves : cliquer sur « Ajouter 5 élèves » dans la partie Élèves.</li>
           <li>Créer une activité : cliquer sur « Nouvelle activité » dans la partie Activités.</li>
           <li>Donner à chaque élève le code de la classe et son code personnel, à saisir sur la page des élèves.</li>

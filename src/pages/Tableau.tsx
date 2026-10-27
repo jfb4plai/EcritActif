@@ -44,6 +44,10 @@ export default function Tableau({ annee, items, eleves, activites, validations, 
     <div className="space-y-6">
       <section aria-label="Élèves">
         <h2>Élèves (codes anonymes)</h2>
+        {eleves.length === 0 ? (
+          <p>Aucun élève pour le moment : cliquer sur « Ajouter 5 élèves » dans la partie Élèves, plus haut.</p>
+        ) : (
+          <div className="tableau-defilant">
         <table>
           <thead>
             <tr>
@@ -145,6 +149,8 @@ export default function Tableau({ annee, items, eleves, activites, validations, 
             ))}
           </tbody>
         </table>
+          </div>
+        )}
       </section>
 
       <section aria-label={`Programme ${annee}`}>

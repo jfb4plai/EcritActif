@@ -285,3 +285,19 @@ details > summary {
 }
 details > summary:hover { border-color: var(--teal); }
 details > summary:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
+
+
+/* Lisibilité générale : titres, listes à puces ou numérotées, tableaux (les réglages de base de Tailwind les effacent). */
+h1 { font-family: 'DM Serif Display', Georgia, serif; font-size: 2rem; line-height: 1.2; margin: 0.5rem 0 0.75rem; color: #1a1814; }
+h2 { font-family: 'DM Serif Display', Georgia, serif; font-size: 1.5rem; line-height: 1.25; margin: 1.5rem 0 0.5rem; color: #1a1814; }
+h3 { font-size: 1.2rem; font-weight: 700; margin: 1rem 0 0.4rem; }
+h4 { font-size: 1.05rem; font-weight: 700; margin: 0.75rem 0 0.3rem; }
+
+section ul, section ol, .plai-card ul, .plai-card ol { list-style: revert; padding-left: 1.5rem; }
+section ul li, section ol li { margin: 4px 0; }
+.liste-phrases, .liste-classes, .etapes-atelier, .tuiles-temps { list-style: none !important; padding-left: 0 !important; }
+
+.tableau-defilant { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; margin: 0.5rem 0 1rem; font-size: 0.9375rem; }
+th, td { border: 1px solid var(--border2); padding: 8px 10px; text-align: left; vertical-align: top; }
+th { background: var(--surface2); font-weight: 700; }

@@ -162,3 +162,18 @@ describe('Tableau : chasse aux erreurs', () => {
   });
 });
 
+describe('Tableau : aucun élève', () => {
+  test('une phrase dit quoi faire, au lieu d’un tableau vide avec des titres collés', () => {
+    render(<Tableau annee="P4" items={[I1]} eleves={[]} activites={[]} validations={[]} onValider={vi.fn()} />);
+    expect(screen.getByText(/Aucun élève pour le moment/)).toBeInTheDocument();
+    expect(screen.getByText(/Ajouter 5 élèves/)).toBeInTheDocument();
+    expect(screen.queryByRole('columnheader', { name: 'Code' })).not.toBeInTheDocument();
+  });
+
+  test('avec des élèves, le tableau est dans une zone qui défile sur un petit écran', () => {
+    const { container } = render(
+      <Tableau annee="P4" items={[I1]} eleves={[{ id: 'e1', code: 'KMNPQR', dernierePhase: null, versions: 0, aides: [], itemsTravailles: [], clarifications: 0, autoEvaluation: null }]} activites={[]} validations={[]} onValider={vi.fn()} />,
+    );
+    expect(container.querySelector('.tableau-defilant table')).not.toBeNull();
+  });
+});
