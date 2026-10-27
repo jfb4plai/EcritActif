@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ClipboardEvent, type DragEve
 import type { ActiviteEleve } from '../../api/_lib/eleve';
 import AidesPanel from '../components/AidesPanel';
 import Atelier from '../components/Atelier';
+import Chasse from '../components/Chasse';
 import Picto from '../components/Picto';
 import RepereProgramme from '../components/RepereProgramme';
 import TexteColore from '../components/TexteColore';
@@ -11,6 +12,7 @@ import { choisirCritere, decider, initial, phaseFinale, phasesDe, retourAutorise
 import { ANNEES_ATELIER } from '../lib/atelier';
 import { lireLocal, sauverLocal } from '../lib/brouillonLocal';
 import { itemParId } from '../lib/cecp';
+import type { Verdict } from '../lib/chasse';
 import { chargerColorisation, type ModeColorisation } from '../lib/colorisation';
 import { PALETTE, TEXTE_SOMBRE } from '../lib/palette';
 import { ATTRIBUTION_ARASAAC } from '../lib/pictos';
@@ -20,6 +22,7 @@ import { detecterSignaux, recapRendu, verifierContraintes } from '../lib/retour'
 import type { AutoEvaluation, Phase } from '../types';
 
 export interface ApiEleve {
+  chasse(p: { jeton: string; activiteId: string; motIndex: number; forme: string; justification: string }): Promise<Verdict>;
   sauver(p: { jeton: string; activiteId: string; texte: string; phase: Phase | 'rendu'; version: number; evenements: string[]; autoEvaluation?: AutoEvaluation }): Promise<{ version: number; aides: AideActive[]; aidesRetirees?: { id: AideId; raison: string }[] }>;
 }
 
@@ -61,6 +64,7 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
   const [rendu, setRendu] = useState(renduAvant);
   const [essai, setEssai] = useState(0);
   const [atelierOuvert, setAtelierOuvert] = useState(false);
+  const [chasseOuverte, setChasseOuverte] = useState(false);
   const [horsLigne, setHorsLigne] = useState(false);
   const [aidesServeur, setAidesServeur] = useState<AideActive[]>(activite.aides);
   const [retraitsServeur, setRetraitsServeur] = useState(activite.aidesRetirees);
@@ -342,6 +346,9 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
   // Atelier de grammaire : option de l'enseignant, pour les années où le programme demande d'accorder (P4 à P6).
   const atelierDispo = activite.atelier && ANNEES_ATELIER.includes(activite.annee);
 
+  // Chasse aux erreurs : texte de l'enseignant, mêmes années que l'atelier. Le corrigé reste côté serveur.
+  const chasseDispo = !!activite.chasse && ANNEES_ATELIER.includes(activite.annee);
+
   const blocCorriger = (
     <>
           {signauxActifs.length > 0 ? (
@@ -368,6 +375,23 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
             </ul>
           ) : (
             <p>Rien à signaler pour le moment.</p>
+          )}
+          {chasseDispo && !rendu && (
+            <div>
+              {chasseOuverte ? (
+                <Chasse
+                  cle={`${cleTexte}:chasse`}
+                  texte={activite.chasse!.texte}
+                  nbErreurs={activite.chasse!.nbErreurs}
+                  essayer={(p) => api.chasse({ jeton, activiteId: activite.id, ...p })}
+                  onFermer={() => setChasseOuverte(false)}
+                />
+              ) : (
+                <button type="button" className="plai-btn tuile" onClick={() => setChasseOuverte(true)}>
+                  Chasse aux erreurs
+                </button>
+              )}
+            </div>
           )}
           {atelierDispo && !rendu && (
             <div>

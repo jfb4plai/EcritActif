@@ -252,3 +252,5 @@ aside[aria-label='Aides'] li {
 .pronom-choix { display: inline-block; margin-right: 16px; font-size: 1.1rem; }
 .liste-phrases { list-style: none; padding-left: 0; }
 .liste-phrases li { margin-bottom: 8px; }
+
+.visuellement-cache { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

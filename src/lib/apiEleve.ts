@@ -22,4 +22,5 @@ export function ouvrirSession(codeClasse: string, codeEleve: string): Promise<{ 
 
 export const apiEleve: ApiEleve = {
   sauver: (p) => appeler('/api/eleve/sauver', p),
+  chasse: (p) => appeler('/api/eleve/chasse', p),
 };

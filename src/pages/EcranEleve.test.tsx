@@ -23,7 +23,7 @@ function activite(surcharge: Partial<ActiviteEleve> = {}): ActiviteEleve {
 }
 
 function apiDeTest(reponse: Awaited<ReturnType<ApiEleve['sauver']>> = { version: 1, aides: [] }) {
-  const api: ApiEleve = { sauver: vi.fn(async () => reponse) };
+  const api: ApiEleve = { sauver: vi.fn(async () => reponse), chasse: vi.fn(async () => ({ resultat: 'pas-erreur' as const })) };
   return api;
 }
 
@@ -88,7 +88,7 @@ describe('EcranEleve : appareil partagé et reprise (revue finale)', () => {
       .fn()
       .mockRejectedValueOnce(new Error('réseau'))
       .mockResolvedValue({ version: 1, aides: [] });
-    render(<EcranEleve activite={activite()} eleveId="el1" jeton="j" api={{ sauver }} delaiSauvegardeMs={0} reessaiMs={20} />);
+    render(<EcranEleve activite={activite()} eleveId="el1" jeton="j" api={{ sauver, chasse: vi.fn() }} delaiSauvegardeMs={0} reessaiMs={20} />);
     await versEcriture();
     await userEvent.type(screen.getByLabelText(/mon texte/i), 'Un');
     await waitFor(() => expect(sauver.mock.calls.length).toBeGreaterThanOrEqual(2));
@@ -545,7 +545,7 @@ describe('EcranEleve : écrire', () => {
   });
 
   test('si le serveur est injoignable, le texte reste et un message le dit', async () => {
-    const api: ApiEleve = { sauver: vi.fn(async () => Promise.reject(new Error('réseau'))) };
+    const api: ApiEleve = { sauver: vi.fn(async () => Promise.reject(new Error('réseau'))), chasse: vi.fn() };
     render(<EcranEleve activite={activite()} eleveId="el1" jeton="j" api={api} delaiSauvegardeMs={0} />);
     await versEcriture();
     await userEvent.type(screen.getByLabelText(/mon texte/i), 'Un chat');
@@ -740,3 +740,53 @@ describe('EcranEleve : atelier de raisonnement grammatical (voie A)', () => {
     expect(screen.queryByRole('button', { name: /raisonner sur une phrase/i })).not.toBeInTheDocument();
   });
 });
+
+describe('EcranEleve : chasse aux erreurs (voie B)', () => {
+  const CHASSE = { texte: 'Les élèves prépare leur sortie.', nbErreurs: 1 };
+  async function auTempsCorriger(surcharge: Partial<ActiviteEleve>, api = apiDeTest()) {
+    render(<EcranEleve activite={activite({ contraintes: {}, categories: [], principeIds: [], ...surcharge })} eleveId="el1" jeton="j" api={api} delaiSauvegardeMs={0} />);
+    await versEcriture();
+    await userEvent.type(screen.getByLabelText(/mon texte/i), 'Mon chat dort.');
+    await userEvent.click(screen.getByRole('button', { name: /fini d.écrire/i }));
+    await userEvent.click(screen.getByRole('button', { name: /passer à la correction/i }));
+    return api;
+  }
+
+  test('P4 avec une chasse : le bouton « Chasse aux erreurs » apparaît au temps Corriger', async () => {
+    await auTempsCorriger({ annee: 'P4', chasse: CHASSE });
+    expect(screen.getByRole('button', { name: /^chasse aux erreurs$/i })).toBeInTheDocument();
+  });
+
+  test.each([
+    ['sans chasse', { annee: 'P4' as const, chasse: null }],
+    ['en P2, même avec une chasse', { annee: 'P2' as const, chasse: CHASSE }],
+  ])('pas de bouton : %s', async (_n, surcharge) => {
+    await auTempsCorriger(surcharge);
+    expect(screen.queryByRole('button', { name: /^chasse aux erreurs$/i })).not.toBeInTheDocument();
+  });
+
+  test('un essai part au serveur avec le jeton, l’activité, le numéro du mot et la forme', async () => {
+    const api = apiDeTest();
+    (api.chasse as ReturnType<typeof vi.fn>).mockResolvedValue({ resultat: 'trouve', erreurId: 0 });
+    await auTempsCorriger({ annee: 'P4', chasse: CHASSE }, api);
+    await userEvent.click(screen.getByRole('button', { name: /^chasse aux erreurs$/i }));
+    await userEvent.click(screen.getByRole('button', { name: 'prépare' }));
+    await userEvent.type(screen.getByLabelText(/forme corrigée/i), 'préparent');
+    await userEvent.click(screen.getByRole('button', { name: /vérifier/i }));
+    expect(api.chasse).toHaveBeenCalledWith({ jeton: 'j', activiteId: 'act1', motIndex: 2, forme: 'préparent', justification: '' });
+    expect(await screen.findByText('Tu as trouvé une erreur.')).toBeInTheDocument();
+  });
+
+  test('on peut refermer la chasse', async () => {
+    await auTempsCorriger({ annee: 'P4', chasse: CHASSE });
+    await userEvent.click(screen.getByRole('button', { name: /^chasse aux erreurs$/i }));
+    await userEvent.click(screen.getByRole('button', { name: /fermer la chasse/i }));
+    expect(screen.getByRole('button', { name: /^chasse aux erreurs$/i })).toBeInTheDocument();
+  });
+
+  test('texte rendu : plus de chasse', () => {
+    render(<EcranEleve activite={activite({ annee: 'P4', chasse: CHASSE, reprise: { texte: 'Fini.', version: 1, phase: 'rendu' } })} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
+    expect(screen.queryByRole('button', { name: /^chasse aux erreurs$/i })).not.toBeInTheDocument();
+  });
+});
+

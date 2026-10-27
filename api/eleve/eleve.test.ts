@@ -2,11 +2,19 @@ import { describe, expect, test } from 'vitest';
 import { signerJeton, verifierJeton } from '../_lib/session.js';
 import { creerLimiteur } from '../_lib/limite.js';
 import { ouvrirEleve, sauverTexte, type ActiviteBrute, type Depot } from '../_lib/eleve.js';
+import { essaiChasse } from '../_lib/chasse.js';
+import { localiserErreurs } from '../../src/lib/chasse.js';
 
 const SECRET = 'secret-de-test';
 
 function depotDeTest() {
   const textes: { activiteId: string; eleveId: string; version: number; texte: string; phase: string; evenements: string[] }[] = [];
+  const traces: { eleveId: string; activiteId: string; phase: string; evenement: string }[] = [];
+  const r = localiserErreurs('Les élèves de 4e année prépare leur sortie. Ils emporte un pique-nique.', [
+    { mot: 'prépare', rang: 1, attendu: 'préparent', type: 'accord-verbe', indice: 'Cherche le sujet.' },
+    { mot: 'emporte', rang: 1, attendu: 'emportent', type: 'accord-verbe', indice: '' },
+  ]);
+  if (!r.ok) throw new Error(r.message);
   const activite: ActiviteBrute = {
     id: 'act1',
     classeId: 'cl1',
@@ -20,6 +28,7 @@ function depotDeTest() {
     banqueMots: ['chat', 'dormir'],
     principesPerso: [{ phase: 'relire', question: 'As-tu décrit son pelage ?' }],
     atelier: true,
+    chasse: r.chasse,
   };
   const depot: Depot = {
     classeParCode: async (code) => (code === 'ABCDEF' ? { id: 'cl1' } : null),
@@ -32,6 +41,9 @@ function depotDeTest() {
       else textes.push(t);
     },
     eleve: async (id) => (id === 'el1' ? { id: 'el1', aides: ['dictee-vocale', 'colorisation'] } : null),
+    tracer: async (eleveId, activiteId, phase, evenements) => {
+      for (const evenement of evenements) traces.push({ eleveId, activiteId, phase, evenement });
+    },
     dernierTexte: async (eleveId, activiteId) => {
       const l = textes.filter((x) => x.eleveId === eleveId && x.activiteId === activiteId);
       if (l.length === 0) return null;
@@ -39,7 +51,7 @@ function depotDeTest() {
       return { texte: d.texte, version: d.version, phase: d.phase };
     },
   };
-  return { depot, textes };
+  return { depot, textes, traces, activite };
 }
 
 describe('jeton de session', () => {
@@ -228,3 +240,84 @@ describe('sauverTexte', () => {
     expect(r.status).toBe(404);
   });
 });
+
+describe('chasse aux erreurs : ce que l’élève reçoit à l’ouverture', () => {
+  test('le texte et le nombre d’erreurs, jamais le corrigé ni les positions', async () => {
+    const { depot } = depotDeTest();
+    const r = await ouvrirEleve(depot, SECRET, { codeClasse: 'ABCDEF', codeEleve: 'KMNPQR' });
+    expect(r.status).toBe(200);
+    if (r.status !== 200) return;
+    expect(r.corps.activites[0].chasse).toEqual({ texte: 'Les élèves de 4e année prépare leur sortie. Ils emporte un pique-nique.', nbErreurs: 2 });
+    const tout = JSON.stringify(r.corps);
+    expect(tout).not.toContain('préparent');
+    expect(tout).not.toContain('emportent');
+    expect(tout).not.toContain('Cherche le sujet');
+  });
+
+  test('activité sans chasse : null', async () => {
+    const { depot, activite } = depotDeTest();
+    activite.chasse = null;
+    const r = await ouvrirEleve(depot, SECRET, { codeClasse: 'ABCDEF', codeEleve: 'KMNPQR' });
+    expect(r.status === 200 && r.corps.activites[0].chasse).toBeNull();
+  });
+});
+
+describe('essaiChasse', () => {
+  const jeton = () => signerJeton({ eleveId: 'el1', classeId: 'cl1' }, SECRET);
+  // « prépare » est le 8e mot du texte de test (numéro 6 : Les, élèves, de, 4e, année, prépare).
+  const corps = (surcharge: Record<string, unknown> = {}) => ({ jeton: jeton(), activiteId: 'act1', motIndex: 5, forme: 'préparent', ...surcharge });
+
+  test('bon mot, bonne forme : trouvé, et la trace est enregistrée', async () => {
+    const { depot, traces } = depotDeTest();
+    const r = await essaiChasse(depot, SECRET, corps());
+    expect(r).toEqual({ status: 200, corps: { resultat: 'trouve', erreurId: 0 } });
+    expect(traces.map((t) => t.evenement)).toEqual(['chasse:essai:e0:trouve']);
+  });
+
+  test('bon mot, mauvaise forme : l’indice, jamais la forme attendue', async () => {
+    const { depot, traces } = depotDeTest();
+    const r = await essaiChasse(depot, SECRET, corps({ forme: 'prépares' }));
+    expect(r).toEqual({ status: 200, corps: { resultat: 'indice', erreurId: 0, indice: 'Cherche le sujet.' } });
+    expect(JSON.stringify(r)).not.toContain('préparent');
+    expect(traces.map((t) => t.evenement)).toEqual(['chasse:essai:e0:indice']);
+  });
+
+  test('mot qui n’est pas à corriger : pas-erreur, une trace sans le mot', async () => {
+    const { depot, traces } = depotDeTest();
+    const r = await essaiChasse(depot, SECRET, corps({ motIndex: 0 }));
+    expect(r).toEqual({ status: 200, corps: { resultat: 'pas-erreur' } });
+    expect(traces.map((t) => t.evenement)).toEqual(['chasse:essai:pas-erreur']);
+  });
+
+  test('la justification est tracée, limitée à 300 signes, seulement quand une erreur est visée', async () => {
+    const { depot, traces } = depotDeTest();
+    await essaiChasse(depot, SECRET, corps({ justification: 'Le sujet est élèves.' }));
+    expect(traces.map((t) => t.evenement)).toContain('chasse:justification:e0:Le sujet est élèves.');
+    const { depot: d2, traces: t2 } = depotDeTest();
+    await essaiChasse(d2, SECRET, corps({ motIndex: 0, justification: 'bla' }));
+    expect(t2.map((t) => t.evenement)).toEqual(['chasse:essai:pas-erreur']);
+    const { depot: d3 } = depotDeTest();
+    const trop = await essaiChasse(d3, SECRET, corps({ justification: 'x'.repeat(301) }));
+    expect(trop.status).toBe(400);
+  });
+
+  test.each([
+    ['corps absent', null, 400],
+    ['mot sans numéro', { motIndex: 'a' }, 400],
+    ['numéro négatif', { motIndex: -1 }, 400],
+    ['forme trop longue', { forme: 'x'.repeat(61) }, 400],
+    ['jeton falsifié', { jeton: 'x.y.z' }, 401],
+    ['activité inconnue', { activiteId: 'zzz' }, 404],
+  ])('refus : %s', async (_n, surcharge, status) => {
+    const { depot } = depotDeTest();
+    const r = await essaiChasse(depot, SECRET, surcharge === null ? null : corps(surcharge as Record<string, unknown>));
+    expect(r.status).toBe(status);
+  });
+
+  test('activité sans chasse : 404', async () => {
+    const { depot, activite } = depotDeTest();
+    activite.chasse = null;
+    expect((await essaiChasse(depot, SECRET, corps())).status).toBe(404);
+  });
+});
+

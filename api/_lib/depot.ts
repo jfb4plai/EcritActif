@@ -22,6 +22,7 @@ export function depotSupabase(): Depot {
     banqueMots: r.banque_mots ?? [],
     principesPerso: r.principes_perso ?? [],
     atelier: r.atelier === true,
+    chasse: r.chasse ?? null,
   });
   const versEleve = (r: Record<string, any>): EleveBrut => ({ id: r.id, aides: r.aides ?? [] });
 
@@ -62,6 +63,11 @@ export function depotSupabase(): Depot {
         .maybeSingle();
       if (error) throw error;
       return data ? { texte: data.texte, version: data.version, phase: data.phase } : null;
+    },
+    async tracer(eleveId, activiteId, phase, evenements) {
+      if (evenements.length === 0) return;
+      const { error } = await db.from('ecrit_traces').insert(evenements.map((evenement) => ({ eleve_id: eleveId, activite_id: activiteId, phase, evenement })));
+      if (error) throw error;
     },
     async enregistrer(t) {
       const { error } = await db

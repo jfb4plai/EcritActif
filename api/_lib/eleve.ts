@@ -1,5 +1,6 @@
 import { resoudreAides, type AideActive, type AideId } from '../../src/lib/aides.js';
 import type { CategorieErreur, Contraintes } from '../../src/lib/retour.js';
+import { chasseVersEleve, type ChasseBrute, type ChasseEleve } from '../../src/lib/chasse.js';
 import type { Annee, AutoEvaluation, Phase } from '../../src/types.js';
 import { signerJeton, verifierJeton } from './session.js';
 
@@ -17,6 +18,8 @@ export interface ActiviteBrute {
   principesPerso: { phase: Phase; question: string }[];
   // Atelier de raisonnement grammatical (P4 à P6), activé par l'enseignant pour cette activité.
   atelier: boolean;
+  // Chasse aux erreurs : texte et corrigé de l'enseignant (jamais envoyés tels quels à l'élève).
+  chasse: ChasseBrute | null;
 }
 
 export interface EleveBrut {
@@ -31,6 +34,7 @@ export interface Depot {
   activites(classeId: string): Promise<ActiviteBrute[]>;
   activite(id: string): Promise<ActiviteBrute | null>;
   dernierTexte(eleveId: string, activiteId: string): Promise<{ texte: string; version: number; phase: string } | null>;
+  tracer(eleveId: string, activiteId: string, phase: string, evenements: string[]): Promise<void>;
   enregistrer(t: { activiteId: string; eleveId: string; version: number; texte: string; phase: string; evenements: string[]; autoEvaluation?: AutoEvaluation }): Promise<void>;
 }
 
@@ -50,13 +54,15 @@ export interface ActiviteEleve {
   banqueMots: string[];
   principesPerso: { phase: Phase; question: string }[];
   atelier: boolean;
+  // Texte à corriger et nombre d'erreurs ; le corrigé reste côté serveur.
+  chasse?: ChasseEleve | null;
   // Dernier texte enregistré de cet élève : permet de reprendre sur un autre appareil et de ne pas écraser un texte rendu.
   reprise?: { texte: string; version: number; phase: string };
 }
 
 export type Reponse<T> = { status: 200; corps: T } | { status: 400 | 401 | 404 | 413 | 429; corps: { erreur: string } };
 
-const erreur = (status: 400 | 401 | 404 | 413, message: string): Reponse<never> => ({ status, corps: { erreur: message } });
+export const erreur = (status: 400 | 401 | 404 | 413, message: string): Reponse<never> => ({ status, corps: { erreur: message } });
 
 const PHASES = ['reflechir', 'ecrire', 'relire', 'corriger', 'rendu'];
 export const TEXTE_MAX = 20_000;
@@ -77,7 +83,7 @@ function lireAutoEvaluation(x: unknown): AutoEvaluation | null | undefined {
   return { etoiles: o.etoiles as string[], souhait: o.souhait, ...(o.change !== undefined ? { change: o.change as string } : {}) };
 }
 
-function enObjet(x: unknown): Record<string, unknown> | null {
+export function enObjet(x: unknown): Record<string, unknown> | null {
   return typeof x === 'object' && x !== null ? (x as Record<string, unknown>) : null;
 }
 
@@ -95,6 +101,7 @@ function versEleve(a: ActiviteBrute, eleve: EleveBrut, reprise: { texte: string;
     banqueMots: a.banqueMots,
     principesPerso: a.principesPerso,
     atelier: a.atelier,
+    chasse: a.chasse ? chasseVersEleve(a.chasse) : null,
     ...(reprise ? { reprise } : {}),
   };
 }

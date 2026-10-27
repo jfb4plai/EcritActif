@@ -25,7 +25,7 @@ const activite: ActiviteEleve = {
 beforeEach(() => localStorage.clear());
 
 function afficher() {
-  return render(<EcranEleve activite={activite} eleveId="el1" jeton="j" api={{ sauver: vi.fn(async () => ({ version: 1, aides: [] })) }} delaiSauvegardeMs={0} />);
+  return render(<EcranEleve activite={activite} eleveId="el1" jeton="j" api={{ sauver: vi.fn(async () => ({ version: 1, aides: [] })), chasse: vi.fn() }} delaiSauvegardeMs={0} />);
 }
 
 describe('Accueil en tuiles colorées', () => {
