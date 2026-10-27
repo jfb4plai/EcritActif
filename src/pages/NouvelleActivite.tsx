@@ -1,5 +1,6 @@
 import { useMemo, useState, type FormEvent } from 'react';
 import { AIDES, type AideId } from '../lib/aides';
+import ChoixAnnee from '../components/ChoixAnnee';
 import RepereProgramme from '../components/RepereProgramme';
 import { TEMPS_CECP } from '../lib/ancrage';
 import { ANNEES_ATELIER, demarchesPour } from '../lib/atelier';
@@ -43,7 +44,15 @@ const PHASES: { id: Phase; titre: string; verbe: string; exemple: string }[] = [
 
 const ligneVide = (): LigneErreurSaisie => ({ mot: '', rang: 1, attendu: '', type: 'accord-verbe', indice: '' });
 
-export default function NouvelleActivite({ annee, onEnregistrer }: { annee: Annee; onEnregistrer: (a: ActiviteNouvelle) => void }) {
+interface PropsActivite {
+  // Année de départ du formulaire (en pratique, l'année scolaire de la classe) ; l'enseignant peut la changer.
+  annee: Annee;
+  niveauClasse?: Annee;
+  onEnregistrer: (a: ActiviteNouvelle) => void;
+}
+
+export default function NouvelleActivite({ annee: anneeDepart, niveauClasse, onEnregistrer }: PropsActivite) {
+  const [annee, setAnnee] = useState<Annee>(anneeDepart);
   const items = useMemo(() => itemsParAnnee(annee), [annee]);
   const [consigne, setConsigne] = useState('');
   const [minMots, setMinMots] = useState('');
@@ -70,6 +79,16 @@ export default function NouvelleActivite({ annee, onEnregistrer }: { annee: Anne
   const bascule = <T,>(liste: T[], v: T) => (liste.includes(v) ? liste.filter((x) => x !== v) : [...liste, v]);
   const retraitIncomplet = Object.values(retirees).some((r) => r.trim() === '');
   const peutEnregistrer = consigne.trim() !== '' && !retraitIncomplet;
+
+  // Les items, principes et formulations dépendent de l'année : en changer repart de zéro pour ces choix.
+  function changerAnnee(a: Annee) {
+    if (a === annee) return;
+    setAnnee(a);
+    setItemIds([]);
+    setPrincipeIds([]);
+    setPersoTextes({});
+    setErreurChasse('');
+  }
 
   function soumettre(e: FormEvent) {
     e.preventDefault();
@@ -106,6 +125,18 @@ export default function NouvelleActivite({ annee, onEnregistrer }: { annee: Anne
 
   return (
     <form onSubmit={soumettre} className="space-y-6">
+      <ChoixAnnee
+        id="annee-activite"
+        libelle="Année du programme de cette activité"
+        aide="Détermine les items du programme proposés ci-dessous, le vocabulaire des explications et les outils de grammaire disponibles pour vos élèves (atelier, chasse aux erreurs à partir de P4). Elle peut différer de l’année de la classe."
+        valeur={annee}
+        onChange={changerAnnee}
+      />
+      {niveauClasse && annee !== niveauClasse && (
+        <p className="text-sm" role="status">
+          Cette année est différente de l’année de la classe ({niveauClasse}). Les élèves de la classe verront cette activité avec le programme de {annee}.
+        </p>
+      )}
       <div>
         <label htmlFor="consigne">Consigne pour les élèves</label>
         <textarea id="consigne" className="plai-input" rows={3} value={consigne} onChange={(e) => setConsigne(e.target.value)} placeholder="Écrire trois phrases pour présenter mon animal préféré." aria-describedby="aide-consigne" />

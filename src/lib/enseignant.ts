@@ -4,6 +4,7 @@ import type { LigneEleve } from '../pages/Tableau';
 import type { AideId } from './aides';
 import { genererCode } from './codes';
 import { construireLignes } from './lignes';
+import { ANNEES, type Annee } from '../types';
 
 // Accès aux données de l'enseignant (RLS : chaque ligne appartient à son compte).
 // Couche mince, non couverte par des tests unitaires : vérifiée par le parcours réel de la tâche 16.
@@ -12,6 +13,8 @@ export interface ClasseLigne {
   id: string;
   nom: string;
   code_classe: string;
+  // Année scolaire de la classe : valeur de départ des nouvelles activités. Vide pour les classes créées avant ce champ.
+  niveau: Annee | null;
 }
 
 export interface EleveLigne {
@@ -22,6 +25,7 @@ export interface EleveLigne {
 
 export interface ActiviteLigne {
   id: string;
+  annee: Annee;
   consigne: string;
   itemIds: string[];
   aidesRetirees: { id: AideId; raison: string }[];
@@ -30,15 +34,27 @@ export interface ActiviteLigne {
 const CONFLIT = '23505';
 
 export async function listerClasses(db: SupabaseClient): Promise<ClasseLigne[]> {
-  const { data, error } = await db.from('ecrit_classes').select('id, nom, code_classe').order('created_at', { ascending: false });
+  const { data, error } = await db.from('ecrit_classes').select('id, nom, code_classe, niveau').order('created_at', { ascending: false });
   if (error) throw error;
-  return data ?? [];
+  return (data ?? []).map((r) => ({ ...r, niveau: r.niveau ?? null }));
 }
 
-export async function creerClasse(db: SupabaseClient, userId: string, nom: string): Promise<ClasseLigne> {
+// Ce qui est écrit en base pour une nouvelle classe (fonction pure, testée) : le niveau est obligatoire.
+export function ligneClasse(userId: string, nom: string, codeClasse: string, niveau: Annee) {
+  if (!ANNEES.includes(niveau)) throw new Error('Le niveau de la classe est obligatoire.');
+  return { user_id: userId, nom: nom.trim(), code_classe: codeClasse, niveau };
+}
+
+export async function modifierNiveauClasse(db: SupabaseClient, classeId: string, niveau: Annee): Promise<void> {
+  if (!ANNEES.includes(niveau)) throw new Error('Le niveau de la classe est obligatoire.');
+  const { error } = await db.from('ecrit_classes').update({ niveau }).eq('id', classeId);
+  if (error) throw error;
+}
+
+export async function creerClasse(db: SupabaseClient, userId: string, nom: string, niveau: Annee): Promise<ClasseLigne> {
   for (let essai = 0; essai < 5; essai++) {
-    const { data, error } = await db.from('ecrit_classes').insert({ user_id: userId, nom, code_classe: genererCode(6) }).select('id, nom, code_classe').single();
-    if (!error) return data;
+    const { data, error } = await db.from('ecrit_classes').insert(ligneClasse(userId, nom, genererCode(6), niveau)).select('id, nom, code_classe, niveau').single();
+    if (!error) return { ...data, niveau: data.niveau ?? null };
     if (error.code !== CONFLIT) throw error;
   }
   throw new Error('Impossible de générer un code de classe unique.');
@@ -63,9 +79,9 @@ export async function reglerAides(db: SupabaseClient, eleveId: string, aides: Ai
 }
 
 export async function listerActivites(db: SupabaseClient, classeId: string): Promise<ActiviteLigne[]> {
-  const { data, error } = await db.from('ecrit_activites').select('id, consigne, item_ids, aides_retirees').eq('classe_id', classeId).order('created_at', { ascending: false });
+  const { data, error } = await db.from('ecrit_activites').select('id, annee, consigne, item_ids, aides_retirees').eq('classe_id', classeId).order('created_at', { ascending: false });
   if (error) throw error;
-  return (data ?? []).map((r) => ({ id: r.id, consigne: r.consigne, itemIds: r.item_ids ?? [], aidesRetirees: r.aides_retirees ?? [] }));
+  return (data ?? []).map((r) => ({ id: r.id, annee: r.annee, consigne: r.consigne, itemIds: r.item_ids ?? [], aidesRetirees: r.aides_retirees ?? [] }));
 }
 
 export async function modifierAidesRetirees(db: SupabaseClient, activiteId: string, retirees: { id: AideId; raison: string }[]): Promise<void> {
