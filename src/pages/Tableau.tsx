@@ -1,4 +1,5 @@
 import { AIDES } from '../lib/aides';
+import { justificationEnPhrase } from '../lib/atelier';
 import { REFERENTIEL, REFERENTIEL_ANNEE, SOURCES_CECP } from '../lib/ancrage';
 import { statutParItem } from '../lib/statut';
 import type { Annee, AutoEvaluation, ItemCecp, Phase } from '../types';
@@ -19,11 +20,6 @@ export interface LigneEleve {
   chasse?: { trouvees: number; indices: number; essais: number; justifications: string[] };
 }
 
-// « sujet|pronom|verbe|fin » (trace de l'atelier) lu comme la phrase que l'élève a complétée.
-export function justificationEnPhrase(trace: string): string {
-  const [s = '', p = '', v = '', f = ''] = trace.split('|');
-  return `Le sujet est ${s}. Je peux le remplacer par ${p}. Le verbe ${v} se termine par ${f}.`;
-}
 
 interface Props {
   annee: Annee;

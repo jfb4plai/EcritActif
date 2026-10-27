@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
-import { ETAPES_ATELIER, GABARIT_JUSTIFICATION, PRONOMS, type Pronom } from '../lib/atelier';
+import { DEMARCHES, type Demarche, type Depuis, type Element } from '../lib/atelier';
 import { decouperPhrases, morceauxDePhrase } from '../lib/mots';
 
-// Atelier « Je raisonne sur une phrase » (spec 2026-10-27, voie A). L'élève suit une démarche et marque les mots lui-même ;
-// l'application pose les questions et garde la trace. Elle ne dit jamais si un choix est bon.
+// Atelier « Je raisonne sur une phrase » (spec 2026-10-27, voie A). L'élève choisit une phrase et une démarche, marque
+// les mots lui-même ; l'application pose les questions et garde la trace. Elle ne dit jamais si un choix est bon.
 interface Props {
   texte: string;
   tracer: (evenement: string) => void;
@@ -39,11 +39,11 @@ function MotsCliquables({ phrase, choisis, bloques, onBascule }: { phrase: strin
 export default function Atelier({ texte, tracer, onModifier, onFermer }: Props) {
   const phrases = useMemo(() => decouperPhrases(texte), [texte]);
   const [numero, setNumero] = useState<number | null>(null);
+  const [demarche, setDemarche] = useState<Demarche | null>(null);
   const [etape, setEtape] = useState(0);
-  const [verbe, setVerbe] = useState<number[]>([]);
-  const [sujet, setSujet] = useState<number[]>([]);
-  const [pronom, setPronom] = useState<Pronom | ''>('');
-  const [fin, setFin] = useState('');
+  const [mots, setMots] = useState<Record<string, number[]>>({});
+  const [choix, setChoix] = useState<Record<string, string>>({});
+  const [textes, setTextes] = useState<Record<string, string>>({});
   const [justif, setJustif] = useState<string[] | null>(null);
   const [pasSur, setPasSur] = useState(false);
 
@@ -52,6 +52,15 @@ export default function Atelier({ texte, tracer, onModifier, onFermer }: Props) 
       Quitter l’atelier
     </button>
   );
+
+  function reinitialiser() {
+    setMots({});
+    setChoix({});
+    setTextes({});
+    setJustif(null);
+    setPasSur(false);
+    setEtape(0);
+  }
 
   if (numero === null) {
     return (
@@ -71,7 +80,6 @@ export default function Atelier({ texte, tracer, onModifier, onFermer }: Props) 
                     onClick={() => {
                       setNumero(i);
                       tracer('atelier:phrase:' + (i + 1));
-                      tracer('atelier:etape:' + ETAPES_ATELIER[0].id);
                     }}
                   >
                     Phrase {i + 1} : {p.texte}
@@ -86,45 +94,75 @@ export default function Atelier({ texte, tracer, onModifier, onFermer }: Props) 
     );
   }
 
+  if (demarche === null) {
+    return (
+      <section className="plai-card" aria-label="Atelier de grammaire">
+        <h3>Raisonner sur une phrase</h3>
+        <p className="phrase-atelier">{phrases[numero]?.texte}</p>
+        <p>Choisir ce que je veux vérifier.</p>
+        <ul className="liste-phrases">
+          {DEMARCHES.map((d) => (
+            <li key={d.id}>
+              <button
+                type="button"
+                className="plai-btn tuile"
+                onClick={() => {
+                  setDemarche(d);
+                  reinitialiser();
+                  tracer('atelier:demarche:' + d.id);
+                  tracer('atelier:etape:' + d.etapes[0].id);
+                }}
+              >
+                {d.titre}
+              </button>
+            </li>
+          ))}
+        </ul>
+        <div className="flex gap-2 flex-wrap">
+          <button type="button" className="plai-btn tuile" onClick={() => setNumero(null)}>
+            Changer de phrase
+          </button>
+          {fermer}
+        </div>
+      </section>
+    );
+  }
+
   const phrase = phrases[numero]?.texte ?? '';
-  const mots = morceauxDePhrase(phrase).filter((m) => m.motIndex !== null);
-  const motsDe = (indices: number[]) =>
-    indices
+  const motsPhrase = morceauxDePhrase(phrase).filter((m) => m.motIndex !== null);
+  const motsDe = (cle: string) =>
+    (mots[cle] ?? [])
       .slice()
       .sort((a, b) => a - b)
-      .map((i) => mots[i]?.texte ?? '')
+      .map((i) => motsPhrase[i]?.texte ?? '')
       .join(' ');
-  const bascule = (liste: number[], set: (x: number[]) => void) => (i: number) => set(liste.includes(i) ? liste.filter((x) => x !== i) : [...liste, i]);
+  const valeurDe = (d: Depuis) => (d.kind === 'mots' ? motsDe(d.cle) : d.kind === 'choix' ? (choix[d.cle] ?? '') : (textes[d.cle] ?? ''));
 
-  const courante = ETAPES_ATELIER[etape];
-  const peutAvancer = courante.id === 'verbe' ? verbe.length > 0 : courante.id === 'sujet' ? sujet.length > 0 && pronom !== '' : true;
+  const courante = demarche.etapes[etape];
+  const bascule = (cle: string) => (i: number) => setMots({ ...mots, [cle]: (mots[cle] ?? []).includes(i) ? (mots[cle] ?? []).filter((x) => x !== i) : [...(mots[cle] ?? []), i] });
+  const bloquesPour = (cle: string) => Object.entries(mots).filter(([k]) => k !== cle).flatMap(([, v]) => v);
+  const complet = (el: Element) => (el.kind === 'marquer' ? (mots[el.cle] ?? []).length >= el.min : el.kind === 'choisir' ? (choix[el.cle] ?? '') !== '' : true);
+  const peutAvancer = courante.elements.every(complet);
 
   const aller = (n: number) => {
     setEtape(n);
-    if (n === 3 && justif === null) setJustif([motsDe(sujet), pronom, motsDe(verbe), fin]);
-    tracer('atelier:etape:' + ETAPES_ATELIER[n].id);
+    if (demarche.etapes[n].id === 'justifier' && justif === null) setJustif(demarche.champs.map((c) => valeurDe(c.depuis)));
+    tracer('atelier:etape:' + demarche.etapes[n].id);
   };
 
   const terminer = (decision: 'garder' | 'modifier') => {
-    const [s, p, v, f] = justif ?? [motsDe(sujet), pronom, motsDe(verbe), fin];
-    tracer(('atelier:justification:' + [s, p, v, f].join('|')).slice(0, MAX_JUSTIFICATION));
+    const valeurs = justif ?? demarche.champs.map((c) => valeurDe(c.depuis));
+    tracer(`atelier:justification:${demarche.id}:${valeurs.join('|')}`.slice(0, MAX_JUSTIFICATION));
     tracer('atelier:decision:' + decision);
     if (decision === 'modifier') onModifier();
     else onFermer();
   };
 
-  const champs: { id: string; libelle: string }[] = [
-    { id: 'j-sujet', libelle: 'Le sujet est' },
-    { id: 'j-pronom', libelle: 'Je peux le remplacer par' },
-    { id: 'j-verbe', libelle: 'Le verbe' },
-    { id: 'j-fin', libelle: 'se termine par' },
-  ];
-
   return (
     <section className="plai-card" aria-label="Atelier de grammaire">
       <h3>Raisonner sur une phrase</h3>
       <ol aria-label="Les étapes" className="etapes-atelier">
-        {ETAPES_ATELIER.map((e, i) => (
+        {demarche.etapes.map((e, i) => (
           <li key={e.id} aria-current={i === etape ? 'step' : undefined}>
             {i + 1}. {e.titre}
           </li>
@@ -137,44 +175,54 @@ export default function Atelier({ texte, tracer, onModifier, onFermer }: Props) 
         ))}
       </ul>
 
-      {courante.id === 'verbe' && <MotsCliquables phrase={phrase} choisis={verbe} bloques={sujet} onBascule={bascule(verbe, setVerbe)} />}
-
-      {courante.id === 'sujet' && (
-        <>
-          <MotsCliquables phrase={phrase} choisis={sujet} bloques={verbe} onBascule={bascule(sujet, setSujet)} />
-          <fieldset>
-            <legend>Pronom</legend>
-            {PRONOMS.map((p) => (
-              <label key={p} className="pronom-choix">
-                <input type="radio" name="pronom" value={p} checked={pronom === p} onChange={() => setPronom(p)} /> {p}
-              </label>
-            ))}
-          </fieldset>
-        </>
-      )}
-
-      {courante.id === 'terminaison' && (
-        <>
-          <p className="phrase-atelier">{phrase}</p>
-          <label htmlFor="fin-verbe">Fin du verbe</label>
-          <input id="fin-verbe" className="plai-input" maxLength={20} value={fin} onChange={(e) => setFin(e.target.value)} placeholder="ent" aria-describedby="aide-fin" />
-          <p id="aide-fin" className="text-sm">Écris seulement les dernières lettres du verbe, comme dans ton texte. Personne ne note cette réponse.</p>
-        </>
-      )}
+      {courante.elements.map((el) => {
+        if (el.kind === 'marquer') {
+          return (
+            <div key={el.cle}>
+              {el.legende && <p className="text-sm">{el.legende}</p>}
+              <MotsCliquables phrase={phrase} choisis={mots[el.cle] ?? []} bloques={bloquesPour(el.cle)} onBascule={bascule(el.cle)} />
+            </div>
+          );
+        }
+        if (el.kind === 'choisir') {
+          return (
+            <fieldset key={el.cle}>
+              <legend>{el.legende}</legend>
+              {el.options.map((o) => (
+                <label key={o} className="pronom-choix">
+                  <input type="radio" name={el.cle} value={o} checked={choix[el.cle] === o} onChange={() => setChoix({ ...choix, [el.cle]: o })} /> {o}
+                </label>
+              ))}
+            </fieldset>
+          );
+        }
+        return (
+          <div key={el.cle}>
+            <p className="phrase-atelier">{phrase}</p>
+            <label htmlFor={`ecrire-${el.cle}`}>{el.libelle}</label>
+            <input
+              id={`ecrire-${el.cle}`}
+              className="plai-input"
+              maxLength={20}
+              value={textes[el.cle] ?? ''}
+              onChange={(e) => setTextes({ ...textes, [el.cle]: e.target.value })}
+              placeholder={el.placeholder}
+              aria-describedby={`aide-${el.cle}`}
+            />
+            <p id={`aide-${el.cle}`} className="text-sm">
+              {el.aide}
+            </p>
+          </div>
+        );
+      })}
 
       {courante.id === 'justifier' && justif !== null && (
         <>
-          <p className="text-sm">{GABARIT_JUSTIFICATION}</p>
-          {champs.map((c, i) => (
-            <div key={c.id}>
-              <label htmlFor={c.id}>{c.libelle}</label>
-              <input
-                id={c.id}
-                className="plai-input"
-                maxLength={60}
-                value={justif[i]}
-                onChange={(e) => setJustif(justif.map((x, k) => (k === i ? e.target.value : x)))}
-              />
+          <p className="text-sm">{demarche.gabarit}</p>
+          {demarche.champs.map((c, i) => (
+            <div key={c.libelle}>
+              <label htmlFor={`j-${i}`}>{c.libelle}</label>
+              <input id={`j-${i}`} className="plai-input" maxLength={60} value={justif[i]} onChange={(e) => setJustif(justif.map((x, k) => (k === i ? e.target.value : x)))} />
             </div>
           ))}
         </>
@@ -205,15 +253,15 @@ export default function Atelier({ texte, tracer, onModifier, onFermer }: Props) 
 
       <div className="flex gap-2 flex-wrap">
         {etape === 0 ? (
-          <button type="button" className="plai-btn tuile" onClick={() => setNumero(null)}>
-            Changer de phrase
+          <button type="button" className="plai-btn tuile" onClick={() => setDemarche(null)}>
+            Changer de démarche
           </button>
         ) : (
           <button type="button" className="plai-btn tuile" onClick={() => aller(etape - 1)}>
             Étape précédente
           </button>
         )}
-        {etape < ETAPES_ATELIER.length - 1 && (
+        {etape < demarche.etapes.length - 1 && (
           <button type="button" className="plai-btn tuile" disabled={!peutAvancer} onClick={() => aller(etape + 1)}>
             Étape suivante
           </button>

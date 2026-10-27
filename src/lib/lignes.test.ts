@@ -77,13 +77,13 @@ describe('construireLignes', () => {
     const traces = [
       { eleveId: 'e1', evenement: 'atelier:phrase:1' },
       { eleveId: 'e1', evenement: 'atelier:etape:verbe' },
-      { eleveId: 'e1', evenement: 'atelier:justification:élèves|ils|prépare|e' },
+      { eleveId: 'e1', evenement: 'atelier:justification:verbe-sujet:élèves|ils|prépare|e' },
       { eleveId: 'e1', evenement: 'atelier:pas-sur' },
       { eleveId: 'e1', evenement: 'atelier:phrase:2' },
       { eleveId: 'e2', evenement: 'atelier:phrase:1' },
     ];
     const l = construireLignes(eleves, activites, [], traces);
-    expect(l[0].atelier).toEqual({ phrases: 2, pasSur: 1, justifications: ['élèves|ils|prépare|e'] });
+    expect(l[0].atelier).toEqual({ phrases: 2, pasSur: 1, justifications: ['verbe-sujet:élèves|ils|prépare|e'] });
     expect(l[1].atelier).toEqual({ phrases: 1, pasSur: 0, justifications: [] });
   });
 

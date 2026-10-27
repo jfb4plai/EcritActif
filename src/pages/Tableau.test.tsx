@@ -91,7 +91,7 @@ describe('Tableau', () => {
 });
 
 describe('Tableau : atelier de grammaire', () => {
-  const unAtelier = { phrases: 2, pasSur: 1, justifications: ['élèves|ils|prépare|e'] };
+  const unAtelier = { phrases: 2, pasSur: 1, justifications: ['verbe-sujet:élèves|ils|prépare|e', 'groupe-nominal:chats|masculin|plusieurs|Les|s'] };
   const montrer = (atelier?: { phrases: number; pasSur: number; justifications: string[] }) =>
     render(
       <Tableau
@@ -115,6 +115,7 @@ describe('Tableau : atelier de grammaire', () => {
   test('la justification de l’élève est lisible, en phrase', () => {
     montrer(unAtelier);
     expect(screen.getByText(/Le sujet est élèves\. Je peux le remplacer par ils\. Le verbe prépare se termine par e\./)).toBeInTheDocument();
+    expect(screen.getByText(/Le nom est chats\. Il est masculin et plusieurs\./)).toBeInTheDocument();
   });
 
   test('aucun élève n’a utilisé l’atelier : pas de colonne', () => {

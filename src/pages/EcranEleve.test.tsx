@@ -704,6 +704,7 @@ describe('EcranEleve : atelier de raisonnement grammatical (voie A)', () => {
     await auTempsCorriger({ annee: 'P4', atelier: true });
     await userEvent.click(screen.getByRole('button', { name: /raisonner sur une phrase/i }));
     await userEvent.click(screen.getByRole('button', { name: /Phrase 1/ }));
+    await userEvent.click(screen.getByRole('button', { name: 'Le verbe et son sujet' }));
     await userEvent.click(screen.getByRole('button', { name: 'prépare' }));
     await userEvent.click(screen.getByRole('button', { name: /étape suivante/i }));
     await userEvent.click(screen.getByRole('button', { name: 'élèves' }));
@@ -718,6 +719,7 @@ describe('EcranEleve : atelier de raisonnement grammatical (voie A)', () => {
     const api = await auTempsCorriger({ annee: 'P4', atelier: true });
     await userEvent.click(screen.getByRole('button', { name: /raisonner sur une phrase/i }));
     await userEvent.click(screen.getByRole('button', { name: /Phrase 1/ }));
+    await userEvent.click(screen.getByRole('button', { name: 'Le verbe et son sujet' }));
     await userEvent.click(screen.getByRole('button', { name: 'prépare' }));
     await userEvent.click(screen.getByRole('button', { name: /étape suivante/i }));
     await userEvent.click(screen.getByRole('button', { name: 'élèves' }));
