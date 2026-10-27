@@ -28,11 +28,13 @@ interface Props {
   activites: { id: string; itemIds: string[] }[];
   validations: { eleveId: string; itemId: string }[];
   onValider: (eleveId: string, itemId: string) => void;
+  // Surnoms facultatifs de l'enseignant, mémorisés dans son navigateur : ils n'arrivent jamais au serveur.
+  surnoms?: Record<string, string>;
 }
 
 const PHASES: Record<Phase | 'rendu', string> = { reflechir: 'Réfléchir', ecrire: 'Écrire', relire: 'Relire', corriger: 'Corriger', rendu: 'Rendu' };
 
-export default function Tableau({ annee, items, eleves, activites, validations, onValider }: Props) {
+export default function Tableau({ annee, items, eleves, activites, validations, onValider, surnoms }: Props) {
   const statuts = statutParItem(items, activites, validations, eleves.map((e) => e.id));
   const libelleAide = (id: string) => AIDES.find((a) => a.id === id)?.libelle ?? id;
   const itemParId = (id: string) => items.find((i) => i.id === id);
@@ -64,7 +66,10 @@ export default function Tableau({ annee, items, eleves, activites, validations, 
           <tbody>
             {eleves.map((e) => (
               <tr key={e.id}>
-                <td>{e.code}</td>
+                <td>
+                  {e.code}
+                  {surnoms?.[e.code] && <span> ({surnoms[e.code]})</span>}
+                </td>
                 <td>
                   {e.dernierePhase ? (
                     <>

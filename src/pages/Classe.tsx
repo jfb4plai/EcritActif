@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import AidesRetireesEditeur from '../components/AidesRetireesEditeur';
+import AvertissementSurnoms from '../components/AvertissementSurnoms';
+import ChampSurnom from '../components/ChampSurnom';
 import ChoixAnnee from '../components/ChoixAnnee';
 import { AIDES, type AideId } from '../lib/aides';
 import { itemsParAnnee } from '../lib/cecp';
@@ -21,6 +23,7 @@ import {
   type EleveLigne,
 } from '../lib/enseignant';
 import { getSupabase } from '../lib/supabase';
+import { lireSurnoms } from '../lib/surnoms';
 import type { Annee } from '../types';
 import NouvelleActivite from './NouvelleActivite';
 import Tableau, { type LigneEleve } from './Tableau';
@@ -34,6 +37,8 @@ export default function Classe() {
   // Année affichée dans la carte du programme ; par défaut, l'année scolaire de la classe. Distincte de l'année d'une activité.
   const [anneeCarte, setAnneeCarte] = useState<Annee | null>(null);
   const [creation, setCreation] = useState(false);
+  // Surnoms facultatifs : mémorisés dans ce navigateur seulement (jamais envoyés au serveur).
+  const [surnoms, setSurnoms] = useState<Record<string, string>>({});
   const [tableau, setTableau] = useState<{ eleves: LigneEleve[]; activites: { id: string; itemIds: string[] }[]; validations: { eleveId: string; itemId: string }[] } | null>(null);
   const [erreur, setErreur] = useState<string | null>(null);
 
@@ -52,6 +57,10 @@ export default function Classe() {
   useEffect(() => {
     recharger();
   }, [recharger]);
+
+  useEffect(() => {
+    setSurnoms(lireSurnoms(id));
+  }, [id]);
 
   if (!classe) return <p>{erreur ?? 'Chargement…'}</p>;
 
@@ -75,6 +84,7 @@ export default function Classe() {
         <ol className="liste-numerotee">
           <li>Ajouter vos élèves : cliquer sur « Ajouter 5 élèves » dans la partie Élèves.</li>
           <li>Créer une activité : cliquer sur « Nouvelle activité » dans la partie Activités.</li>
+          <li>Si vous le souhaitez, écrire un surnom à côté de chaque code : lire d’abord l’avertissement dans la partie Élèves.</li>
           <li>Donner à chaque élève le code de la classe et son code personnel, à saisir sur la page des élèves.</li>
           <li>Lire les traces dans le tableau en bas de cette page.</li>
         </ol>
@@ -132,10 +142,12 @@ export default function Classe() {
         <button type="button" className="plai-btn" onClick={async () => { await ajouterEleves(getSupabase(), id, 5); recharger(); }}>
           Ajouter 5 élèves
         </button>
+        <AvertissementSurnoms />
         <ul>
           {eleves.map((e) => (
             <li key={e.id}>
               <strong>{e.code_eleve}</strong>
+              <ChampSurnom classeId={id} code={e.code_eleve} valeur={surnoms[e.code_eleve] ?? ''} onChange={(code, surnom) => setSurnoms({ ...surnoms, [code]: surnom })} />
               <details>
                 <summary>Aides activées pour cet élève</summary>
                 {AIDES.map((a) => (
@@ -198,6 +210,7 @@ export default function Classe() {
           eleves={tableau.eleves}
           activites={tableau.activites}
           validations={tableau.validations}
+          surnoms={surnoms}
           onValider={async (eleveId, itemId) => {
             if (!user) return;
             await validerItem(getSupabase(), user.id, eleveId, itemId);

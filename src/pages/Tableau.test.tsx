@@ -177,3 +177,23 @@ describe('Tableau : aucun élève', () => {
     expect(container.querySelector('.tableau-defilant table')).not.toBeNull();
   });
 });
+
+describe('Tableau : surnoms facultatifs', () => {
+  const ligne = { id: 'e1', code: 'KMNPQR', dernierePhase: null, versions: 0, aides: [], itemsTravailles: [], clarifications: 0, autoEvaluation: null };
+  const monter = (surnoms?: Record<string, string>) =>
+    render(<Tableau annee="P4" items={[I1]} eleves={[ligne, { ...ligne, id: 'e2', code: 'STUVWX' }]} activites={[]} validations={[]} onValider={vi.fn()} surnoms={surnoms} />);
+
+  test('le surnom s’affiche à côté du code, pour les élèves qui en ont un', () => {
+    monter({ KMNPQR: 'Léa' });
+    const l1 = screen.getByText('KMNPQR').closest('tr') as HTMLElement;
+    expect(within(l1).getByText('(Léa)')).toBeInTheDocument();
+    const l2 = screen.getByText('STUVWX').closest('tr') as HTMLElement;
+    expect(within(l2).queryByText(/\(/)).not.toBeInTheDocument();
+  });
+
+  test('sans surnoms, le tableau est inchangé', () => {
+    monter();
+    expect(screen.getByText('KMNPQR')).toBeInTheDocument();
+    expect(screen.queryByText(/\(Léa\)/)).not.toBeInTheDocument();
+  });
+});
