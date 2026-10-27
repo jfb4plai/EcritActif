@@ -347,6 +347,26 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
   // Chasse aux erreurs : texte de l'enseignant, mêmes années que l'atelier. Le corrigé reste côté serveur.
   const chasseDispo = !!activite.chasse && ANNEES_ATELIER.includes(activite.annee);
 
+  // Choix du mode, phrase explicative et texte en couleurs : lecture seule, partagés par « Relire » et « Corriger ».
+  const vueColoree = (
+    <>
+        {active('colorisation') && modesColorisation.length > 1 && (
+          <label>
+            Colorer{' '}
+            <select value={modeColor} onChange={(e) => setModeColor(e.target.value as ModeColorisation)}>
+              {modesColorisation.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.libelle}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+        {active('colorisation') && <p className="text-sm">{phraseMode(modeColor)}</p>}
+        <p className="texte-relu">{active('colorisation') && colorPrete ? <TexteColore texte={texte} mode={modeColor} /> : texte}</p>
+    </>
+  );
+
   const blocCorriger = (
     <>
           {signauxActifs.length > 0 ? (
@@ -541,20 +561,7 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
             </div>
           ) : (
             <div>
-              {active('colorisation') && modesColorisation.length > 1 && (
-                <label>
-                  Colorer{' '}
-                  <select value={modeColor} onChange={(e) => setModeColor(e.target.value as ModeColorisation)}>
-                    {modesColorisation.map((m) => (
-                      <option key={m.id} value={m.id}>
-                        {m.libelle}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              )}
-              {active('colorisation') && <p className="text-sm">{phraseMode(modeColor)}</p>}
-              <p className="texte-relu">{active('colorisation') && colorPrete ? <TexteColore texte={texte} mode={modeColor} /> : texte}</p>
+              {vueColoree}
               {active('audio-relecture') &&
                 (peutLire ? (
                   <button type="button" className="plai-btn tuile" onClick={() => lire(texte)}>
@@ -616,6 +623,11 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
             </ul>
           )}
           {zoneTexte}
+          {active('colorisation') && (
+            <div role="group" aria-label="Ton texte en couleurs">
+              {vueColoree}
+            </div>
+          )}
           {momentCalme}
           {blocCorriger}
         </section>

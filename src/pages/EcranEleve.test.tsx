@@ -871,3 +871,39 @@ describe('EcranEleve : réglages de colorisation de l’enseignant', () => {
     expect(within(screen.getByLabelText(/colorer/i)).getAllByRole('option')).toHaveLength(4);
   });
 });
+
+describe('EcranEleve : vue colorée à « Corriger » (lecture seule)', () => {
+  const aides = [{ id: 'colorisation' as const, active: true }];
+  async function corriger(a = aides) {
+    render(<EcranEleve activite={activite({ aides: a, categories: [] })} eleveId="el1" jeton="j" api={apiDeTest({ version: 1, aides: a })} delaiSauvegardeMs={0} />);
+    await versEcriture();
+    await userEvent.type(screen.getByLabelText(/mon texte/i), 'Un chat qui dort sur le canapé.');
+    await userEvent.click(screen.getByRole('button', { name: /fini d.écrire/i }));
+    await userEvent.click(screen.getByRole('button', { name: /passer à la correction/i }));
+  }
+
+  test('avec la colorisation : le texte apparaît aussi en couleurs, sans champ de saisie en plus', async () => {
+    await corriger();
+    const vue = screen.getByRole('group', { name: /ton texte en couleurs/i });
+    expect(vue).toHaveTextContent('Un chat qui dort sur le canapé.');
+    expect(within(vue).queryByRole('textbox')).not.toBeInTheDocument();
+    expect(screen.getAllByRole('textbox', { name: /mon texte/i })).toHaveLength(1);
+  });
+
+  test('le choix du mode est disponible à la correction et la phrase explique les couleurs', async () => {
+    await corriger();
+    expect(screen.getByLabelText(/colorer/i)).toHaveValue('syllabes');
+    expect(screen.getByText(/syllabes d’un mot ont des couleurs/i)).toBeInTheDocument();
+  });
+
+  test('la vue colorée suit le texte quand l’élève corrige', async () => {
+    await corriger();
+    await userEvent.type(screen.getByRole('textbox', { name: /mon texte/i }), ' Bien.');
+    expect(screen.getByRole('group', { name: /ton texte en couleurs/i })).toHaveTextContent('canapé. Bien.');
+  });
+
+  test('sans colorisation : aucune vue colorée', async () => {
+    await corriger([]);
+    expect(screen.queryByRole('group', { name: /ton texte en couleurs/i })).not.toBeInTheDocument();
+  });
+});
