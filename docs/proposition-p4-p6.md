@@ -23,16 +23,26 @@ Les items de P5 et de P6 n'ont pas encore été lus un à un : à faire avant de
 
 ## 3. Vocabulaire à introduire en P4 (à valider)
 
-Chaque terme doit être relié à un code d'item (test existant). Les termes ci-dessous sont lus dans les attendus de P4 ; **je n'ai pas encore vérifié lesquels étaient déjà nommés en P1 à P3** (le premier contrôle automatique était trop grossier : un mot comme « nom » apparaît dans « nommer »). À contrôler par un test plus strict avant toute inscription.
+Contrôle fait le 2026-10-27 : pour chaque terme, première année où il apparaît dans les attendus « écrire » (mot entier, avec pluriel). Limite : le contrôle lit les attendus, pas les pages du programme hors « écrire » ; un terme peut avoir été vu en classe plus tôt sans figurer dans ces items.
 
-| Terme | Code P4 |
+| Déjà nommé avant P4 (donc utilisable en P4) | Première apparition |
 |---|---|
-| accent grave, accent circonflexe | F422 |
-| famille de mots, racine | F424 |
-| champ lexical, substitut lexical, homophone, homogramme | F427, F428 |
-| connecteur | F429 |
-| accord, genre, nombre, anaphore | F430 |
-| groupe sujet, groupe prédicat, complément circonstanciel | F541 |
+| connecteur | P1 (F72) |
+| famille de mots | P1 (F15) |
+| champ lexical, pronom, référent | P2 (F207, F196) |
+| accent grave, accent circonflexe, racine, substitut lexical et grammatical, homophone, homonyme, synonyme, accord, genre, nombre, groupe sujet, groupe prédicat | P3 (F254, F259, F262, F346, F357, F265, F270) |
+
+| Nouveaux en P4 (à introduire seulement s'ils servent un message) | Code |
+|---|---|
+| préfixe, suffixe | F527 |
+| homogramme | F427 |
+| anaphore | F430 |
+| complément circonstanciel | F441, F541 |
+| terminaison | F430, F552 |
+| imparfait, conditionnel | F552 |
+| adverbe | F431, F543 |
+
+Ma première version de cette liste (section 3 du premier jet) classait « accent grave », « famille de mots », « racine », « accord » comme nouveaux en P4 : c'était faux, ils sont déjà dans les items de P1 à P3.
 
 ## 4. Signaux possibles en P4 (à valider)
 
@@ -65,3 +75,10 @@ Statut de chacune : **brouillon**, sans source RISS tant qu'on n'a pas lu un art
 3. JF donne son accord pour appliquer la migration (essai d'abord dans `supabase/essai-rollback-annees.sql`, transaction annulée), puis on ouvre P4.
 4. Même démarche pour P5, puis P6, en lisant leurs items avant de proposer.
 5. Mise à jour de la page jfb4plai.com (années disponibles, limites).
+
+## 7. P5 et P6 : ce qui change (constaté dans les items, lu le 2026-10-27)
+
+- **P5** (37 items) : toutes les marques de ponctuation dans une production personnelle (F663) ; accord du participe passé et formation du pluriel des noms et adjectifs (F622 à F629) ; temps et modes à conjuguer, dont passé simple (F750) ; fonctions épithète, attribut, complément du nom (F633) ; antonyme, groupe verbal, niveau soutenu (F616, F736, F608) ; connecteurs d'opposition, de conséquence, de conclusion, de synthèse (F619) ; soigner la présentation de l'écrit (F780) ; réviser, puis corriger à l'aide d'une grille de vérification et des référentiels, dictionnaire en ligne compris (F809 à F812).
+- **P6** (30 items) : mêmes savoirs qu'en P5 consolidés ; « toutes les marques de ponctuation apprises » (F870) ; préfixe et suffixe (F822) ; prise de notes (F916, F917) et jugement critique sur un document (F1008 à F1010), qui sortent de l'écriture d'un texte ; réviser (F1017 à F1019).
+- **Déduit** : le saut P4 vers P5 est surtout grammatical (participe passé, fonctions, temps), le saut P5 vers P6 est surtout de consolidation. Les signaux sans analyse grammaticale ne couvriront donc pas l'essentiel de ce qui est attendu en P5 et P6 : il faudra annoncer cette limite clairement dans l'application et sur la page.
+- **À décider avec vous avant de coder P5 et P6** : si l'app doit proposer des questions fixes de relecture sur l'accord et les temps (sans signal), ou rester sur la planification et la révision du contenu (structure textuelle, cohérence, intention), plus proches de ce que l'application sait bien soutenir.
