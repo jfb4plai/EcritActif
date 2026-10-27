@@ -1,4 +1,4 @@
-import { toutesLesDemarches, type Demarche, type Etape } from './atelier';
+import { toutesLesDemarches, type Demarche, type Etape } from './atelier.js';
 
 // « Ma formulation » : l'enseignant remplace les consignes de l'application, étape par étape, par ses propres mots
 // (son vocabulaire, ses gestes, ses couleurs). L'élève voit sa version. Le contrôle de vocabulaire ne s'applique pas à ce
