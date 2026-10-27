@@ -15,6 +15,7 @@ describe('ligneActivite : ce qui est écrit en base pour une nouvelle activité'
       principesPerso: [],
       atelier: false,
       grammaire3d: false,
+      atelierPerso: {},
       chasse: null,
     });
     expect(l).toMatchObject({ user_id: 'u1', classe_id: 'c1', annee: 'P3', consigne: 'Décrire mon animal.', banque_mots: ['chat'], item_ids: ['P3:F411+F412'] });
@@ -23,18 +24,25 @@ describe('ligneActivite : ce qui est écrit en base pour une nouvelle activité'
   });
 
   test('l’atelier de grammaire est enregistré quand l’enseignant l’active', () => {
-    const l = ligneActivite('u1', 'c1', { annee: 'P4', consigne: 'Écrire.', contraintes: {}, itemIds: [], principeIds: [], categories: [], aidesRetirees: [], banqueMots: [], principesPerso: [], atelier: true, grammaire3d: false, chasse: null });
+    const l = ligneActivite('u1', 'c1', { annee: 'P4', consigne: 'Écrire.', contraintes: {}, itemIds: [], principeIds: [], categories: [], aidesRetirees: [], banqueMots: [], principesPerso: [], atelier: true, grammaire3d: false, atelierPerso: {}, chasse: null });
     expect(l.atelier).toBe(true);
   });
 
+  test('la formulation de l’enseignant n’est envoyée que si elle existe', () => {
+    const base = { atelierPerso: {}, annee: 'P4' as const, consigne: 'Écrire.', contraintes: {}, itemIds: [], principeIds: [], categories: [], aidesRetirees: [], banqueMots: [], principesPerso: [], atelier: true, grammaire3d: false, chasse: null };
+    expect(ligneActivite('u1', 'c1', { ...base, atelierPerso: {} })).not.toHaveProperty('atelier_perso');
+    const perso = { 'verbe-sujet': { verbe: ['Mes mots.'] } };
+    expect(ligneActivite('u1', 'c1', { ...base, atelierPerso: perso }).atelier_perso).toEqual(perso);
+  });
+
   test('Grammaire 3D : la colonne n’est envoyée que si l’option est cochée', () => {
-    const base = { annee: 'P5' as const, consigne: 'Écrire.', contraintes: {}, itemIds: [], principeIds: [], categories: [], aidesRetirees: [], banqueMots: [], principesPerso: [], atelier: true, chasse: null };
+    const base = { atelierPerso: {}, annee: 'P5' as const, consigne: 'Écrire.', contraintes: {}, itemIds: [], principeIds: [], categories: [], aidesRetirees: [], banqueMots: [], principesPerso: [], atelier: true, chasse: null };
     expect(ligneActivite('u1', 'c1', { ...base, grammaire3d: false })).not.toHaveProperty('grammaire_3d');
     expect(ligneActivite('u1', 'c1', { ...base, grammaire3d: true }).grammaire_3d).toBe(true);
   });
 
   test('la chasse n’est envoyée que si elle existe (la base d’avant la migration ignore la colonne)', () => {
-    const base = { annee: 'P4' as const, consigne: 'Écrire.', contraintes: {}, itemIds: [], principeIds: [], categories: [], aidesRetirees: [], banqueMots: [], principesPerso: [], atelier: false, grammaire3d: false };
+    const base = { atelierPerso: {}, annee: 'P4' as const, consigne: 'Écrire.', contraintes: {}, itemIds: [], principeIds: [], categories: [], aidesRetirees: [], banqueMots: [], principesPerso: [], atelier: false, grammaire3d: false };
     expect(ligneActivite('u1', 'c1', { ...base, chasse: null })).not.toHaveProperty('chasse');
     const chasse = { texte: 'Ils mange.', erreurs: [{ position: 1, mot: 'mange', attendu: 'mangent', type: 'accord-verbe' as const, indice: '' }] };
     expect(ligneActivite('u1', 'c1', { ...base, chasse }).chasse).toEqual(chasse);

@@ -92,6 +92,7 @@ export function ligneActivite(userId: string, classeId: string, a: ActiviteNouve
     ...(a.atelier ? { atelier: true } : {}),
     ...(a.chasse ? { chasse: a.chasse } : {}),
     ...(a.grammaire3d ? { grammaire_3d: true } : {}),
+    ...(Object.keys(a.atelierPerso).length > 0 ? { atelier_perso: a.atelierPerso } : {}),
   };
 }
 

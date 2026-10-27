@@ -16,3 +16,7 @@ alter table public.ecrit_activites add column if not exists chasse jsonb;
 
 -- 4. Grammaire 3D : option pédagogique de l'atelier (noms et pronoms des fonctions). Le programme reste la référence.
 alter table public.ecrit_activites add column if not exists grammaire_3d boolean not null default false;
+
+-- 5. « Ma formulation » : consignes de l'enseignant pour l'atelier, par démarche et par étape.
+-- Format : {"verbe-sujet": {"verbe": ["consigne", ...]}}. Nettoyé côté serveur avant d'arriver à l'élève.
+alter table public.ecrit_activites add column if not exists atelier_perso jsonb;

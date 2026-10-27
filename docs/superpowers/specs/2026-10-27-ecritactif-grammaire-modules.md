@@ -191,3 +191,11 @@ Ce que cela suppose : un champ JSON `atelier_perso` sur l'activité (non appliqu
 - Les rappels du participe passé (employé seul : accord avec le nom ; avec « être » : avec le sujet ; avec « avoir » : avec le complément direct seulement s'il est placé avant le verbe) sont les règles générales usuelles, **écrites par moi** ; le programme ne les énonce pas.
 - La liste des manipulations (déplacer, effacer, remplacer par un pronom, encadrer) est celle de la grammaire nouvelle ; le programme ne la donne pas.
 - Non construit : « Ma formulation » (consignes de l'enseignant à la place de celles de l'application), section 11.
+
+## 16. « Ma formulation » : construit (2026-10-27)
+
+- **Ce que fait l'enseignant** : quand il coche l'atelier, une zone « Ma formulation (facultatif) » propose un champ par étape de chaque démarche de l'année (et du cadre choisi). Une consigne par ligne, 6 lignes au plus, 200 signes par ligne ; les consignes de l'application sont affichées en exemple. Champ laissé vide : consignes de l'application.
+- **Ce que voit l'élève** : les consignes de l'enseignant remplacent toutes les consignes de l'étape. Les **rappels de règle** de l'application (par exemple pour le participe passé) restent affichés. Le contrôle de vocabulaire ne s'applique pas au texte de l'enseignant.
+- **Sécurité** : le texte est affiché comme du texte (jamais comme du HTML, testé) ; côté serveur, `nettoyerPerso` ne garde que des démarches et étapes connues, des lignes courtes et en nombre limité, et ignore les clés dangereuses (un test a révélé puis corrigé une pollution de prototype dans la saisie du formulaire).
+- **Base** : colonne `ecrit_activites.atelier_perso` (jsonb) dans la migration, non appliquée. Elle n'est envoyée à l'enregistrement que si l'enseignant a écrit quelque chose.
+- **Non construit** : modifier la formulation d'une activité après enregistrement ; remplacer les rappels de règle ; adapter les questions de la chasse.

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { demarchesPour, type Demarche, type Depuis, type Element } from '../lib/atelier';
+import { consignesPour, type AtelierPerso } from '../lib/atelierPerso';
 import { decouperPhrases, morceauxDePhrase } from '../lib/mots';
 import type { Annee } from '../types';
 
@@ -11,6 +12,8 @@ interface Props {
   annee: Annee;
   // Option pédagogique de l'enseignant : noms et pronoms de Grammaire 3D pour les fonctions.
   grammaire3d?: boolean;
+  // « Ma formulation » : consignes de l'enseignant, qui remplacent celles de l'application étape par étape.
+  perso?: AtelierPerso;
   tracer: (evenement: string) => void;
   onModifier: () => void;
   onFermer: () => void;
@@ -41,7 +44,7 @@ function MotsCliquables({ phrase, choisis, bloques, onBascule }: { phrase: strin
   );
 }
 
-export default function Atelier({ texte, annee, grammaire3d = false, tracer, onModifier, onFermer }: Props) {
+export default function Atelier({ texte, annee, grammaire3d = false, perso, tracer, onModifier, onFermer }: Props) {
   const phrases = useMemo(() => decouperPhrases(texte), [texte]);
   const demarches = useMemo(() => demarchesPour(annee, { grammaire3d }), [annee, grammaire3d]);
   const [numero, setNumero] = useState<number | null>(null);
@@ -150,6 +153,7 @@ export default function Atelier({ texte, annee, grammaire3d = false, tracer, onM
   const visible = (el: Element) => !el.si || choix[el.si.cle] === el.si.valeur;
   const visibles = courante.elements.filter(visible);
   const selon = (courante.selon ?? []).filter((s) => choix[s.cle] === s.valeur);
+  const siennes = consignesPour(demarche, courante, perso);
   const bascule = (cle: string) => (i: number) => setMots({ ...mots, [cle]: (mots[cle] ?? []).includes(i) ? (mots[cle] ?? []).filter((x) => x !== i) : [...(mots[cle] ?? []), i] });
   const bloquesPour = (cle: string) => Object.entries(mots).filter(([k]) => k !== cle).flatMap(([, v]) => v);
   const complet = (el: Element) => (el.kind === 'marquer' ? (mots[el.cle] ?? []).length >= el.min : el.kind === 'choisir' ? (choix[el.cle] ?? '') !== '' : true);
@@ -194,23 +198,37 @@ export default function Atelier({ texte, annee, grammaire3d = false, tracer, onM
         ))}
       </ol>
       <h4>{courante.titre}</h4>
-      {courante.consignes.length > 0 && (
-        <ul>
-          {courante.consignes.map((c) => (
-            <li key={c}>{c}</li>
-          ))}
-        </ul>
-      )}
-      {selon.map((s) => (
-        <div key={s.valeur}>
+      {siennes.perso ? (
+        // Les mots de l'enseignant remplacent toutes les consignes de l'étape ; les rappels de règle restent.
+        <>
           <ul>
-            {s.consignes.map((c) => (
+            {siennes.consignes.map((c) => (
               <li key={c}>{c}</li>
             ))}
           </ul>
-          {s.rappel && <p className="rappel-atelier">{s.rappel}</p>}
-        </div>
-      ))}
+          {selon.map((s) => s.rappel && <p key={s.valeur} className="rappel-atelier">{s.rappel}</p>)}
+        </>
+      ) : (
+        <>
+          {courante.consignes.length > 0 && (
+            <ul>
+              {courante.consignes.map((c) => (
+                <li key={c}>{c}</li>
+              ))}
+            </ul>
+          )}
+          {selon.map((s) => (
+            <div key={s.valeur}>
+              <ul>
+                {s.consignes.map((c) => (
+                  <li key={c}>{c}</li>
+                ))}
+              </ul>
+              {s.rappel && <p className="rappel-atelier">{s.rappel}</p>}
+            </div>
+          ))}
+        </>
+      )}
 
       {visibles.map((el, k) => {
         const cle = `${el.cle}-${k}`;

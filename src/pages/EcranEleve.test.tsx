@@ -737,6 +737,20 @@ describe('EcranEleve : atelier de raisonnement grammatical (voie A)', () => {
     });
   });
 
+  test('la formulation de l’enseignant et l’option Grammaire 3D arrivent à l’atelier', async () => {
+    await auTempsCorriger({ annee: 'P5', atelier: true, grammaire3d: true, atelierPerso: { 'verbe-sujet': { verbe: ['Mettre la phrase à l’imparfait.'] } } });
+    await userEvent.click(screen.getByRole('button', { name: /raisonner sur une phrase/i }));
+    await userEvent.click(screen.getByRole('button', { name: /Phrase 1/ }));
+    await userEvent.click(screen.getByRole('button', { name: 'Le verbe et son sujet' }));
+    expect(screen.getByText('Mettre la phrase à l’imparfait.')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /changer de démarche/i }));
+    await userEvent.click(screen.getByRole('button', { name: /La fonction d’un groupe/ }));
+    await userEvent.click(screen.getByRole('button', { name: 'prépare' }));
+    await userEvent.click(screen.getByRole('button', { name: /étape suivante/i }));
+    await userEvent.click(screen.getByRole('button', { name: /étape suivante/i }));
+    expect(screen.getByRole('radio', { name: 'complément de phrase' })).toBeInTheDocument();
+  });
+
   test('texte rendu : plus de bouton d’atelier', async () => {
     render(<EcranEleve activite={activite({ annee: 'P4', atelier: true, reprise: { texte: TEXTE, version: 1, phase: 'rendu' } })} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
     expect(screen.queryByRole('button', { name: /raisonner sur une phrase/i })).not.toBeInTheDocument();

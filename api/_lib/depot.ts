@@ -23,6 +23,7 @@ export function depotSupabase(): Depot {
     principesPerso: r.principes_perso ?? [],
     atelier: r.atelier === true,
     grammaire3d: r.grammaire_3d === true,
+    atelierPerso: r.atelier_perso ?? undefined,
     chasse: r.chasse ?? null,
   });
   const versEleve = (r: Record<string, any>): EleveBrut => ({ id: r.id, aides: r.aides ?? [] });

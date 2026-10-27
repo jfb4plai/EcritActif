@@ -29,6 +29,7 @@ function depotDeTest() {
     principesPerso: [{ phase: 'relire', question: 'As-tu décrit son pelage ?' }],
     atelier: true,
     grammaire3d: true,
+    atelierPerso: { 'verbe-sujet': { verbe: ['Mettre la phrase à l’imparfait.'] }, inconnue: { x: ['y'] } },
     chasse: r.chasse,
   };
   const depot: Depot = {
@@ -118,6 +119,21 @@ describe('ouvrirEleve : atelier de grammaire', () => {
     const r = await ouvrirEleve(depot, SECRET, { codeClasse: 'ABCDEF', codeEleve: 'KMNPQR' });
     expect(r.status === 200 && r.corps.activites[0].atelier).toBe(true);
     expect(r.status === 200 && r.corps.activites[0].grammaire3d).toBe(true);
+  });
+});
+
+describe('ouvrirEleve : formulation de l’enseignant (atelier)', () => {
+  test('les consignes de l’enseignant arrivent à l’élève, nettoyées (démarches et étapes inconnues retirées)', async () => {
+    const { depot } = depotDeTest();
+    const r = await ouvrirEleve(depot, SECRET, { codeClasse: 'ABCDEF', codeEleve: 'KMNPQR' });
+    expect(r.status === 200 && r.corps.activites[0].atelierPerso).toEqual({ 'verbe-sujet': { verbe: ['Mettre la phrase à l’imparfait.'] } });
+  });
+
+  test('sans formulation : objet vide', async () => {
+    const { depot, activite } = depotDeTest();
+    activite.atelierPerso = undefined;
+    const r = await ouvrirEleve(depot, SECRET, { codeClasse: 'ABCDEF', codeEleve: 'KMNPQR' });
+    expect(r.status === 200 && r.corps.activites[0].atelierPerso).toEqual({});
   });
 });
 

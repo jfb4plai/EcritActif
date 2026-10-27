@@ -400,6 +400,7 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
                   texte={texte}
                   annee={activite.annee}
                   grammaire3d={activite.grammaire3d === true}
+                  perso={activite.atelierPerso}
                   tracer={tracer}
                   onFermer={() => setAtelierOuvert(false)}
                   onModifier={() => {

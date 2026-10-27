@@ -1,5 +1,6 @@
 import { resoudreAides, type AideActive, type AideId } from '../../src/lib/aides.js';
 import type { CategorieErreur, Contraintes } from '../../src/lib/retour.js';
+import { nettoyerPerso, type AtelierPerso } from '../../src/lib/atelierPerso.js';
 import { chasseVersEleve, type ChasseBrute, type ChasseEleve } from '../../src/lib/chasse.js';
 import type { Annee, AutoEvaluation, Phase } from '../../src/types.js';
 import { signerJeton, verifierJeton } from './session.js';
@@ -20,6 +21,8 @@ export interface ActiviteBrute {
   atelier: boolean;
   // Option pédagogique : noms et pronoms de Grammaire 3D pour les fonctions de l'atelier.
   grammaire3d: boolean;
+  // « Ma formulation » : consignes de l'enseignant pour l'atelier (nettoyées avant d'arriver à l'élève).
+  atelierPerso?: unknown;
   // Chasse aux erreurs : texte et corrigé de l'enseignant (jamais envoyés tels quels à l'élève).
   chasse: ChasseBrute | null;
 }
@@ -57,6 +60,7 @@ export interface ActiviteEleve {
   principesPerso: { phase: Phase; question: string }[];
   atelier: boolean;
   grammaire3d?: boolean;
+  atelierPerso?: AtelierPerso;
   // Texte à corriger et nombre d'erreurs ; le corrigé reste côté serveur.
   chasse?: ChasseEleve | null;
   // Dernier texte enregistré de cet élève : permet de reprendre sur un autre appareil et de ne pas écraser un texte rendu.
@@ -105,6 +109,7 @@ function versEleve(a: ActiviteBrute, eleve: EleveBrut, reprise: { texte: string;
     principesPerso: a.principesPerso,
     atelier: a.atelier,
     grammaire3d: a.grammaire3d,
+    atelierPerso: nettoyerPerso(a.atelierPerso),
     chasse: a.chasse ? chasseVersEleve(a.chasse) : null,
     ...(reprise ? { reprise } : {}),
   };

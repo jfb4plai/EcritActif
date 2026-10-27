@@ -409,3 +409,59 @@ describe('Atelier : la fonction d’un groupe, cadre du programme ou Grammaire 3
     expect(screen.getAllByRole('radio')).toHaveLength(5);
   });
 });
+
+describe('Atelier : « Ma formulation » de l’enseignant', () => {
+  const perso = { 'verbe-sujet': { verbe: ['Mettre la phrase à l’imparfait.', 'Cliquer sur le mot qui change.'] } };
+
+  test('l’élève voit les consignes de l’enseignant à la place de celles de l’application, pour cette étape seulement', async () => {
+    monter({ perso });
+    await cliquer(/Phrase 2/);
+    await verbeSujet();
+    expect(screen.getByText('Mettre la phrase à l’imparfait.')).toBeInTheDocument();
+    expect(screen.getByText('Cliquer sur le mot qui change.')).toBeInTheDocument();
+    expect(screen.queryByText(/ajouter « hier » ou « demain »/)).not.toBeInTheDocument();
+    await cliquer('prépare');
+    await suivante();
+    expect(screen.getByText(/Chercher le groupe sujet/)).toBeInTheDocument();
+  });
+
+  test('sans formulation, les consignes de l’application', async () => {
+    monter();
+    await cliquer(/Phrase 2/);
+    await verbeSujet();
+    expect(screen.getByText(/ajouter « hier » ou « demain »/)).toBeInTheDocument();
+  });
+
+  test('la formulation d’une autre démarche ne change rien', async () => {
+    monter({ perso: { 'groupe-nominal': { nom: ['Trouver le nom avec mes mots.'] } } });
+    await cliquer(/Phrase 2/);
+    await verbeSujet();
+    expect(screen.getByText(/ajouter « hier » ou « demain »/)).toBeInTheDocument();
+  });
+
+  test('le texte de l’enseignant s’affiche comme du texte, jamais comme du HTML', async () => {
+    monter({ perso: { 'verbe-sujet': { verbe: ['<img src=x onerror=alert(1)> Cliquer sur le verbe.'] } } });
+    await cliquer(/Phrase 2/);
+    await verbeSujet();
+    expect(document.querySelector('img')).toBeNull();
+    expect(screen.getByText(/<img src=x onerror=alert\(1\)> Cliquer sur le verbe\./)).toBeInTheDocument();
+  });
+
+  test('pour le participe passé, ses consignes remplacent celles du cas, mais le rappel de la règle reste', async () => {
+    monter({
+      texte: 'Les filles sont arrivées.',
+      annee: 'P5',
+      perso: { 'participe-passe': { accord: ['Chercher le mot de mon code couleur.'] } },
+    });
+    await cliquer(/Phrase 1/);
+    await cliquer(/Le participe passé/);
+    await cliquer('arrivées');
+    await suivante();
+    await userEvent.click(screen.getByRole('radio', { name: 'avec « être »' }));
+    await suivante();
+    expect(screen.getByText('Chercher le mot de mon code couleur.')).toBeInTheDocument();
+    expect(screen.queryByText(/Chercher le groupe sujet du verbe/)).not.toBeInTheDocument();
+    expect(screen.getByText(/Avec « être », le participe passé s’accorde avec le sujet/)).toBeInTheDocument();
+  });
+});
+

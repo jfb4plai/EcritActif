@@ -54,6 +54,68 @@ describe('NouvelleActivite : atelier de grammaire (voie A)', () => {
   });
 });
 
+describe('NouvelleActivite : « Ma formulation » (atelier)', () => {
+  async function ouvrir(annee: 'P4' | 'P5' = 'P4', g = false) {
+    const onEnregistrer = vi.fn();
+    render(<NouvelleActivite annee={annee} onEnregistrer={onEnregistrer} />);
+    await userEvent.type(screen.getByLabelText(/consigne pour les élèves/i), 'Écrire.');
+    await userEvent.click(screen.getByLabelText(/atelier de raisonnement grammatical/i));
+    if (g) await userEvent.click(screen.getByLabelText(/grammaire 3d/i));
+    return { onEnregistrer };
+  }
+
+  test('sans atelier coché, pas de zone « Ma formulation »', () => {
+    render(<NouvelleActivite annee="P4" onEnregistrer={vi.fn()} />);
+    expect(screen.queryByText(/ma formulation/i)).not.toBeInTheDocument();
+  });
+
+  test('atelier coché : un champ par étape, avec les consignes de l’application en exemple et une aide', async () => {
+    await ouvrir();
+    const champ = screen.getByLabelText(/Ma formulation : Le verbe et son sujet, Trouver le verbe/);
+    expect((champ.getAttribute('placeholder') ?? '')).toContain('Changer le temps de la phrase');
+    const aide = document.getElementById(champ.getAttribute('aria-describedby') as string)?.textContent ?? '';
+    expect(aide).toMatch(/une consigne par ligne/i);
+    expect(aide).toMatch(/laissez vide/i);
+  });
+
+  test('seules les démarches de l’année sont proposées : pas de participe passé en P4', async () => {
+    await ouvrir('P4');
+    expect(screen.queryByLabelText(/Ma formulation : Le participe passé/)).not.toBeInTheDocument();
+    expect(screen.getAllByLabelText(/Ma formulation : La fonction d’un groupe/).length).toBeGreaterThan(0);
+  });
+
+  test('en P5, le participe passé est proposé', async () => {
+    await ouvrir('P5');
+    expect(screen.getByLabelText(/Ma formulation : Le participe passé, Trouver le participe passé/)).toBeInTheDocument();
+  });
+
+  test('ce que l’enseignant écrit est enregistré ; l’étape laissée vide ne l’est pas', async () => {
+    const { onEnregistrer } = await ouvrir();
+    await userEvent.type(screen.getByLabelText(/Ma formulation : Le verbe et son sujet, Trouver le verbe/), 'Mettre la phrase à l’imparfait.{Enter}Cliquer sur le mot qui change.');
+    await userEvent.click(screen.getByRole('button', { name: /enregistrer/i }));
+    expect(onEnregistrer.mock.calls[0][0].atelierPerso).toEqual({ 'verbe-sujet': { verbe: ['Mettre la phrase à l’imparfait.', 'Cliquer sur le mot qui change.'] } });
+  });
+
+  test('aucune saisie : objet vide', async () => {
+    const { onEnregistrer } = await ouvrir();
+    await userEvent.click(screen.getByRole('button', { name: /enregistrer/i }));
+    expect(onEnregistrer.mock.calls[0][0].atelierPerso).toEqual({});
+  });
+
+  test('atelier décoché avant d’enregistrer : la formulation n’est pas enregistrée', async () => {
+    const { onEnregistrer } = await ouvrir();
+    await userEvent.type(screen.getByLabelText(/Ma formulation : Le verbe et son sujet, Trouver le verbe/), 'Mes mots.');
+    await userEvent.click(screen.getByLabelText(/atelier de raisonnement grammatical/i));
+    await userEvent.click(screen.getByRole('button', { name: /enregistrer/i }));
+    expect(onEnregistrer.mock.calls[0][0].atelierPerso).toEqual({});
+  });
+
+  test('avec Grammaire 3D, la fonction d’un groupe garde sa zone de formulation', async () => {
+    await ouvrir('P5', true);
+    expect(screen.getByLabelText(/Ma formulation : La fonction d’un groupe, Choisir un groupe/)).toBeInTheDocument();
+  });
+});
+
 describe('NouvelleActivite : Grammaire 3D (option pédagogique de l’atelier)', () => {
   test('en P5, une case à cocher, décochée par défaut, avec une aide qui dit que le programme reste la référence', () => {
     render(<NouvelleActivite annee="P5" onEnregistrer={vi.fn()} />);

@@ -18,6 +18,10 @@ alter table public.ecrit_activites add column if not exists chasse jsonb;
 -- 4. Grammaire 3D : option pédagogique de l'atelier (noms et pronoms des fonctions). Le programme reste la référence.
 alter table public.ecrit_activites add column if not exists grammaire_3d boolean not null default false;
 
+-- 5. « Ma formulation » : consignes de l'enseignant pour l'atelier, par démarche et par étape.
+-- Format : {"verbe-sujet": {"verbe": ["consigne", ...]}}. Nettoyé côté serveur avant d'arriver à l'élève.
+alter table public.ecrit_activites add column if not exists atelier_perso jsonb;
+
 select conname, pg_get_constraintdef(oid) from pg_constraint where conrelid = 'public.ecrit_activites'::regclass and contype = 'c';  -- UNE seule contrainte sur annee, P1 à P6
-select column_name, data_type, column_default from information_schema.columns where table_name = 'ecrit_activites' and column_name in ('atelier', 'chasse', 'grammaire_3d') order by column_name;
+select column_name, data_type, column_default from information_schema.columns where table_name = 'ecrit_activites' and column_name in ('atelier', 'atelier_perso', 'chasse', 'grammaire_3d') order by column_name;
 rollback;

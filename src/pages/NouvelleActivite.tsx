@@ -2,7 +2,8 @@ import { useMemo, useState, type FormEvent } from 'react';
 import { AIDES, type AideId } from '../lib/aides';
 import RepereProgramme from '../components/RepereProgramme';
 import { TEMPS_CECP } from '../lib/ancrage';
-import { ANNEES_ATELIER } from '../lib/atelier';
+import { ANNEES_ATELIER, demarchesPour } from '../lib/atelier';
+import { persoDepuisTextes, PERSO_LIGNES_MAX, PERSO_LONGUEUR_MAX, type AtelierPerso } from '../lib/atelierPerso';
 import { ERREURS_MAX, localiserErreurs, MOTS_MAX, TYPES_ERREUR, type ChasseBrute, type LigneErreurSaisie, type TypeErreur } from '../lib/chasse';
 import { itemsParAnnee } from '../lib/cecp';
 import { principesPour } from '../lib/principes';
@@ -23,6 +24,8 @@ export interface ActiviteNouvelle {
   atelier: boolean;
   // Option pédagogique : noms et pronoms de Grammaire 3D pour les fonctions de l'atelier.
   grammaire3d: boolean;
+  // « Ma formulation » : consignes de l'enseignant, par démarche et par étape.
+  atelierPerso: AtelierPerso;
   chasse: ChasseBrute | null;
 }
 
@@ -54,6 +57,7 @@ export default function NouvelleActivite({ annee, onEnregistrer }: { annee: Anne
   const [perso, setPerso] = useState<Record<string, string>>({});
   const [atelier, setAtelier] = useState(false);
   const [grammaire3d, setGrammaire3d] = useState(false);
+  const [persoTextes, setPersoTextes] = useState<Record<string, string>>({});
   const [avecChasse, setAvecChasse] = useState(false);
   const [texteChasse, setTexteChasse] = useState('');
   const [lignesChasse, setLignesChasse] = useState<LigneErreurSaisie[]>([ligneVide()]);
@@ -95,6 +99,7 @@ export default function NouvelleActivite({ annee, onEnregistrer }: { annee: Anne
       principesPerso: PHASES.map((p) => ({ phase: p.id, question: (perso[p.id] ?? '').trim() })).filter((q) => q.question !== ''),
       atelier: atelierPossible && atelier,
       grammaire3d: atelierPossible && grammaire3d,
+      atelierPerso: atelierPossible && atelier ? persoDepuisTextes(persoTextes) : {},
       chasse,
     });
   }
@@ -218,6 +223,37 @@ export default function NouvelleActivite({ annee, onEnregistrer }: { annee: Anne
           <p className="text-sm">
             Les verbes pronominaux ne figurent pas dans l’atelier : le programme exclut l’accord de leur participe passé (F627, F834).
           </p>
+        
+          {atelier && (
+            <div>
+              <h3>Ma formulation (facultatif)</h3>
+              <p className="text-sm">
+                Remplacez les consignes de l’application par les vôtres : votre vocabulaire, vos gestes, vos couleurs. L’élève voit votre version à la place, pour cette activité. Les rappels de règle de l’application restent. Le contrôle de vocabulaire de l’application ne s’applique pas à votre texte.
+              </p>
+              {demarchesPour(annee, { grammaire3d }).map((d) =>
+                d.etapes.map((e) => {
+                  const cle = `${d.id}/${e.id}`;
+                  const consignes = [...e.consignes, ...(e.selon ?? []).flatMap((s) => s.consignes)];
+                  return (
+                    <div key={cle}>
+                      <label htmlFor={`perso-atelier-${cle}`}>Ma formulation : {d.titre}, {e.titre}</label>
+                      <textarea
+                        id={`perso-atelier-${cle}`}
+                        className="plai-input"
+                        value={persoTextes[cle] ?? ''}
+                        onChange={(ev) => setPersoTextes({ ...persoTextes, [cle]: ev.target.value })}
+                        placeholder={consignes.slice(0, 3).join('\n')}
+                        aria-describedby={`aide-perso-atelier-${cle}`}
+                      />
+                      <p id={`aide-perso-atelier-${cle}`} className="text-sm">
+                        Une consigne par ligne ({PERSO_LIGNES_MAX} lignes au plus, {PERSO_LONGUEUR_MAX} signes par ligne), à l’infinitif, une action par ligne. Laissez vide pour garder celles de l’application, qui sont affichées en exemple.
+                      </p>
+                    </div>
+                  );
+                }),
+              )}
+            </div>
+          )}
         </fieldset>
       )}
 
