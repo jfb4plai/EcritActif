@@ -14,6 +14,8 @@ export interface Contraintes {
   // Jeux d'écriture choisis par l'enseignant : une seule lettre (accent et casse ignorés).
   initiale?: string;
   lettreInterdite?: string;
+  // Option de l'enseignant : après le rendu, l'élève recopie sa version finale sur une feuille. Stockée ici pour ne pas changer la base.
+  recopier?: boolean;
 }
 
 export interface Verification {

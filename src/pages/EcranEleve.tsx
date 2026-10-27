@@ -478,7 +478,18 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
               </button>
             </div>
           ) : (
-            <p role="status">{recapRendu(texte, etat.versions)}</p>
+            <>
+              <p role="status">{recapRendu(texte, etat.versions)}</p>
+              {activite.contraintes.recopier && (
+                <div role="group" aria-label="Ta dernière version sur une feuille">
+                  <p>Ta dernière version, sur une feuille :</p>
+                  <ul>
+                    <li>Prendre une feuille et un stylo.</li>
+                    <li>Recopier la version finale à la main.</li>
+                  </ul>
+                </div>
+              )}
+            </>
           )}
     </>
   );

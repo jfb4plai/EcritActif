@@ -907,3 +907,32 @@ describe('EcranEleve : vue colorée à « Corriger » (lecture seule)', () => {
     expect(screen.queryByRole('group', { name: /ton texte en couleurs/i })).not.toBeInTheDocument();
   });
 });
+
+describe('EcranEleve : recopier la dernière version à la main (option de l’enseignant)', () => {
+  async function rendre(contraintes: object) {
+    render(<EcranEleve activite={activite({ contraintes, categories: [], principeIds: [] })} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
+    await versEcriture();
+    await userEvent.type(screen.getByLabelText(/mon texte/i), 'Un chat roux dort.');
+    await userEvent.click(screen.getByRole('button', { name: /fini d.écrire/i }));
+    await userEvent.click(screen.getByRole('button', { name: /passer à la correction/i }));
+    await userEvent.click(screen.getByRole('button', { name: /rendre mon texte/i }));
+  }
+
+  test('option cochée : deux consignes à l’infinitif, une action par puce, après le rendu', async () => {
+    await rendre({ recopier: true });
+    const bloc = screen.getByRole('group', { name: /sur une feuille/i });
+    const puces = within(bloc).getAllByRole('listitem').map((l) => l.textContent);
+    expect(puces).toEqual(['Prendre une feuille et un stylo.', 'Recopier la version finale à la main.']);
+  });
+
+  test('option non cochée : rien de tel', async () => {
+    await rendre({});
+    expect(screen.queryByRole('group', { name: /sur une feuille/i })).not.toBeInTheDocument();
+  });
+
+  test('option cochée mais texte pas encore rendu : rien', async () => {
+    render(<EcranEleve activite={activite({ contraintes: { recopier: true }, categories: [] })} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
+    await versEcriture();
+    expect(screen.queryByRole('group', { name: /sur une feuille/i })).not.toBeInTheDocument();
+  });
+});

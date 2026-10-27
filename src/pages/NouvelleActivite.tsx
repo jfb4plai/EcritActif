@@ -60,6 +60,7 @@ export default function NouvelleActivite({ annee: anneeDepart, niveauClasse, onE
   const [jeu, setJeu] = useState<'' | 'initiale' | 'lettreInterdite'>('');
   const [lettreJeu, setLettreJeu] = useState('');
   const [erreurJeu, setErreurJeu] = useState('');
+  const [recopier, setRecopier] = useState(false);
   const [itemIds, setItemIds] = useState<string[]>([]);
   const [principeIds, setPrincipeIds] = useState<string[]>([]);
   const [categories, setCategories] = useState<CategorieErreur[]>([]);
@@ -118,6 +119,7 @@ export default function NouvelleActivite({ annee: anneeDepart, niveauClasse, onE
     setErreurJeu('');
     if (minMots !== '') contraintes.minMots = Number(minMots);
     if (maxMots !== '') contraintes.maxMots = Number(maxMots);
+    if (recopier) contraintes.recopier = true;
     onEnregistrer({
       annee,
       consigne: consigne.trim(),
@@ -164,6 +166,13 @@ export default function NouvelleActivite({ annee: anneeDepart, niveauClasse, onE
         <label htmlFor="max">Nombre maximum de mots</label>
         <input id="max" type="number" min={0} className="plai-input" value={maxMots} onChange={(e) => setMaxMots(e.target.value)} placeholder="40" aria-describedby="aide-max" />
         <p id="aide-max" className="text-sm">Laisser vide pour ne pas fixer de maximum. Utile pour les élèves qui écrivent beaucoup et se perdent.</p>
+      </div>
+
+      <div>
+        <label className="block">
+          <input type="checkbox" checked={recopier} onChange={(e) => setRecopier(e.target.checked)} aria-describedby="aide-recopier" /> Recopier la dernière version à la main
+        </label>
+        <p id="aide-recopier" className="text-sm">Après avoir rendu son texte, l’élève voit deux consignes : prendre une feuille, recopier la version finale à la main. L’écran sépare l’écriture des règles (orthographe, accords) ; la feuille garde le geste d’écrire. Effet sur l’apprentissage pas démontré ici. Recopier coûte cher aux élèves dysgraphiques ou dyspraxiques : à décider vous-même, activité par activité.</p>
       </div>
 
       <div>

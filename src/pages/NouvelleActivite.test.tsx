@@ -397,3 +397,24 @@ describe('NouvelleActivite : contrainte d’écriture (jeu de lettre)', () => {
     expect(screen.getByRole('alert')).toHaveTextContent(/une seule lettre/i);
   });
 });
+
+describe('NouvelleActivite : option « recopier la dernière version à la main »', () => {
+  test('décochée par défaut, avec une aide qui dit que l’effet n’est pas démontré', () => {
+    formulaire();
+    const c = screen.getByLabelText(/recopier la dernière version à la main/i);
+    expect(c).not.toBeChecked();
+    const aide = document.getElementById(c.getAttribute('aria-describedby') as string)?.textContent ?? '';
+    expect(aide).toMatch(/dysgraphi|dyspraxi/i);
+    expect(aide).toMatch(/pas démontr/i);
+  });
+
+  test('cochée, elle est enregistrée dans les contraintes ; sinon rien', async () => {
+    const { onEnregistrer } = formulaire();
+    await userEvent.type(screen.getByLabelText(/consigne pour les élèves/i), 'Écrire.');
+    await userEvent.click(screen.getByRole('button', { name: /enregistrer/i }));
+    expect(onEnregistrer.mock.calls[0][0].contraintes.recopier).toBeUndefined();
+    await userEvent.click(screen.getByLabelText(/recopier la dernière version à la main/i));
+    await userEvent.click(screen.getByRole('button', { name: /enregistrer/i }));
+    expect(onEnregistrer.mock.calls[1][0].contraintes).toEqual({ recopier: true });
+  });
+});
