@@ -225,3 +225,58 @@ describe('Tableau : aides de chaque élève', () => {
     expect(screen.getByText(/Activées par vous : aucune/)).toBeInTheDocument();
   });
 });
+
+describe('Tableau : texte de l’élève, premier jet et contrainte', () => {
+  const ligne = { id: 'e1', code: 'KMNPQR', dernierePhase: 'rendu' as const, versions: 1, aides: [], itemsTravailles: [], clarifications: 0, autoEvaluation: null };
+  const production = { activiteId: 'a1', consigne: 'Écrire trois phrases.', version: 1, premierJet: 'Les élèves prépare leur sortie.', final: 'Les élèves préparent leur sortie.', rendu: true, contrainte: null };
+  const monter = (surcharge: object = {}, extra: object = {}) =>
+    render(<Tableau annee="P4" items={[I1]} eleves={[{ ...ligne, ...surcharge }]} activites={[]} validations={[]} onValider={vi.fn()} {...extra} />);
+
+  test('« Lire le texte » montre la consigne, le premier jet et la version finale', () => {
+    monter({ productions: [production] });
+    const ligneTab = screen.getByText('KMNPQR').closest('tr') as HTMLElement;
+    expect(within(ligneTab).getByText('Lire le texte')).toBeInTheDocument();
+    expect(within(ligneTab).getByText(/Écrire trois phrases\./)).toBeInTheDocument();
+    expect(within(ligneTab).getByLabelText('Premier jet')).toHaveTextContent('Les élèves prépare leur sortie.');
+    expect(within(ligneTab).getByLabelText('Version finale')).toHaveTextContent('Les élèves préparent leur sortie.');
+    expect(within(ligneTab).getByText(/texte rendu/i)).toBeInTheDocument();
+  });
+
+  test('les mots qui ont changé sont marqués dans les deux textes', () => {
+    monter({ productions: [production] });
+    expect(document.querySelector('del')?.textContent).toBe('prépare');
+    expect(document.querySelector('ins')?.textContent).toBe('préparent');
+  });
+
+  test('texte pas encore rendu : dit « en cours »', () => {
+    monter({ productions: [{ ...production, rendu: false }] });
+    expect(screen.getByText(/en cours d’écriture/i)).toBeInTheDocument();
+  });
+
+  test('sans premier jet (ancien texte) : on le dit, sans erreur', () => {
+    monter({ productions: [{ ...production, premierJet: undefined }] });
+    expect(screen.getByText(/premier jet non conservé/i)).toBeInTheDocument();
+    expect(screen.getByLabelText('Version finale')).toBeInTheDocument();
+  });
+
+  test('contrainte de lettre : respectée, ou mots à changer cités', () => {
+    const { unmount } = monter({ productions: [{ ...production, contrainte: { respectee: true, mots: [] } }] });
+    expect(screen.getByText(/contrainte de lettre respectée/i)).toBeInTheDocument();
+    unmount();
+    monter({ productions: [{ ...production, contrainte: { respectee: false, mots: ['dort', 'rat'] } }] });
+    expect(screen.getByText(/contrainte de lettre non respectée/i)).toHaveTextContent('« dort », « rat »');
+  });
+
+  test('élève sans texte : pas de bouton, une phrase claire', () => {
+    monter({ productions: [] });
+    expect(screen.queryByText('Lire le texte')).not.toBeInTheDocument();
+    expect(screen.getByText(/pas encore de texte/i)).toBeInTheDocument();
+  });
+
+  test('le bouton « Actualiser » recharge le tableau', async () => {
+    const onActualiser = vi.fn();
+    monter({}, { onActualiser });
+    await userEvent.click(screen.getByRole('button', { name: /actualiser/i }));
+    expect(onActualiser).toHaveBeenCalled();
+  });
+});

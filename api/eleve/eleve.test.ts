@@ -9,6 +9,7 @@ const SECRET = 'secret-de-test';
 
 function depotDeTest() {
   const textes: { activiteId: string; eleveId: string; version: number; texte: string; phase: string; evenements: string[] }[] = [];
+  const instantanes: { activiteId: string; eleveId: string; version: number; moment: string; texte: string }[] = [];
   const traces: { eleveId: string; activiteId: string; phase: string; evenement: string }[] = [];
   const r = localiserErreurs('Les élèves de 4e année prépare leur sortie. Ils emporte un pique-nique.', [
     { mot: 'prépare', rang: 1, attendu: 'préparent', type: 'accord-verbe', indice: 'Cherche le sujet.' },
@@ -42,6 +43,11 @@ function depotDeTest() {
       if (i >= 0) textes[i] = t;
       else textes.push(t);
     },
+    instantane: async (i) => {
+      const k = instantanes.findIndex((x) => x.activiteId === i.activiteId && x.eleveId === i.eleveId && x.version === i.version && x.moment === i.moment);
+      if (k < 0) instantanes.push({ activiteId: i.activiteId, eleveId: i.eleveId, version: i.version, moment: i.moment, texte: i.texte });
+      else if (i.ecraser) instantanes[k].texte = i.texte;
+    },
     eleve: async (id) => (id === 'el1' ? { id: 'el1', aides: ['dictee-vocale', 'colorisation'] } : null),
     tracer: async (eleveId, activiteId, phase, evenements) => {
       for (const evenement of evenements) traces.push({ eleveId, activiteId, phase, evenement });
@@ -53,7 +59,7 @@ function depotDeTest() {
       return { texte: d.texte, version: d.version, phase: d.phase };
     },
   };
-  return { depot, textes, traces, activite };
+  return { depot, textes, traces, activite, instantanes };
 }
 
 describe('jeton de session', () => {
@@ -339,3 +345,50 @@ describe('essaiChasse', () => {
   });
 });
 
+describe('sauverTexte : instantanés du texte (premier jet, rendu)', () => {
+  const jeton = () => signerJeton({ eleveId: 'el1', classeId: 'cl1' }, SECRET);
+  const envoi = (depot: Depot, texte: string, phase: string, version = 1) =>
+    sauverTexte(depot, SECRET, { jeton: jeton(), activiteId: 'act1', texte, phase, version, evenements: [] });
+
+  test('pendant « écrire » ou « réfléchir » : aucun instantané (le texte bouge encore)', async () => {
+    const { depot, instantanes } = depotDeTest();
+    await envoi(depot, 'Les élèves prépare', 'reflechir');
+    await envoi(depot, 'Les élèves prépare leur sortie.', 'ecrire');
+    expect(instantanes).toEqual([]);
+  });
+
+  test('premier enregistrement après « écrire » : le premier jet est gardé, et jamais écrasé ensuite', async () => {
+    const { depot, instantanes } = depotDeTest();
+    await envoi(depot, 'Les élèves prépare leur sortie.', 'relire');
+    await envoi(depot, 'Les élèves préparent leur sortie.', 'corriger');
+    expect(instantanes).toEqual([{ activiteId: 'act1', eleveId: 'el1', version: 1, moment: 'premier-jet', texte: 'Les élèves prépare leur sortie.' }]);
+  });
+
+  test('rendu : le texte final est gardé en plus du premier jet, et le dernier rendu l’emporte', async () => {
+    const { depot, instantanes } = depotDeTest();
+    await envoi(depot, 'Les élèves prépare.', 'relire');
+    await envoi(depot, 'Les élèves préparent.', 'rendu');
+    await envoi(depot, 'Les élèves préparent bien.', 'rendu');
+    expect(instantanes.map((i) => [i.moment, i.texte])).toEqual([
+      ['premier-jet', 'Les élèves prépare.'],
+      ['rendu', 'Les élèves préparent bien.'],
+    ]);
+  });
+
+  test('une nouvelle version (réécrire) a son propre premier jet', async () => {
+    const { depot, instantanes } = depotDeTest();
+    await envoi(depot, 'V1.', 'relire', 1);
+    await envoi(depot, 'V2.', 'relire', 2);
+    expect(instantanes.map((i) => [i.version, i.texte])).toEqual([[1, 'V1.'], [2, 'V2.']]);
+  });
+
+  test('un échec d’écriture des instantanés ne fait pas perdre le texte enregistré', async () => {
+    const { depot, textes } = depotDeTest();
+    depot.instantane = async () => {
+      throw new Error('table absente');
+    };
+    const r = await envoi(depot, 'Mon texte.', 'relire');
+    expect(r.status).toBe(200);
+    expect(textes).toHaveLength(1);
+  });
+});

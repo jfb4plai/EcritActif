@@ -211,6 +211,7 @@ export default function Classe() {
           activites={tableau.activites}
           validations={tableau.validations}
           surnoms={surnoms}
+          onActualiser={recharger}
           onValider={async (eleveId, itemId) => {
             if (!user) return;
             await validerItem(getSupabase(), user.id, eleveId, itemId);

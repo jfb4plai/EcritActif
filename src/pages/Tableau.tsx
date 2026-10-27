@@ -3,6 +3,8 @@ import { justificationEnPhrase } from '../lib/atelier';
 import { REFERENTIEL, REFERENTIEL_ANNEE, SOURCES_CECP } from '../lib/ancrage';
 import { statutParItem } from '../lib/statut';
 import type { Annee, AutoEvaluation, ItemCecp, Phase } from '../types';
+import type { ProductionEleve } from '../lib/lignes';
+import { comparerMots, type MotCompare } from '../lib/diff';
 
 export interface LigneEleve {
   id: string;
@@ -20,6 +22,8 @@ export interface LigneEleve {
   atelier?: { phrases: number; pasSur: number; justifications: string[] };
   // Chasse aux erreurs : erreurs trouvées, indices demandés, essais, justifications de l'élève.
   chasse?: { trouvees: number; indices: number; essais: number; justifications: string[] };
+  // Textes de l'élève, par activité : premier jet, version finale, contrainte de lettre.
+  productions?: ProductionEleve[];
 }
 
 
@@ -32,11 +36,55 @@ interface Props {
   onValider: (eleveId: string, itemId: string) => void;
   // Surnoms facultatifs de l'enseignant, mémorisés dans son navigateur : ils n'arrivent jamais au serveur.
   surnoms?: Record<string, string>;
+  // Recharge les textes et les traces : un élève peut écrire pendant que le tableau est ouvert.
+  onActualiser?: () => void;
+}
+
+function Mots({ mots, balise: Balise }: { mots: MotCompare[]; balise: 'del' | 'ins' }) {
+  return (
+    <>
+      {mots.map((m, i) => (
+        <span key={i}>
+          {i > 0 && ' '}
+          {m.change ? <Balise>{m.mot}</Balise> : m.mot}
+        </span>
+      ))}
+    </>
+  );
+}
+
+function Production({ p }: { p: ProductionEleve }) {
+  const cmp = p.premierJet !== undefined ? comparerMots(p.premierJet, p.final) : null;
+  return (
+    <details>
+      <summary>Lire le texte</summary>
+      <p className="text-sm">Consigne : {p.consigne}</p>
+      <p className="text-sm">{p.rendu ? 'Texte rendu.' : 'Texte en cours d’écriture.'} Version {p.version}.</p>
+      {p.contrainte &&
+        (p.contrainte.respectee ? (
+          <p>Contrainte de lettre respectée.</p>
+        ) : (
+          <p>Contrainte de lettre non respectée : {p.contrainte.mots.map((m) => `« ${m} »`).join(', ')}.</p>
+        ))}
+      {cmp ? (
+        <div aria-label="Premier jet" role="group">
+          <h4>Premier jet</h4>
+          <p><Mots mots={cmp.avant} balise="del" /></p>
+        </div>
+      ) : (
+        <p className="text-sm">Premier jet non conservé (texte écrit avant cette fonction).</p>
+      )}
+      <div aria-label="Version finale" role="group">
+        <h4>{p.rendu ? 'Version finale' : 'Texte actuel'}</h4>
+        <p>{cmp ? <Mots mots={cmp.apres} balise="ins" /> : p.final}</p>
+      </div>
+    </details>
+  );
 }
 
 const PHASES: Record<Phase | 'rendu', string> = { reflechir: 'Réfléchir', ecrire: 'Écrire', relire: 'Relire', corriger: 'Corriger', rendu: 'Rendu' };
 
-export default function Tableau({ annee, items, eleves, activites, validations, onValider, surnoms }: Props) {
+export default function Tableau({ annee, items, eleves, activites, validations, onValider, surnoms, onActualiser }: Props) {
   const statuts = statutParItem(items, activites, validations, eleves.map((e) => e.id));
   const libelleAide = (id: string) => AIDES.find((a) => a.id === id)?.libelle ?? id;
   const itemParId = (id: string) => items.find((i) => i.id === id);
@@ -48,6 +96,11 @@ export default function Tableau({ annee, items, eleves, activites, validations, 
     <div className="space-y-6">
       <section aria-label="Élèves">
         <h2>Élèves (codes anonymes)</h2>
+        {onActualiser && (
+          <button type="button" className="plai-btn" onClick={onActualiser}>
+            Actualiser
+          </button>
+        )}
         {eleves.length === 0 ? (
           <p>Aucun élève pour le moment : cliquer sur « Ajouter 5 élèves » dans la partie Élèves, plus haut.</p>
         ) : (
@@ -57,6 +110,7 @@ export default function Tableau({ annee, items, eleves, activites, validations, 
             <tr>
               <th>Code</th>
               <th>Où il en est</th>
+              <th>Texte</th>
               <th>Aides</th>
               <th>Demandes d’aide</th>
               <th>Auto-évaluation</th>
@@ -80,6 +134,9 @@ export default function Tableau({ annee, items, eleves, activites, validations, 
                   ) : (
                     'Pas encore commencé'
                   )}
+                </td>
+                <td>
+                  {(e.productions ?? []).length === 0 ? 'Pas encore de texte' : (e.productions ?? []).map((p) => <Production key={p.activiteId} p={p} />)}
                 </td>
                 <td>
                   <p>Activées par vous : {(e.aidesEnseignant ?? []).length > 0 ? (e.aidesEnseignant ?? []).map(libelleAide).join(' ; ') : 'aucune'}</p>

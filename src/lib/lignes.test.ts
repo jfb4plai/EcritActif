@@ -116,3 +116,45 @@ describe('construireLignes', () => {
     expect(l[1].aidesEnseignant).toEqual([]);
   });
 });
+
+describe('construireLignes : productions de l’élève (texte, premier jet, contrainte)', () => {
+  const acts = [{ id: 'a1', itemIds: [], consigne: 'Écrire trois phrases.', contraintes: { lettreInterdite: 'r' } }];
+  const texte = (version: number, t: string, phase = 'corriger') => ({ eleveId: 'e1', activiteId: 'a1', version, phase, updatedAt: '2026-10-25T10:00:00Z', texte: t });
+  const inst = (version: number, moment: string, t: string) => ({ eleveId: 'e1', activiteId: 'a1', version, moment, texte: t });
+
+  test('une production par activité : premier jet, texte rendu, consigne', () => {
+    const l = construireLignes(eleves, acts, [texte(1, 'Le chat dort.', 'rendu')], [], [inst(1, 'premier-jet', 'Le rat dort.'), inst(1, 'rendu', 'Le chat dort.')]);
+    expect(l[0].productions).toEqual([
+      expect.objectContaining({ activiteId: 'a1', consigne: 'Écrire trois phrases.', version: 1, premierJet: 'Le rat dort.', final: 'Le chat dort.', rendu: true }),
+    ]);
+  });
+
+  test('texte en cours : pas de rendu, le texte actuel tient lieu de version finale', () => {
+    const l = construireLignes(eleves, acts, [texte(1, 'Le chat', 'corriger')], [], [inst(1, 'premier-jet', 'Le rat')]);
+    expect(l[0].productions?.[0]).toMatchObject({ rendu: false, final: 'Le chat', premierJet: 'Le rat' });
+  });
+
+  test('la contrainte est contrôlée sur la version finale, pas sur le premier jet', () => {
+    const l = construireLignes(eleves, acts, [texte(1, 'Le chat dort.', 'rendu')], [], [inst(1, 'premier-jet', 'Le rat dort.')]);
+    expect(l[0].productions?.[0].contrainte).toEqual({ respectee: false, mots: ['dort'] });
+    const ok = construireLignes(eleves, acts, [texte(1, 'Le chat mange.', 'rendu')], [], []);
+    expect(ok[0].productions?.[0].contrainte).toEqual({ respectee: true, mots: [] });
+  });
+
+  test('activité sans contrainte de lettre : contrainte absente', () => {
+    const l = construireLignes(eleves, [{ id: 'a1', itemIds: [], consigne: 'x', contraintes: { minMots: 3 } }], [texte(1, 'Un.', 'rendu')], [], []);
+    expect(l[0].productions?.[0].contrainte).toBeNull();
+  });
+
+  test('plusieurs versions : on montre la plus haute, avec son premier jet', () => {
+    const l = construireLignes(eleves, acts, [texte(1, 'V1.', 'rendu'), texte(2, 'V2.', 'corriger')], [], [inst(1, 'premier-jet', 'P1'), inst(2, 'premier-jet', 'P2')]);
+    expect(l[0].productions).toHaveLength(1);
+    expect(l[0].productions?.[0]).toMatchObject({ version: 2, premierJet: 'P2', final: 'V2.' });
+  });
+
+  test('élève sans texte : aucune production ; sans instantané (anciennes données) : premier jet absent', () => {
+    const l = construireLignes(eleves, acts, [texte(1, 'Texte.', 'rendu')], [], []);
+    expect(l[1].productions).toEqual([]);
+    expect(l[0].productions?.[0].premierJet).toBeUndefined();
+  });
+});

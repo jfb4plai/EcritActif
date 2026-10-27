@@ -122,24 +122,33 @@ export async function chargerTableau(
   classeId: string,
 ): Promise<{ eleves: LigneEleve[]; activites: { id: string; itemIds: string[] }[]; validations: { eleveId: string; itemId: string }[] }> {
   const eleves = await listerEleves(db, classeId);
-  const activites = (await listerActivites(db, classeId)).map((a) => ({ id: a.id, itemIds: a.itemIds }));
+  const lesActivites = await listerActivites(db, classeId);
+  const activites = lesActivites.map((a) => ({ id: a.id, itemIds: a.itemIds }));
+  // Consigne et contraintes servent à lire les textes (contrainte de lettre contrôlée sur le texte final).
+  const { data: detail, error: erreurDetail } = await db.from('ecrit_activites').select('id, contraintes').eq('classe_id', classeId);
+  if (erreurDetail) throw erreurDetail;
+  const contraintesParId = new Map((detail ?? []).map((d) => [d.id as string, d.contraintes ?? {}]));
+  const activitesLisibles = lesActivites.map((a) => ({ id: a.id, itemIds: a.itemIds, consigne: a.consigne, contraintes: contraintesParId.get(a.id) ?? {} }));
   const idsEleves = eleves.map((e) => e.id);
   if (idsEleves.length === 0) return { eleves: [], activites, validations: [] };
 
-  const [t, tr, v] = await Promise.all([
-    db.from('ecrit_textes').select('eleve_id, activite_id, version, phase, updated_at, auto_evaluation').in('eleve_id', idsEleves),
+  const [t, tr, v, ins] = await Promise.all([
+    db.from('ecrit_textes').select('eleve_id, activite_id, version, phase, updated_at, auto_evaluation, texte').in('eleve_id', idsEleves),
     db.from('ecrit_traces').select('eleve_id, evenement').in('eleve_id', idsEleves).or('evenement.like.aide:%,evenement.like.clarification:%,evenement.like.atelier:phrase:%,evenement.like.atelier:pas-sur,evenement.like.atelier:justification:%,evenement.like.chasse:%'),
     db.from('ecrit_validations').select('eleve_id, item_id').in('eleve_id', idsEleves),
+    db.from('ecrit_instantanes').select('eleve_id, activite_id, version, moment, texte').in('eleve_id', idsEleves),
   ]);
   if (t.error) throw t.error;
   if (tr.error) throw tr.error;
   if (v.error) throw v.error;
+  if (ins.error) throw ins.error;
 
   const lignes = construireLignes(
     eleves.map((e) => ({ id: e.id, code: e.code_eleve, aides: e.aides })),
-    activites,
-    (t.data ?? []).map((r) => ({ eleveId: r.eleve_id, activiteId: r.activite_id, version: r.version, phase: r.phase, updatedAt: r.updated_at, autoEvaluation: r.auto_evaluation ?? undefined })),
+    activitesLisibles,
+    (t.data ?? []).map((r) => ({ eleveId: r.eleve_id, activiteId: r.activite_id, version: r.version, phase: r.phase, updatedAt: r.updated_at, autoEvaluation: r.auto_evaluation ?? undefined, texte: r.texte })),
     (tr.data ?? []).map((r) => ({ eleveId: r.eleve_id, evenement: r.evenement })),
+    (ins.data ?? []).map((r) => ({ eleveId: r.eleve_id, activiteId: r.activite_id, version: r.version, moment: r.moment, texte: r.texte })),
   );
   return { eleves: lignes, activites, validations: (v.data ?? []).map((r) => ({ eleveId: r.eleve_id, itemId: r.item_id })) };
 }

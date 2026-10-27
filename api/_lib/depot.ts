@@ -71,6 +71,15 @@ export function depotSupabase(): Depot {
       const { error } = await db.from('ecrit_traces').insert(evenements.map((evenement) => ({ eleve_id: eleveId, activite_id: activiteId, phase, evenement })));
       if (error) throw error;
     },
+    async instantane(i) {
+      const { error } = await db
+        .from('ecrit_instantanes')
+        .upsert(
+          { activite_id: i.activiteId, eleve_id: i.eleveId, version: i.version, moment: i.moment, texte: i.texte },
+          { onConflict: 'activite_id,eleve_id,version,moment', ignoreDuplicates: !i.ecraser },
+        );
+      if (error) throw error;
+    },
     async enregistrer(t) {
       const { error } = await db
         .from('ecrit_textes')

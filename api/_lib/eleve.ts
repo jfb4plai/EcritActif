@@ -40,8 +40,12 @@ export interface Depot {
   activite(id: string): Promise<ActiviteBrute | null>;
   dernierTexte(eleveId: string, activiteId: string): Promise<{ texte: string; version: number; phase: string } | null>;
   tracer(eleveId: string, activiteId: string, phase: string, evenements: string[]): Promise<void>;
+  // Instantané du texte à un moment clé. `ecraser` faux : le premier jet déjà gardé n'est jamais remplacé.
+  instantane(i: { activiteId: string; eleveId: string; version: number; moment: MomentInstantane; texte: string; ecraser: boolean }): Promise<void>;
   enregistrer(t: { activiteId: string; eleveId: string; version: number; texte: string; phase: string; evenements: string[]; autoEvaluation?: AutoEvaluation }): Promise<void>;
 }
+
+export type MomentInstantane = 'premier-jet' | 'relecture' | 'rendu';
 
 export interface ActiviteEleve {
   id: string;
@@ -159,5 +163,16 @@ export async function sauverTexte(depot: Depot, secret: string, body: unknown): 
   if (!activite || !eleve || activite.classeId !== session.classeId) return erreur(404, 'Activité inconnue');
   const evenements = b.evenements.filter((e): e is string => typeof e === 'string').map((e) => e.slice(0, EVENEMENT_MAX)).slice(0, 50);
   await depot.enregistrer({ activiteId: activite.id, eleveId: eleve.id, version: b.version as number, texte: b.texte, phase: b.phase, evenements, ...(auto ? { autoEvaluation: auto } : {}) });
+  // Tant que l'élève écrit, le texte bouge : le premier jet est le texte au premier enregistrement après « écrire ».
+  // Le texte rendu, lui, est remplacé à chaque nouvel envoi. Un échec ici ne doit jamais faire perdre le texte déjà enregistré.
+  if (b.phase !== 'ecrire' && b.phase !== 'reflechir') {
+    const base = { activiteId: activite.id, eleveId: eleve.id, version: b.version as number, texte: b.texte };
+    try {
+      await depot.instantane({ ...base, moment: 'premier-jet', ecraser: false });
+      if (b.phase === 'rendu') await depot.instantane({ ...base, moment: 'rendu', ecraser: true });
+    } catch {
+      // volontairement silencieux : l'enregistrement principal a réussi.
+    }
+  }
   return { status: 200, corps: { version: b.version as number, aides: resoudreAides(eleve.aides, activite.aidesRetirees), aidesRetirees: activite.aidesRetirees } };
 }
