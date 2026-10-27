@@ -165,3 +165,9 @@ Ce que cela suppose : un champ JSON `atelier_perso` sur l'activité (non appliqu
 2. Le brouillon « fonctions » (section 10) correspond-il à ce que vous attendez ? Quelles manipulations par fonction ?
 3. L'adaptation en deux niveaux (cadre + vos propres consignes, section 11) vous convient-elle, ou voulez-vous un seul des deux ?
 4. Votre quatrième réponse est arrivée en « cécris le contexte ». Voulez-vous dire : réécrire le contexte des mots « moment » et « groupe de mots » dans les consignes, ou autre chose ?
+
+## 13. Réponses de JF (2026-10-27, suite)
+
+- **Question 5 (ordre de construction) : OK.** Groupe nominal (fait), puis participe passé, puis fonctions.
+- **Question 4 (« moment », « groupe de mots ») : JF demande de décrire le contexte** ; description et recommandation dans la réponse du 2026-10-27. Constaté : dans tous les items de P1 à P6 (pas seulement « écrire »), « groupe de mots » n'apparaît jamais et « moment » n'apparaît que dans « intervenir au moment approprié » (prise de parole). Le programme parle de « temps » (F552, conjugaison) et de « groupe sujet », « groupe prédicat » (F270, P3). Aucune modification des consignes tant que JF n'a pas choisi.
+- **Participe passé et fonctions** : leurs brouillons (sections 9 et 10) attendent encore la relecture de JF avant d'être codés.
