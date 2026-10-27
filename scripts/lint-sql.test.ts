@@ -71,8 +71,8 @@ describe('essai de la migration d’ouverture de P4 à P6', () => {
       .toLowerCase();
     expect(code.trim().startsWith('begin;')).toBe(true);
     expect(code.trim().endsWith('rollback;')).toBe(true);
-    // « on commit drop » (table temporaire) est permis ; une instruction commit ne l'est pas.
-    expect(code).not.toMatch(/(^|;)\s*(commit|end)\s*;/);
+    // « on commit drop » (table temporaire) et les « end; » des blocs PL/pgSQL sont permis ; une instruction commit ne l'est pas.
+    expect(code).not.toMatch(/(^|;)\s*commit\s*;/);
   });
 
   test('vérifie P6 accepté, P7 refusé et les colonnes ajoutées', () => {
