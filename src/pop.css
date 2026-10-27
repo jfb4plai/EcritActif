@@ -254,3 +254,15 @@ aside[aria-label='Aides'] li {
 .liste-phrases li { margin-bottom: 8px; }
 
 .visuellement-cache { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Choix d'une année du programme : cadre mis en valeur, pour qu'on ne le manque pas (décision JF 2026-10-27). */
+.choix-annee {
+  border: 2px solid var(--teal);
+  border-radius: 12px;
+  background: #e1f5ee;
+  padding: 12px 16px;
+  margin: 12px 0;
+}
+.choix-annee label { display: block; font-weight: 700; font-size: 1.0625rem; margin-bottom: 6px; }
+.choix-annee select.plai-input { font-size: 1.125rem; min-height: 48px; background: #fff; }
+.choix-annee p { margin: 6px 0 0; }

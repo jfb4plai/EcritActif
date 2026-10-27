@@ -51,4 +51,12 @@ describe('ChoixAnnee : une année du programme, avec son aide', () => {
     await userEvent.selectOptions(screen.getByLabelText('Année scolaire de la classe'), '');
     expect(onChange).not.toHaveBeenCalled();
   });
+
+  test('le choix est bien visible : cadre mis en valeur et liste au même style que les autres champs', () => {
+    render(<ChoixAnnee {...base} valeur="P1" onChange={vi.fn()} />);
+    const champ = screen.getByLabelText('Année scolaire de la classe');
+    expect(champ).toHaveClass('plai-input');
+    expect(champ.parentElement).toHaveClass('choix-annee');
+  });
 });
+

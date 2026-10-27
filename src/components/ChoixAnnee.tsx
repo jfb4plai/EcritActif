@@ -15,10 +15,11 @@ interface Props {
 export default function ChoixAnnee({ id, libelle, aide, valeur, onChange, invite }: Props) {
   const options: Annee[] = valeur !== '' && !ANNEES_PROPOSEES.includes(valeur) ? [...ANNEES_PROPOSEES, valeur] : ANNEES_PROPOSEES;
   return (
-    <div>
+    <div className="choix-annee">
       <label htmlFor={id}>{libelle}</label>
       <select
         id={id}
+        className="plai-input"
         value={valeur}
         onChange={(e) => {
           if (e.target.value !== '') onChange(e.target.value as Annee);

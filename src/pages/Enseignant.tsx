@@ -40,7 +40,7 @@ export default function Enseignant() {
         <ChoixAnnee
           id="niveau-classe"
           libelle="Année scolaire de la classe"
-          aide="L'année de vos élèves. Elle sert de valeur de départ à vos nouvelles activités ; vous pourrez la changer pour une activité si votre classe travaille le programme d'une autre année."
+          aide="Obligatoire. L'année de vos élèves. Elle sert de valeur de départ à vos nouvelles activités ; vous pourrez la changer pour une activité si votre classe travaille le programme d'une autre année."
           valeur={niveau}
           onChange={setNiveau}
           invite="Choisir l’année"
