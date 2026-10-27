@@ -127,3 +127,37 @@ describe('Tableau : atelier de grammaire', () => {
     expect(screen.queryByRole('columnheader', { name: /atelier de grammaire/i })).not.toBeInTheDocument();
   });
 });
+
+describe('Tableau : chasse aux erreurs', () => {
+  const montrer = (chasse?: { trouvees: number; indices: number; essais: number; justifications: string[] }) =>
+    render(
+      <Tableau
+        annee="P4"
+        items={[I1]}
+        eleves={[{ id: 'e1', code: 'KMNPQR', dernierePhase: 'corriger', versions: 1, aides: [], itemsTravailles: [], clarifications: 0, autoEvaluation: null, ...(chasse ? { chasse } : {}) }]}
+        activites={[{ id: 'a1', itemIds: [] }]}
+        validations={[]}
+        onValider={vi.fn()}
+      />,
+    );
+
+  test('la colonne apparaît quand un élève a essayé : erreurs trouvées, indices, justification', () => {
+    montrer({ trouvees: 2, indices: 3, essais: 7, justifications: ['Le sujet est élèves.'] });
+    expect(screen.getByRole('columnheader', { name: /chasse aux erreurs/i })).toBeInTheDocument();
+    const ligne = screen.getByText('KMNPQR').closest('tr') as HTMLElement;
+    expect(within(ligne).getByText(/2 erreurs trouvées/)).toBeInTheDocument();
+    expect(within(ligne).getByText(/3 indices demandés/)).toBeInTheDocument();
+    expect(within(ligne).getByText('Le sujet est élèves.')).toBeInTheDocument();
+  });
+
+  test('aucun essai : pas de colonne', () => {
+    montrer({ trouvees: 0, indices: 0, essais: 0, justifications: [] });
+    expect(screen.queryByRole('columnheader', { name: /chasse aux erreurs/i })).not.toBeInTheDocument();
+  });
+
+  test('ligne sans information de chasse : pas de colonne, pas d’erreur', () => {
+    montrer();
+    expect(screen.queryByRole('columnheader', { name: /chasse aux erreurs/i })).not.toBeInTheDocument();
+  });
+});
+

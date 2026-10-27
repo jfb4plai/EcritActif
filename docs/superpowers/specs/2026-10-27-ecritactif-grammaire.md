@@ -129,3 +129,13 @@ Ce qui doit rester vrai (tests) :
 - Détection automatique des accords dans le texte de l'élève (voie C, section 8 de `proposition-p4-p6.md`).
 - Participe passé et fonctions détaillées (P5, P6) : modules à ajouter après lecture des items.
 - Secondaire : référentiels à récupérer par JF.
+
+## 9. Écarts entre cette spec et ce qui est construit (2026-10-27)
+
+- **Pas de colonne de trace pour l'atelier.** Les traces (étapes, « pas sûr », justification) passent par la table `ecrit_traces` existante (événements `atelier:...`). La migration n'ajoute donc que `ecrit_activites.atelier` et `ecrit_activites.chasse`, pas de colonne sur `ecrit_textes` ni de table `ecrit_chasses`. Un événement de trace est limité à 300 signes côté serveur.
+- **Justification de la chasse** : un seul champ facultatif (« Ma justification ») avec le gabarit en aide, au lieu des quatre champs de l'atelier.
+- **Message « mot qui n'est pas une erreur »** : « Ce n'est pas un des mots à corriger. Cherche encore. » (et non « Ce mot est correct »), car le corrigé ne couvre que les erreurs placées par l'enseignant : l'application ne peut pas affirmer qu'un mot est correct.
+- **Emplacement** : atelier et chasse sont au temps « Corriger », sous les signaux, avec un bouton chacun. La chasse n'est pas proposée si le texte est rendu.
+- **Envoi de la colonne en base** : `atelier` et `chasse` ne sont envoyées à l'enregistrement d'une activité que si elles sont activées, pour que les activités P1 à P3 s'enregistrent comme avant tant que la migration n'est pas appliquée.
+- **Années** : P4 à P6 restent fermées côté enseignant (`ANNEES_PROPOSEES`). L'atelier et la chasse ne s'affichent à l'élève qu'en P4 à P6 (`ANNEES_ATELIER`).
+- **Non construit** : variante « groupe nominal » de l'atelier ; modules P5 et P6 (participe passé, fonctions) ; modification d'une chasse après enregistrement ; mode d'emploi et page jfb4plai.com mis à jour.

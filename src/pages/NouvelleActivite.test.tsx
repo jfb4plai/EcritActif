@@ -54,6 +54,82 @@ describe('NouvelleActivite : atelier de grammaire (voie A)', () => {
   });
 });
 
+describe('NouvelleActivite : chasse aux erreurs (voie B)', () => {
+  const TEXTE = 'Les élèves de 4e année prépare leur sortie. Ils emporte un pique-nique.';
+
+  async function activerChasse() {
+    await userEvent.click(screen.getByLabelText(/proposer une chasse aux erreurs/i));
+  }
+  async function remplirErreur(mot: string, attendu: string, indice = '') {
+    await userEvent.type(screen.getByLabelText(/mot tel qu’il est écrit/i), mot);
+    await userEvent.type(screen.getByLabelText(/forme attendue/i), attendu);
+    if (indice) await userEvent.type(screen.getByLabelText(/mon indice/i), indice);
+  }
+
+  test('en P4, la case est proposée, décochée, et ne montre rien d’autre tant qu’elle est décochée', () => {
+    render(<NouvelleActivite annee="P4" onEnregistrer={vi.fn()} />);
+    expect(screen.getByLabelText(/proposer une chasse aux erreurs/i)).not.toBeChecked();
+    expect(screen.queryByLabelText(/texte à corriger/i)).not.toBeInTheDocument();
+  });
+
+  test.each(['P1', 'P2', 'P3'] as const)('en %s, pas de chasse', (annee) => {
+    render(<NouvelleActivite annee={annee} onEnregistrer={vi.fn()} />);
+    expect(screen.queryByLabelText(/proposer une chasse aux erreurs/i)).not.toBeInTheDocument();
+  });
+
+  test.each([/texte à corriger/i, /mot tel qu’il est écrit/i, /forme attendue/i, /mon indice/i])('%s a un placeholder et une aide', async (nom) => {
+    render(<NouvelleActivite annee="P4" onEnregistrer={vi.fn()} />);
+    await activerChasse();
+    const champ = screen.getByLabelText(nom);
+    expect(champ.getAttribute('placeholder')).toBeTruthy();
+    const id = champ.getAttribute('aria-describedby');
+    expect(id).toBeTruthy();
+    expect(document.getElementById(id as string)?.textContent?.length).toBeGreaterThan(10);
+  });
+
+  test('un texte et une erreur valides : la chasse est enregistrée avec la position du mot', async () => {
+    const onEnregistrer = vi.fn();
+    render(<NouvelleActivite annee="P4" onEnregistrer={onEnregistrer} />);
+    await userEvent.type(screen.getByLabelText(/consigne pour les élèves/i), 'Écrire.');
+    await activerChasse();
+    await userEvent.type(screen.getByLabelText(/texte à corriger/i), TEXTE);
+    await remplirErreur('prépare', 'préparent', 'Cherche le sujet.');
+    await userEvent.click(screen.getByRole('button', { name: /enregistrer/i }));
+    const a = onEnregistrer.mock.calls[0][0];
+    expect(a.chasse.texte).toBe(TEXTE);
+    expect(a.chasse.erreurs).toEqual([{ position: 5, mot: 'prépare', attendu: 'préparent', type: 'accord-verbe', indice: 'Cherche le sujet.' }]);
+  });
+
+  test('un mot absent du texte : message clair, rien n’est enregistré', async () => {
+    const onEnregistrer = vi.fn();
+    render(<NouvelleActivite annee="P4" onEnregistrer={onEnregistrer} />);
+    await userEvent.type(screen.getByLabelText(/consigne pour les élèves/i), 'Écrire.');
+    await activerChasse();
+    await userEvent.type(screen.getByLabelText(/texte à corriger/i), TEXTE);
+    await remplirErreur('chantent', 'chantent');
+    await userEvent.click(screen.getByRole('button', { name: /enregistrer/i }));
+    expect(screen.getByRole('alert')).toHaveTextContent(/chantent/);
+    expect(onEnregistrer).not.toHaveBeenCalled();
+  });
+
+  test('on peut ajouter une deuxième erreur et en retirer une', async () => {
+    render(<NouvelleActivite annee="P4" onEnregistrer={vi.fn()} />);
+    await activerChasse();
+    await userEvent.click(screen.getByRole('button', { name: /ajouter une erreur/i }));
+    expect(screen.getAllByLabelText(/forme attendue/i)).toHaveLength(2);
+    await userEvent.click(screen.getAllByRole('button', { name: /retirer cette erreur/i })[0]);
+    expect(screen.getAllByLabelText(/forme attendue/i)).toHaveLength(1);
+  });
+
+  test('case décochée : pas de chasse enregistrée', async () => {
+    const onEnregistrer = vi.fn();
+    render(<NouvelleActivite annee="P4" onEnregistrer={onEnregistrer} />);
+    await userEvent.type(screen.getByLabelText(/consigne pour les élèves/i), 'Écrire.');
+    await userEvent.click(screen.getByRole('button', { name: /enregistrer/i }));
+    expect(onEnregistrer.mock.calls[0][0].chasse).toBeNull();
+  });
+});
+
 describe('NouvelleActivite : comportement', () => {
   test('enregistrer est désactivé tant que la consigne est vide', () => {
     formulaire();

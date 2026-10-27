@@ -11,6 +11,10 @@ alter table public.ecrit_activites add constraint ecrit_activites_annee_check
 -- 2. Atelier de raisonnement grammatical : activé par l'enseignant, activité par activité (P4 à P6).
 alter table public.ecrit_activites add column if not exists atelier boolean not null default false;
 
+-- 3. Chasse aux erreurs : texte, positions des mots, formes attendues et indices de l'enseignant.
+-- Lecture réservée au serveur (service_role) ; l'élève n'en reçoit que le texte et le nombre d'erreurs.
+alter table public.ecrit_activites add column if not exists chasse jsonb;
+
 select conname, pg_get_constraintdef(oid) from pg_constraint where conrelid = 'public.ecrit_activites'::regclass and contype = 'c';  -- UNE seule contrainte sur annee, P1 à P6
-select column_name, data_type, column_default from information_schema.columns where table_name = 'ecrit_activites' and column_name = 'atelier';
+select column_name, data_type, column_default from information_schema.columns where table_name = 'ecrit_activites' and column_name in ('atelier', 'chasse') order by column_name;
 rollback;

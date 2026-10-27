@@ -9,3 +9,7 @@ alter table public.ecrit_activites add constraint ecrit_activites_annee_check
 
 -- 2. Atelier de raisonnement grammatical : activé par l'enseignant, activité par activité (P4 à P6).
 alter table public.ecrit_activites add column if not exists atelier boolean not null default false;
+
+-- 3. Chasse aux erreurs : texte, positions des mots, formes attendues et indices de l'enseignant.
+-- Lecture réservée au serveur (service_role) ; l'élève n'en reçoit que le texte et le nombre d'erreurs.
+alter table public.ecrit_activites add column if not exists chasse jsonb;

@@ -15,6 +15,8 @@ export interface LigneEleve {
   autoEvaluation: AutoEvaluation | null;
   // Atelier de raisonnement grammatical : ce que l'élève a fait, sans jugement de l'application sur la grammaire.
   atelier?: { phrases: number; pasSur: number; justifications: string[] };
+  // Chasse aux erreurs : erreurs trouvées, indices demandés, essais, justifications de l'élève.
+  chasse?: { trouvees: number; indices: number; essais: number; justifications: string[] };
 }
 
 // « sujet|pronom|verbe|fin » (trace de l'atelier) lu comme la phrase que l'élève a complétée.
@@ -39,6 +41,7 @@ export default function Tableau({ annee, items, eleves, activites, validations, 
   const libelleAide = (id: string) => AIDES.find((a) => a.id === id)?.libelle ?? id;
   const itemParId = (id: string) => items.find((i) => i.id === id);
   const avecAtelier = eleves.some((e) => (e.atelier?.phrases ?? 0) > 0 || (e.atelier?.pasSur ?? 0) > 0);
+  const avecChasse = eleves.some((e) => (e.chasse?.essais ?? 0) > 0);
   const valide = (eleveId: string, itemId: string) => validations.some((v) => v.eleveId === eleveId && v.itemId === itemId);
 
   return (
@@ -54,6 +57,7 @@ export default function Tableau({ annee, items, eleves, activites, validations, 
               <th>Demandes d’aide</th>
               <th>Auto-évaluation</th>
               {avecAtelier && <th>Atelier de grammaire</th>}
+              {avecChasse && <th>Chasse aux erreurs</th>}
               <th>Items travaillés</th>
             </tr>
           </thead>
@@ -102,6 +106,24 @@ export default function Tableau({ annee, items, eleves, activites, validations, 
                       </div>
                     ) : (
                       'Pas utilisé'
+                    )}
+                  </td>
+                )}
+                {avecChasse && (
+                  <td>
+                    {e.chasse && e.chasse.essais > 0 ? (
+                      <div>
+                        <p>
+                          {e.chasse.trouvees} erreur{e.chasse.trouvees > 1 ? 's' : ''} trouvée{e.chasse.trouvees > 1 ? 's' : ''} · {e.chasse.indices} indice{e.chasse.indices > 1 ? 's' : ''} demandé{e.chasse.indices > 1 ? 's' : ''}
+                        </p>
+                        <ul>
+                          {e.chasse.justifications.map((j, i) => (
+                            <li key={i}>{j}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : (
+                      'Pas utilisée'
                     )}
                   </td>
                 )}

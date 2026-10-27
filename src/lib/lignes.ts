@@ -24,6 +24,12 @@ export function construireLignes(
       autoEvaluation: dernier?.autoEvaluation ?? null,
       aides,
       itemsTravailles: items,
+      chasse: {
+        trouvees: new Set(siennes.filter((t) => /^chasse:essai:e\d+:trouve$/.test(t.evenement)).map((t) => t.evenement.split(':')[2])).size,
+        indices: siennes.filter((t) => /^chasse:essai:e\d+:indice$/.test(t.evenement)).length,
+        essais: siennes.filter((t) => t.evenement.startsWith('chasse:essai:')).length,
+        justifications: siennes.filter((t) => t.evenement.startsWith('chasse:justification:')).map((t) => t.evenement.replace(/^chasse:justification:e\d+:/, '')),
+      },
       atelier: {
         phrases: siennes.filter((t) => t.evenement.startsWith('atelier:phrase:')).length,
         pasSur: siennes.filter((t) => t.evenement === 'atelier:pas-sur').length,

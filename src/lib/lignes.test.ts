@@ -90,4 +90,17 @@ describe('construireLignes', () => {
   test('sans trace d’atelier, tout est à zéro', () => {
     expect(construireLignes(eleves, activites, [], [])[0].atelier).toEqual({ phrases: 0, pasSur: 0, justifications: [] });
   });
+
+  test('chasse aux erreurs : erreurs trouvées (sans doublon), indices demandés, justifications', () => {
+    const traces = [
+      { eleveId: 'e1', evenement: 'chasse:essai:e0:indice' },
+      { eleveId: 'e1', evenement: 'chasse:essai:e0:indice' },
+      { eleveId: 'e1', evenement: 'chasse:essai:e0:trouve' },
+      { eleveId: 'e1', evenement: 'chasse:essai:e0:trouve' },
+      { eleveId: 'e1', evenement: 'chasse:essai:pas-erreur' },
+      { eleveId: 'e1', evenement: 'chasse:justification:e0:Le sujet est élèves.' },
+    ];
+    expect(construireLignes(eleves, activites, [], traces)[0].chasse).toEqual({ trouvees: 1, indices: 2, essais: 5, justifications: ['Le sujet est élèves.'] });
+    expect(construireLignes(eleves, activites, [], [])[1].chasse).toEqual({ trouvees: 0, indices: 0, essais: 0, justifications: [] });
+  });
 });

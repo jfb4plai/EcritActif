@@ -3,6 +3,7 @@ import { AIDES, type AideId } from '../lib/aides';
 import RepereProgramme from '../components/RepereProgramme';
 import { TEMPS_CECP } from '../lib/ancrage';
 import { ANNEES_ATELIER } from '../lib/atelier';
+import { ERREURS_MAX, localiserErreurs, MOTS_MAX, TYPES_ERREUR, type ChasseBrute, type LigneErreurSaisie, type TypeErreur } from '../lib/chasse';
 import { itemsParAnnee } from '../lib/cecp';
 import { principesPour } from '../lib/principes';
 import type { CategorieErreur, Contraintes } from '../lib/retour';
@@ -20,6 +21,7 @@ export interface ActiviteNouvelle {
   banqueMots: string[];
   principesPerso: { phase: Phase; question: string }[];
   atelier: boolean;
+  chasse: ChasseBrute | null;
 }
 
 const CATEGORIES: { id: CategorieErreur; libelle: string }[] = [
@@ -34,6 +36,8 @@ const PHASES: { id: Phase; titre: string; verbe: string; exemple: string }[] = [
   { id: 'corriger', titre: 'Corriger', verbe: 'corriger', exemple: 'As-tu relu les noms propres ?' },
 ];
 
+const ligneVide = (): LigneErreurSaisie => ({ mot: '', rang: 1, attendu: '', type: 'accord-verbe', indice: '' });
+
 export default function NouvelleActivite({ annee, onEnregistrer }: { annee: Annee; onEnregistrer: (a: ActiviteNouvelle) => void }) {
   const items = useMemo(() => itemsParAnnee(annee), [annee]);
   const [consigne, setConsigne] = useState('');
@@ -47,6 +51,10 @@ export default function NouvelleActivite({ annee, onEnregistrer }: { annee: Anne
   const [motsUtiles, setMotsUtiles] = useState('');
   const [perso, setPerso] = useState<Record<string, string>>({});
   const [atelier, setAtelier] = useState(false);
+  const [avecChasse, setAvecChasse] = useState(false);
+  const [texteChasse, setTexteChasse] = useState('');
+  const [lignesChasse, setLignesChasse] = useState<LigneErreurSaisie[]>([ligneVide()]);
+  const [erreurChasse, setErreurChasse] = useState('');
   const atelierPossible = ANNEES_ATELIER.includes(annee);
 
   const suggeres = useMemo(() => suggererItems(consigne, items), [consigne, items]);
@@ -59,6 +67,16 @@ export default function NouvelleActivite({ annee, onEnregistrer }: { annee: Anne
   function soumettre(e: FormEvent) {
     e.preventDefault();
     if (!peutEnregistrer) return;
+    let chasse: ChasseBrute | null = null;
+    if (atelierPossible && avecChasse) {
+      const r = localiserErreurs(texteChasse, lignesChasse);
+      if (!r.ok) {
+        setErreurChasse(r.message);
+        return;
+      }
+      chasse = r.chasse;
+    }
+    setErreurChasse('');
     const contraintes: Contraintes = {};
     if (minMots !== '') contraintes.minMots = Number(minMots);
     if (maxMots !== '') contraintes.maxMots = Number(maxMots);
@@ -73,6 +91,7 @@ export default function NouvelleActivite({ annee, onEnregistrer }: { annee: Anne
       banqueMots: motsUtiles.split(',').map((m) => m.trim()).filter((m) => m !== ''),
       principesPerso: PHASES.map((p) => ({ phase: p.id, question: (perso[p.id] ?? '').trim() })).filter((q) => q.question !== ''),
       atelier: atelierPossible && atelier,
+      chasse,
     });
   }
 
@@ -185,6 +204,73 @@ export default function NouvelleActivite({ annee, onEnregistrer }: { annee: Anne
           <p id="aide-atelier" className="text-sm">
             Au temps « Corriger », l’élève peut choisir une phrase de son texte et suivre une démarche : trouver le verbe, trouver le sujet, regarder la terminaison, justifier. L’application ne dit jamais si ses choix sont bons : vous voyez les étapes faites, sa justification et ses « Je ne suis pas sûr ».
           </p>
+        </fieldset>
+      )}
+
+      {atelierPossible && (
+        <fieldset>
+          <legend>Chasse aux erreurs</legend>
+          <label className="block">
+            <input type="checkbox" checked={avecChasse} onChange={() => setAvecChasse(!avecChasse)} aria-describedby="aide-chasse" /> Proposer une chasse aux erreurs
+          </label>
+          <p id="aide-chasse" className="text-sm">
+            Vous écrivez un court texte avec des erreurs que vous avez placées. L’élève cherche, corrige et justifie. L’application dit seulement s’il a trouvé ou non, avec un indice : le corrigé n’est jamais affiché à l’élève, et il n’y a pas de note.
+          </p>
+          {avecChasse && (
+            <div>
+              <label htmlFor="chasse-texte">Texte à corriger</label>
+              <textarea
+                id="chasse-texte"
+                className="plai-input"
+                value={texteChasse}
+                onChange={(e) => setTexteChasse(e.target.value)}
+                placeholder="Les élèves de 4e année prépare leur sortie à la Citadelle de Namur. Ils emporte un pique-nique."
+                aria-describedby="aide-chasse-texte"
+              />
+              <p id="aide-chasse-texte" className="text-sm">
+                Écrivez le texte avec ses erreurs, {MOTS_MAX} mots au plus. L’élève le lit tel quel et cherche ce qui ne va pas.
+              </p>
+              {lignesChasse.map((l, i) => {
+                const maj = (c: Partial<LigneErreurSaisie>) => setLignesChasse(lignesChasse.map((x, k) => (k === i ? { ...x, ...c } : x)));
+                return (
+                  <fieldset key={i}>
+                    <legend>Erreur {i + 1}</legend>
+                    <label htmlFor={`chasse-mot-${i}`}>Mot tel qu’il est écrit dans le texte</label>
+                    <input id={`chasse-mot-${i}`} className="plai-input" value={l.mot} onChange={(e) => maj({ mot: e.target.value })} placeholder="prépare" aria-describedby={`aide-chasse-mot-${i}`} />
+                    <p id={`aide-chasse-mot-${i}`} className="text-sm">Le mot erroné, écrit exactement comme dans le texte. L’application le cherche et vérifie qu’il s’y trouve.</p>
+                    <label htmlFor={`chasse-rang-${i}`}>Occurrence du mot dans le texte</label>
+                    <input id={`chasse-rang-${i}`} type="number" min={1} className="plai-input" value={l.rang} onChange={(e) => maj({ rang: Number(e.target.value) })} placeholder="1" aria-describedby={`aide-chasse-rang-${i}`} />
+                    <p id={`aide-chasse-rang-${i}`} className="text-sm">1 si le mot n’apparaît qu’une fois ; 2 pour la deuxième fois qu’il apparaît, etc.</p>
+                    <label htmlFor={`chasse-attendu-${i}`}>Forme attendue</label>
+                    <input id={`chasse-attendu-${i}`} className="plai-input" value={l.attendu} onChange={(e) => maj({ attendu: e.target.value })} placeholder="préparent" aria-describedby={`aide-chasse-attendu-${i}`} />
+                    <p id={`aide-chasse-attendu-${i}`} className="text-sm">La forme que l’élève doit écrire. Elle reste sur le serveur : l’élève ne la voit jamais. Les accents doivent être exacts.</p>
+                    <label htmlFor={`chasse-type-${i}`}>Type d’erreur</label>
+                    <select id={`chasse-type-${i}`} value={l.type} onChange={(e) => maj({ type: e.target.value as TypeErreur })}>
+                      {TYPES_ERREUR.map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.libelle}
+                        </option>
+                      ))}
+                    </select>
+                    <label htmlFor={`chasse-indice-${i}`}>Mon indice (facultatif)</label>
+                    <input id={`chasse-indice-${i}`} className="plai-input" value={l.indice} maxLength={140} onChange={(e) => maj({ indice: e.target.value })} placeholder="Qui prépare la sortie ?" aria-describedby={`aide-chasse-indice-${i}`} />
+                    <p id={`aide-chasse-indice-${i}`} className="text-sm">Une phrase courte, à la deuxième personne, sans donner la réponse. Si vous laissez vide, l’application propose un indice selon le type d’erreur.</p>
+                    {lignesChasse.length > 1 && (
+                      <button type="button" className="plai-btn" onClick={() => setLignesChasse(lignesChasse.filter((_, k) => k !== i))}>
+                        Retirer cette erreur
+                      </button>
+                    )}
+                  </fieldset>
+                );
+              })}
+              {lignesChasse.length < ERREURS_MAX && (
+                <button type="button" className="plai-btn" onClick={() => setLignesChasse([...lignesChasse, ligneVide()])}>
+                  Ajouter une erreur
+                </button>
+              )}
+              {erreurChasse && <p role="alert">{erreurChasse}</p>}
+            </div>
+          )}
         </fieldset>
       )}
 
