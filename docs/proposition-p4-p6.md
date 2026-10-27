@@ -82,3 +82,34 @@ Statut de chacune : **brouillon**, sans source RISS tant qu'on n'a pas lu un art
 - **P6** (30 items) : mêmes savoirs qu'en P5 consolidés ; « toutes les marques de ponctuation apprises » (F870) ; préfixe et suffixe (F822) ; prise de notes (F916, F917) et jugement critique sur un document (F1008 à F1010), qui sortent de l'écriture d'un texte ; réviser (F1017 à F1019).
 - **Déduit** : le saut P4 vers P5 est surtout grammatical (participe passé, fonctions, temps), le saut P5 vers P6 est surtout de consolidation. Les signaux sans analyse grammaticale ne couvriront donc pas l'essentiel de ce qui est attendu en P5 et P6 : il faudra annoncer cette limite clairement dans l'application et sur la page.
 - **À décider avec vous avant de coder P5 et P6** : si l'app doit proposer des questions fixes de relecture sur l'accord et les temps (sans signal), ou rester sur la planification et la révision du contenu (structure textuelle, cohérence, intention), plus proches de ce que l'application sait bien soutenir.
+
+## 8. Prendre en compte la grammaire (décision de JF, 2026-10-27 : attendu essentiel)
+
+### Ce que dit le RISS (lu le 2026-10-27)
+
+- **Arseneau, R. & Geoffre, T. (2023). Quel potentiel des outils numériques pour le raisonnement grammatical des élèves ?** `halshs-04327552` (texte lu jusqu'à la troncature de 4000 mots ; les résultats sur les types de rétroaction n'ont pas été lus en entier). Constaté dans la partie lue :
+  - le raisonnement grammatical se déploie surtout quand l'élève **justifie** sa réponse ; la preuve de prédilection est l'**identification** de l'unité grammaticale (classe de mots, groupe, fonction) ou une **manipulation syntaxique** (par exemple remplacer un groupe par un pronom pour identifier le sujet) ;
+  - la **détection et la correction d'erreurs** préparent l'élève à résoudre les problèmes grammaticaux en écriture et en révision (Roussey & Piolat, 2005, cités) ;
+  - travailler sur un **texte produit par l'élève lui-même** est plus exigeant : le scripteur « tend à percevoir ce qu'il croit avoir écrit » et corrige mieux les textes d'autrui que les siens (Gombert, 1991, cité) ;
+  - une rétroaction **qualitative** (explication, indice métalinguistique) serait plus efficace que le simple « juste / faux » (Ammar, Daigle & Lefrançois, 2015, cités ; non lus directement) ;
+  - sur 590 outils numériques recensés, 66,9 % travaillent des phrases isolées et **0,5 % seulement les manipulations syntaxiques**.
+- **Louis, A. (2023). Améliorer les compétences orthographiques grâce à la dictée négociée.** `dumas-04216952` : seul un extrait a été lu (raisonnement grammatical en trois étapes d'après Fisher et al., 2015, première étape : identifier la classe du mot à accorder par des manipulations syntaxiques). À lire en entier avant toute citation.
+- Programme CECP : F554 à F557 (accords), F558 (fonctions), **F759 (« Appliquer une procédure pour choisir une graphie »)**, F541 à F543 (phrase simple, classes de mots) : la procédure fait partie de l'attendu officiel.
+
+### Trois voies (avantages et limites)
+
+| Voie | Principe | Avantages | Limites |
+|---|---|---|---|
+| **A. Atelier de raisonnement grammatical, mené par l'élève** | À « Corriger », l'élève choisit une phrase de son texte et suit une démarche en étapes : trouver le verbe (manipulation : changer le temps ou mettre à la forme négative), trouver le sujet (remplacer par il/elle/ils/elles), regarder la terminaison, justifier par écrit ou à l'oral. L'application pose les questions et garde la trace des étapes faites ; elle **ne corrige pas** et ne juge pas la grammaire. | Fidèle au RISS lu (justification, manipulations) et au programme (F759). Sans IA. Pas de faux positifs puisque l'application ne juge rien. Même démarche que les questions de relecture déjà en place. | Ne dit pas à l'élève s'il a raison : c'est l'enseignant ou un pair qui valide. Travail sur son propre texte, plus difficile (Gombert). Lourd à utiliser si la démarche est trop longue. |
+| **B. A + « chasse aux erreurs » sur texte de l'enseignant** | L'enseignant colle un court texte avec des erreurs qu'il a placées ; l'élève détecte, justifie, corrige. | Corrige le point faible de A (texte d'autrui, plus facile à analyser). Mobilise détection et correction d'erreurs, que l'article situe en amont de la révision de ses propres textes. | Nouvelle activité à construire et à documenter ; l'enseignant doit écrire ou adapter des textes (exemples FWB). |
+| **C. A + signal automatique d'accord** | Un analyseur grammatical (lexique ouvert de formes fléchies, ou un modèle de langue local ou par API, option de l'enseignant) signale les accords probablement erronés. | Se rapproche de ce que fait un correcteur ; pourrait signaler sans que l'élève cherche. | Faux positifs et faux négatifs ; coûte en licence (lexique), en taille, en confidentialité (texte d'élève envoyé à une API) ; contredit « sans IA par défaut » ; risque de remplacer le raisonnement de l'élève. À décider seulement après essai de A. |
+
+### Recommandation
+
+Commencer par **A pour les accords et la conjugaison (F554 à F557, F552)** en P4 à P6, puis **B** si les enseignants testeurs le demandent. **C** reste une option à étudier, pas à construire maintenant. Le contenu de l'atelier (étapes, formulations à l'infinitif, une action par puce, vocabulaire de l'année) sera proposé avant le code, avec ses codes CECP.
+
+### Points ouverts
+
+- Faut-il que l'élève puisse **cliquer sur un mot** pour le marquer (verbe, sujet) ? C'est utile pour la trace, mais plus lourd à construire et à rendre accessible (clavier, tablette).
+- La trace pour l'enseignant : seulement « atelier fait pour la phrase n » et « Je ne suis pas sûr », ou aussi la justification écrite par l'élève ?
+- P4, P5 et P6 partagent-ils la même démarche, avec des phrases de complexité croissante, ou une démarche par année ? Les items de P5 et P6 ajoutent le participe passé (F627, F834) et les fonctions (F633).
