@@ -301,3 +301,7 @@ section ul li, section ol li { margin: 4px 0; }
 table { border-collapse: collapse; width: 100%; margin: 0.5rem 0 1rem; font-size: 0.9375rem; }
 th, td { border: 1px solid var(--border2); padding: 8px 10px; text-align: left; vertical-align: top; }
 th { background: var(--surface2); font-weight: 700; }
+
+
+/* Zone de l'élève : les listes restent des cartes encadrées, sans puces en plus (la règle générale des listes ne s'y applique pas). */
+.zone-temps ul, .zone-temps ol { list-style: none; padding-left: 0; }

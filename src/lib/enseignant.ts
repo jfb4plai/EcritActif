@@ -136,7 +136,7 @@ export async function chargerTableau(
   if (v.error) throw v.error;
 
   const lignes = construireLignes(
-    eleves.map((e) => ({ id: e.id, code: e.code_eleve })),
+    eleves.map((e) => ({ id: e.id, code: e.code_eleve, aides: e.aides })),
     activites,
     (t.data ?? []).map((r) => ({ eleveId: r.eleve_id, activiteId: r.activite_id, version: r.version, phase: r.phase, updatedAt: r.updated_at, autoEvaluation: r.auto_evaluation ?? undefined })),
     (tr.data ?? []).map((r) => ({ eleveId: r.eleve_id, evenement: r.evenement })),

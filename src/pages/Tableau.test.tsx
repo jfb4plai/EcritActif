@@ -197,3 +197,31 @@ describe('Tableau : surnoms facultatifs', () => {
     expect(screen.queryByText(/\(Léa\)/)).not.toBeInTheDocument();
   });
 });
+
+describe('Tableau : aides de chaque élève', () => {
+  const ligne = { id: 'e1', code: 'KMNPQR', dernierePhase: null, versions: 0, itemsTravailles: [], clarifications: 0, autoEvaluation: null };
+  const monter = (surcharge: object) =>
+    render(<Tableau annee="P4" items={[I1]} eleves={[{ ...ligne, aides: [], ...surcharge }]} activites={[]} validations={[]} onValider={vi.fn()} />);
+
+  test('l’en-tête dit « Aides » et la cellule sépare ce que vous avez activé de ce que l’élève a ajouté', () => {
+    monter({ aidesEnseignant: ['dictee-vocale', 'colorisation'], aides: ['pictogrammes'] });
+    expect(screen.getByRole('columnheader', { name: 'Aides' })).toBeInTheDocument();
+    const cellule = screen.getByText('KMNPQR').closest('tr') as HTMLElement;
+    expect(within(cellule).getByText(/Activées par vous/)).toBeInTheDocument();
+    expect(within(cellule).getByText(/Dire mon texte à voix haute ; Colorer les sons ou les syllabes/)).toBeInTheDocument();
+    expect(within(cellule).getByText(/Ajoutées par l’élève/)).toBeInTheDocument();
+    expect(within(cellule).getByText(/Voir des images pour les mots/)).toBeInTheDocument();
+  });
+
+  test('aucune aide : une phrase claire pour chaque liste', () => {
+    monter({ aidesEnseignant: [], aides: [] });
+    const cellule = screen.getByText('KMNPQR').closest('tr') as HTMLElement;
+    expect(within(cellule).getByText(/Activées par vous : aucune/)).toBeInTheDocument();
+    expect(within(cellule).getByText(/Ajoutées par l’élève : aucune/)).toBeInTheDocument();
+  });
+
+  test('ligne sans l’information (ancienne donnée) : pas d’erreur', () => {
+    monter({});
+    expect(screen.getByText(/Activées par vous : aucune/)).toBeInTheDocument();
+  });
+});

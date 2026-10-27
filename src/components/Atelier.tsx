@@ -154,7 +154,9 @@ export default function Atelier({ texte, annee, grammaire3d = false, perso, trac
   const visibles = courante.elements.filter(visible);
   const selon = (courante.selon ?? []).filter((s) => choix[s.cle] === s.valeur);
   const siennes = consignesPour(demarche, courante, perso);
-  const bascule = (cle: string) => (i: number) => setMots({ ...mots, [cle]: (mots[cle] ?? []).includes(i) ? (mots[cle] ?? []).filter((x) => x !== i) : [...(mots[cle] ?? []), i] });
+  // Mise à jour fonctionnelle : deux appuis très rapprochés (écran tactile) ne s'écrasent pas.
+  const bascule = (cle: string) => (i: number) =>
+    setMots((m) => ({ ...m, [cle]: (m[cle] ?? []).includes(i) ? (m[cle] ?? []).filter((x) => x !== i) : [...(m[cle] ?? []), i] }));
   const bloquesPour = (cle: string) => Object.entries(mots).filter(([k]) => k !== cle).flatMap(([, v]) => v);
   const complet = (el: Element) => (el.kind === 'marquer' ? (mots[el.cle] ?? []).length >= el.min : el.kind === 'choisir' ? (choix[el.cle] ?? '') !== '' : true);
   const peutAvancer = visibles.every(complet);
@@ -261,7 +263,7 @@ export default function Atelier({ texte, annee, grammaire3d = false, perso, trac
                   <input
                     type="checkbox"
                     checked={(coches[el.cle] ?? []).includes(o)}
-                    onChange={() => setCoches({ ...coches, [el.cle]: (coches[el.cle] ?? []).includes(o) ? (coches[el.cle] ?? []).filter((x) => x !== o) : [...(coches[el.cle] ?? []), o] })}
+                    onChange={() => setCoches((c) => ({ ...c, [el.cle]: (c[el.cle] ?? []).includes(o) ? (c[el.cle] ?? []).filter((x) => x !== o) : [...(c[el.cle] ?? []), o] }))}
                   />{' '}
                   {o}
                 </label>

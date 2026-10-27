@@ -103,4 +103,16 @@ describe('construireLignes', () => {
     expect(construireLignes(eleves, activites, [], traces)[0].chasse).toEqual({ trouvees: 1, indices: 2, essais: 5, justifications: ['Le sujet est élèves.'] });
     expect(construireLignes(eleves, activites, [], [])[1].chasse).toEqual({ trouvees: 0, indices: 0, essais: 0, justifications: [] });
   });
+
+  test('aides activées par l’enseignant et aides ajoutées par l’élève sont distinguées', () => {
+    const avecAides = [
+      { id: 'e1', code: 'KMNPQR', aides: ['dictee-vocale', 'colorisation'] },
+      { id: 'e2', code: 'STUVWX' },
+    ];
+    const traces = [{ eleveId: 'e1', evenement: 'aide:pictogrammes' }, { eleveId: 'e1', evenement: 'aide:colorisation' }];
+    const l = construireLignes(avecAides, activites, [], traces);
+    expect(l[0].aidesEnseignant).toEqual(['dictee-vocale', 'colorisation']);
+    expect(l[0].aides).toEqual(['pictogrammes', 'colorisation']);
+    expect(l[1].aidesEnseignant).toEqual([]);
+  });
 });

@@ -2,7 +2,7 @@ import type { LigneEleve } from '../pages/Tableau';
 import type { AutoEvaluation, Phase } from '../types';
 
 export function construireLignes(
-  eleves: { id: string; code: string }[],
+  eleves: { id: string; code: string; aides?: string[] }[],
   activites: { id: string; itemIds: string[] }[],
   textes: { eleveId: string; activiteId: string; version: number; phase: string; updatedAt: string; autoEvaluation?: AutoEvaluation }[],
   traces: { eleveId: string; evenement: string }[],
@@ -23,6 +23,8 @@ export function construireLignes(
       clarifications: traces.filter((t) => t.eleveId === e.id && t.evenement.startsWith('clarification:')).length,
       autoEvaluation: dernier?.autoEvaluation ?? null,
       aides,
+      // Aides activées par l'enseignant pour cet élève (réglage de la classe), distinctes de celles que l'élève ajoute lui-même.
+      aidesEnseignant: e.aides ?? [],
       itemsTravailles: items,
       chasse: {
         trouvees: new Set(siennes.filter((t) => /^chasse:essai:e\d+:trouve$/.test(t.evenement)).map((t) => t.evenement.split(':')[2])).size,

@@ -9,7 +9,9 @@ export interface LigneEleve {
   code: string;
   dernierePhase: Phase | 'rendu' | null;
   versions: number;
+  // Aides que l'élève a ajoutées lui-même (traces) ; `aidesEnseignant` : celles que l'enseignant lui a activées.
   aides: string[];
+  aidesEnseignant?: string[];
   itemsTravailles: string[];
   // Littératie à la rétroaction : demandes d'aide (« Je ne comprends pas ») et auto-évaluation avant de rendre.
   clarifications: number;
@@ -55,7 +57,7 @@ export default function Tableau({ annee, items, eleves, activites, validations, 
             <tr>
               <th>Code</th>
               <th>Où il en est</th>
-              <th>Aides utilisées</th>
+              <th>Aides</th>
               <th>Demandes d’aide</th>
               <th>Auto-évaluation</th>
               {avecAtelier && <th>Atelier de grammaire</th>}
@@ -79,7 +81,10 @@ export default function Tableau({ annee, items, eleves, activites, validations, 
                     'Pas encore commencé'
                   )}
                 </td>
-                <td>{e.aides.length > 0 ? e.aides.map(libelleAide).join(' ; ') : 'Aucune'}</td>
+                <td>
+                  <p>Activées par vous : {(e.aidesEnseignant ?? []).length > 0 ? (e.aidesEnseignant ?? []).map(libelleAide).join(' ; ') : 'aucune'}</p>
+                  <p>Ajoutées par l’élève : {e.aides.length > 0 ? e.aides.map(libelleAide).join(' ; ') : 'aucune'}</p>
+                </td>
                 <td>{e.clarifications === 0 ? 'Aucune demande d’aide' : `${e.clarifications} demande${e.clarifications > 1 ? 's' : ''} d’aide`}</td>
                 <td>
                   {e.autoEvaluation ? (

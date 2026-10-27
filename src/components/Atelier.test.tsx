@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, test, vi } from 'vitest';
 import Atelier from './Atelier';
@@ -465,3 +465,18 @@ describe('Atelier : « Ma formulation » de l’enseignant', () => {
   });
 });
 
+describe('Atelier : appuis très rapprochés sur des mots', () => {
+  test('deux mots marqués dans la même mise à jour sont tous les deux gardés', async () => {
+    monter({ texte: 'Les élèves prépare leur sortie.' });
+    await cliquer(/Phrase 1/);
+    await verbeSujet();
+    await cliquer('prépare');
+    await suivante();
+    act(() => {
+      screen.getByRole('button', { name: 'Les' }).click();
+      screen.getByRole('button', { name: 'élèves' }).click();
+    });
+    expect(screen.getByRole('button', { name: 'Les' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'élèves' })).toHaveAttribute('aria-pressed', 'true');
+  });
+});
