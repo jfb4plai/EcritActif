@@ -87,6 +87,14 @@ describe('essai de la migration d’ouverture de P4 à P6', () => {
     expect([...m.matchAll(/add column/g)].length).toBe([...m.matchAll(/add column if not exists/g)].length);
   });
 
+  test('année scolaire de la classe : colonne facultative (classes existantes) limitée à P1 à P6, rejouable', () => {
+    const m = migration.toLowerCase();
+    expect(m).toContain('add column if not exists niveau text');
+    expect(m).toContain('drop constraint if exists ecrit_classes_niveau_check');
+    expect(m).toMatch(/check \(niveau is null or niveau in \('p1', 'p2', 'p3', 'p4', 'p5', 'p6'\)\)/);
+    expect(essai).toContain("niveau = 'P7'");
+  });
+
   test('aucune instruction destructrice : ni drop table, ni delete, ni truncate', () => {
     expect(migration.toLowerCase()).not.toMatch(/drop table|delete from|truncate|drop column/);
   });

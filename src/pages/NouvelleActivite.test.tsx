@@ -54,6 +54,47 @@ describe('NouvelleActivite : atelier de grammaire (voie A)', () => {
   });
 });
 
+describe('NouvelleActivite : année de l’activité', () => {
+  test('un champ « Année du programme de cette activité », prérempli avec l’année de départ, avec une aide', () => {
+    render(<NouvelleActivite annee="P2" onEnregistrer={vi.fn()} />);
+    const champ = screen.getByLabelText('Année du programme de cette activité');
+    expect(champ).toHaveValue('P2');
+    const aide = document.getElementById(champ.getAttribute('aria-describedby') as string)?.textContent ?? '';
+    expect(aide).toMatch(/items du programme/i);
+    expect(aide).toMatch(/élèves/i);
+  });
+
+  test('changer l’année change les items du programme proposés et celle qui est enregistrée', async () => {
+    const onEnregistrer = vi.fn();
+    render(<NouvelleActivite annee="P1" onEnregistrer={onEnregistrer} />);
+    expect(screen.getByText(/Items du programme CECP travaillés \(P1\)/)).toBeInTheDocument();
+    await userEvent.selectOptions(screen.getByLabelText('Année du programme de cette activité'), 'P3');
+    expect(screen.getByText(/Items du programme CECP travaillés \(P3\)/)).toBeInTheDocument();
+    await userEvent.type(screen.getByLabelText(/consigne pour les élèves/i), 'Écrire.');
+    await userEvent.click(screen.getByRole('button', { name: /enregistrer/i }));
+    expect(onEnregistrer.mock.calls[0][0].annee).toBe('P3');
+  });
+
+  test('changer l’année efface les items déjà cochés, qui appartenaient à l’autre année', async () => {
+    const onEnregistrer = vi.fn();
+    render(<NouvelleActivite annee="P1" onEnregistrer={onEnregistrer} />);
+    await userEvent.click(screen.getAllByRole('checkbox')[0]);
+    await userEvent.selectOptions(screen.getByLabelText('Année du programme de cette activité'), 'P2');
+    await userEvent.type(screen.getByLabelText(/consigne pour les élèves/i), 'Écrire.');
+    await userEvent.click(screen.getByRole('button', { name: /enregistrer/i }));
+    expect(onEnregistrer.mock.calls[0][0].itemIds).toEqual([]);
+  });
+
+  test('une année différente de celle de la classe est signalée, sans bloquer', async () => {
+    render(<NouvelleActivite annee="P2" niveauClasse="P2" onEnregistrer={vi.fn()} />);
+    expect(screen.queryByText(/différente de l’année de la classe/i)).not.toBeInTheDocument();
+    await userEvent.selectOptions(screen.getByLabelText('Année du programme de cette activité'), 'P1');
+    expect(screen.getByText(/différente de l’année de la classe \(P2\)/i)).toBeInTheDocument();
+    await userEvent.selectOptions(screen.getByLabelText('Année du programme de cette activité'), 'P2');
+    expect(screen.queryByText(/différente de l’année de la classe/i)).not.toBeInTheDocument();
+  });
+});
+
 describe('NouvelleActivite : « Ma formulation » (atelier)', () => {
   async function ouvrir(annee: 'P4' | 'P5' = 'P4', g = false) {
     const onEnregistrer = vi.fn();
