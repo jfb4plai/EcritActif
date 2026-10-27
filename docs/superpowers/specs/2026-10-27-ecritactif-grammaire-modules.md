@@ -171,3 +171,10 @@ Ce que cela suppose : un champ JSON `atelier_perso` sur l'activité (non appliqu
 - **Question 5 (ordre de construction) : OK.** Groupe nominal (fait), puis participe passé, puis fonctions.
 - **Question 4 (« moment », « groupe de mots ») : JF demande de décrire le contexte** ; description et recommandation dans la réponse du 2026-10-27. Constaté : dans tous les items de P1 à P6 (pas seulement « écrire »), « groupe de mots » n'apparaît jamais et « moment » n'apparaît que dans « intervenir au moment approprié » (prise de parole). Le programme parle de « temps » (F552, conjugaison) et de « groupe sujet », « groupe prédicat » (F270, P3). Aucune modification des consignes tant que JF n'a pas choisi.
 - **Participe passé et fonctions** : leurs brouillons (sections 9 et 10) attendent encore la relecture de JF avant d'être codés.
+
+## 14. Décision de JF sur le vocabulaire (2026-10-27) : appliquée
+
+- **Les termes du programme sont à utiliser : « groupe sujet », « groupe prédicat », « groupe complément circonstanciel »** (F270, P3 ; F541, P4). Appliqué à la démarche « verbe et sujet » : étape « Trouver le groupe sujet », consignes « Chercher le groupe sujet : le groupe de mots qui fait l'action du verbe », gabarit « Le groupe sujet est … ». Les trois termes sont inscrits dans `src/lib/vocabulaire.ts` (avec contrôle contre le programme).
+- **« Moment » est ambigu : toujours le contextualiser ou utiliser le mot du programme.** Appliqué : « Changer le temps de la phrase (le moment où l'action se passe) ». Un test refuse « moment » sans « temps » dans les consignes de l'atelier, et « groupe de mots » sans « groupe sujet ».
+- **Pour la démarche « fonctions » (section 10)** : utiliser « groupe sujet », « groupe prédicat » et « groupe complément circonstanciel » dans le cadre « Programme ». Le cadre « Grammaire 3D » les traduit par ses propres noms (« groupe sujet », « prédicat », « compl. de phrase » dans son fichier `fonctions.ts`).
+- Valable pour tout futur module : mot courant ambigu = le contextualiser, ou employer le mot du programme.

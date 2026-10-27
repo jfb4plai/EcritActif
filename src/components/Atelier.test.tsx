@@ -78,7 +78,7 @@ describe('Atelier : le verbe et son sujet', () => {
     await cliquer(/Phrase 2/);
     await verbeSujet();
     expect(screen.getByRole('heading', { name: /Trouver le verbe/ })).toBeInTheDocument();
-    expect(screen.getByText(/Changer le moment de la phrase/)).toBeInTheDocument();
+    expect(screen.getByText(/Changer le temps de la phrase \(le moment où l’action se passe\)/)).toBeInTheDocument();
     const mot = screen.getByRole('button', { name: 'prépare' });
     expect(mot).toHaveAttribute('aria-pressed', 'false');
     await userEvent.click(mot);
@@ -97,7 +97,8 @@ describe('Atelier : le verbe et son sujet', () => {
   test('étape 2 : marquer le sujet et choisir un pronom parmi il, elle, ils, elles', async () => {
     monter();
     await jusquauSujet();
-    expect(screen.getByRole('heading', { name: /Trouver le sujet/ })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Trouver le groupe sujet/ })).toBeInTheDocument();
+    expect(screen.getByText(/Chercher le groupe sujet : le groupe de mots qui fait l’action du verbe/)).toBeInTheDocument();
     expect(screen.getAllByRole('radio').map((r) => (r as HTMLInputElement).value)).toEqual(['il', 'elle', 'ils', 'elles']);
     expect(screen.getByRole('button', { name: /Étape suivante/ })).toBeDisabled();
     await cliquer('élèves');
@@ -148,7 +149,7 @@ describe('Atelier : justifier et décider (verbe et sujet)', () => {
     monter();
     await jusquauBout();
     expect(screen.getByRole('heading', { name: /Justifier/ })).toBeInTheDocument();
-    expect(screen.getByLabelText('Le sujet est')).toHaveValue('élèves');
+    expect(screen.getByLabelText('Le groupe sujet est')).toHaveValue('élèves');
     expect(screen.getByLabelText('Je peux le remplacer par')).toHaveValue('ils');
     expect(screen.getByLabelText('Le verbe')).toHaveValue('prépare');
     expect(screen.getByLabelText('se termine par')).toHaveValue('e');
@@ -183,7 +184,7 @@ describe('Atelier : justifier et décider (verbe et sujet)', () => {
   test('la justification tracée est limitée en taille (champs de 60 signes, événement de 300 au plus)', async () => {
     const { tracer } = monter();
     await jusquauBout();
-    for (const libelle of ['Le sujet est', 'Je peux le remplacer par', 'Le verbe', 'se termine par']) {
+    for (const libelle of ['Le groupe sujet est', 'Je peux le remplacer par', 'Le verbe', 'se termine par']) {
       const champ = screen.getByLabelText(libelle);
       await userEvent.clear(champ);
       await userEvent.click(champ);

@@ -114,7 +114,7 @@ describe('Tableau : atelier de grammaire', () => {
 
   test('la justification de l’élève est lisible, en phrase', () => {
     montrer(unAtelier);
-    expect(screen.getByText(/Le sujet est élèves\. Je peux le remplacer par ils\. Le verbe prépare se termine par e\./)).toBeInTheDocument();
+    expect(screen.getByText(/Le groupe sujet est élèves\. Je peux le remplacer par ils\. Le verbe prépare se termine par e\./)).toBeInTheDocument();
     expect(screen.getByText(/Le nom est chats\. Il est masculin et plusieurs\./)).toBeInTheDocument();
   });
 

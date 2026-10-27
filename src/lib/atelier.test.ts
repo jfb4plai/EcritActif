@@ -72,6 +72,17 @@ describe('atelier de raisonnement grammatical : démarches', () => {
     for (const c of d.champs) expect(cles, `${c.depuis.kind}:${c.depuis.cle}`).toContain(`${c.depuis.kind}:${c.depuis.cle}`);
   });
 
+  test('les termes du programme sont employés : groupe sujet, temps ; « moment » n’apparaît jamais sans « temps »', () => {
+    const consignes = VERBE_SUJET.etapes.flatMap((e) => e.consignes).join(' ');
+    expect(consignes).toContain('groupe sujet');
+    expect(VERBE_SUJET.gabarit).toContain('Le groupe sujet est');
+    for (const e of VERBE_SUJET.etapes) for (const c of e.consignes) if (/moment/i.test(c)) expect(c, c).toMatch(/temps/);
+  });
+
+  test('« groupe de mots » n’est jamais seul : il est suivi du terme du programme', () => {
+    for (const c of VERBE_SUJET.etapes.flatMap((e) => e.consignes)) if (/groupe de mots/.test(c)) expect(c, c).toMatch(/groupe sujet/);
+  });
+
   test('le gabarit repris par la chasse est celui du verbe et du sujet', () => {
     expect(GABARIT_JUSTIFICATION).toBe(VERBE_SUJET.gabarit);
   });
@@ -79,7 +90,7 @@ describe('atelier de raisonnement grammatical : démarches', () => {
 
 describe('justificationEnPhrase : phrase lue dans le tableau', () => {
   test('verbe et sujet', () => {
-    expect(justificationEnPhrase('verbe-sujet:élèves|ils|prépare|e')).toBe('Le sujet est élèves. Je peux le remplacer par ils. Le verbe prépare se termine par e.');
+    expect(justificationEnPhrase('verbe-sujet:élèves|ils|prépare|e')).toBe('Le groupe sujet est élèves. Je peux le remplacer par ils. Le verbe prépare se termine par e.');
   });
   test('groupe nominal', () => {
     expect(justificationEnPhrase('groupe-nominal:élèves|masculin|plusieurs|Les|s')).toBe('Le nom est élèves. Il est masculin et plusieurs. Le mot Les s’accorde avec lui : il se termine par s.');

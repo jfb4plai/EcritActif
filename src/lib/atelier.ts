@@ -61,10 +61,10 @@ const DECIDER: Etape = {
 export const VERBE_SUJET: Demarche = {
   id: 'verbe-sujet',
   titre: 'Le verbe et son sujet',
-  gabarit: 'Le sujet est ______ . Je peux le remplacer par ______ . Le verbe ______ se termine par ______ .',
-  modele: 'Le sujet est {0}. Je peux le remplacer par {1}. Le verbe {2} se termine par {3}.',
+  gabarit: 'Le groupe sujet est ______ . Je peux le remplacer par ______ . Le verbe ______ se termine par ______ .',
+  modele: 'Le groupe sujet est {0}. Je peux le remplacer par {1}. Le verbe {2} se termine par {3}.',
   champs: [
-    { libelle: 'Le sujet est', depuis: { kind: 'mots', cle: 'sujet' } },
+    { libelle: 'Le groupe sujet est', depuis: { kind: 'mots', cle: 'sujet' } },
     { libelle: 'Je peux le remplacer par', depuis: { kind: 'choix', cle: 'pronom' } },
     { libelle: 'Le verbe', depuis: { kind: 'mots', cle: 'verbe' } },
     { libelle: 'se termine par', depuis: { kind: 'texte', cle: 'fin' } },
@@ -74,17 +74,17 @@ export const VERBE_SUJET: Demarche = {
     {
       id: 'verbe',
       titre: 'Trouver le verbe',
-      consignes: ['Changer le moment de la phrase : ajouter « hier » ou « demain » au début.', 'Regarder le mot qui change.', 'Cliquer sur ce mot : c’est le verbe.'],
+      consignes: ['Changer le temps de la phrase (le moment où l’action se passe) : ajouter « hier » ou « demain » au début.', 'Regarder le mot qui change.', 'Cliquer sur ce mot : c’est le verbe.'],
       codes: ['F431', 'F543'],
       elements: [{ kind: 'marquer', cle: 'verbe', min: 1 }],
     },
     {
       id: 'sujet',
-      titre: 'Trouver le sujet',
+      titre: 'Trouver le groupe sujet',
       consignes: [
-        'Chercher le groupe de mots qui fait l’action du verbe.',
-        'Remplacer ce groupe par il, elle, ils ou elles.',
-        'Cliquer sur le groupe de mots remplacé.',
+        'Chercher le groupe sujet : le groupe de mots qui fait l’action du verbe.',
+        'Remplacer le groupe sujet par il, elle, ils ou elles.',
+        'Cliquer sur le groupe sujet.',
         'Choisir le pronom qui convient.',
       ],
       codes: ['F441', 'F558'],
