@@ -349,3 +349,51 @@ describe('NouvelleActivite : comportement', () => {
     expect(document.body.textContent).not.toMatch(/Seuls les principes validés sont proposés aux élèves/);
   });
 });
+
+describe('NouvelleActivite : contrainte d’écriture (jeu de lettre)', () => {
+  test('par défaut aucune contrainte : rien d’enregistré', async () => {
+    const { onEnregistrer } = formulaire();
+    await userEvent.type(screen.getByLabelText(/consigne pour les élèves/i), 'Écrire.');
+    await userEvent.click(screen.getByRole('button', { name: /enregistrer/i }));
+    const c = onEnregistrer.mock.calls[0][0].contraintes;
+    expect(c.initiale).toBeUndefined();
+    expect(c.lettreInterdite).toBeUndefined();
+  });
+
+  test('le champ lettre n’apparaît qu’une fois un jeu choisi, avec placeholder et aide', async () => {
+    formulaire();
+    expect(screen.queryByLabelText(/^lettre$/i)).not.toBeInTheDocument();
+    await userEvent.selectOptions(screen.getByLabelText(/contrainte d.écriture/i), 'lettreInterdite');
+    const champ = screen.getByLabelText(/^lettre$/i);
+    expect(champ.getAttribute('placeholder')).toBeTruthy();
+    const id = champ.getAttribute('aria-describedby');
+    expect(document.getElementById(id as string)?.textContent?.length).toBeGreaterThan(20);
+  });
+
+  test('lettre interdite enregistrée en minuscule', async () => {
+    const { onEnregistrer } = formulaire();
+    await userEvent.type(screen.getByLabelText(/consigne pour les élèves/i), 'Écrire.');
+    await userEvent.selectOptions(screen.getByLabelText(/contrainte d.écriture/i), 'lettreInterdite');
+    await userEvent.type(screen.getByLabelText(/^lettre$/i), 'R');
+    await userEvent.click(screen.getByRole('button', { name: /enregistrer/i }));
+    expect(onEnregistrer.mock.calls[0][0].contraintes).toEqual({ lettreInterdite: 'r' });
+  });
+
+  test('initiale enregistrée', async () => {
+    const { onEnregistrer } = formulaire();
+    await userEvent.type(screen.getByLabelText(/consigne pour les élèves/i), 'Écrire.');
+    await userEvent.selectOptions(screen.getByLabelText(/contrainte d.écriture/i), 'initiale');
+    await userEvent.type(screen.getByLabelText(/^lettre$/i), 'm');
+    await userEvent.click(screen.getByRole('button', { name: /enregistrer/i }));
+    expect(onEnregistrer.mock.calls[0][0].contraintes).toEqual({ initiale: 'm' });
+  });
+
+  test('un jeu choisi sans lettre valide : pas d’enregistrement et un message', async () => {
+    const { onEnregistrer } = formulaire();
+    await userEvent.type(screen.getByLabelText(/consigne pour les élèves/i), 'Écrire.');
+    await userEvent.selectOptions(screen.getByLabelText(/contrainte d.écriture/i), 'initiale');
+    await userEvent.click(screen.getByRole('button', { name: /enregistrer/i }));
+    expect(onEnregistrer).not.toHaveBeenCalled();
+    expect(screen.getByRole('alert')).toHaveTextContent(/une seule lettre/i);
+  });
+});

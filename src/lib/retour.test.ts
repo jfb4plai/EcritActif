@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { compterMots, detecterSignaux, verifierContraintes } from './retour';
+import { compterMots, detecterSignaux, verifierContraintes, motsFautifs } from './retour';
 
 describe('compterMots', () => {
   test('l’apostrophe droite ou typographique ne coupe pas un mot', () => {
@@ -68,5 +68,40 @@ describe('verifierContraintes', () => {
   });
   test('sans contrainte : liste vide', () => {
     expect(verifierContraintes('abc', {})).toEqual([]);
+  });
+});
+
+describe('contraintes d’écriture : initiale et lettre interdite', () => {
+  test('initiale : les mots qui ne commencent pas par la lettre sont repérés, sans tenir compte des accents ni de la casse', () => {
+    expect(motsFautifs('Maman mange des Épinards', { initiale: 'm' }).map((f) => f.mot)).toEqual(['des', 'Épinards']);
+    expect(motsFautifs('école élève', { initiale: 'e' })).toEqual([]);
+  });
+  test('lettre interdite : les mots qui la contiennent sont repérés, accentuée ou non', () => {
+    expect(motsFautifs('Le chat mange', { lettreInterdite: 'r' })).toEqual([]);
+    expect(motsFautifs('Le renard dort. Mère', { lettreInterdite: 'r' }).map((f) => f.mot)).toEqual(['renard', 'dort', 'Mère']);
+    expect(motsFautifs('éléphant', { lettreInterdite: 'e' }).map((f) => f.mot)).toEqual(['éléphant']);
+  });
+  test('les positions permettent de surligner le mot', () => {
+    const [f] = motsFautifs('un renard', { lettreInterdite: 'r' });
+    expect('un renard'.slice(f.debut, f.fin)).toBe('renard');
+  });
+  test('verifierContraintes : message avec les mots fautifs et une action', () => {
+    const [v] = verifierContraintes('Maman mange des pommes', { initiale: 'm' });
+    expect(v.contrainte).toBe('initiale');
+    expect(v.atteinte).toBe(false);
+    expect(v.message).toContain('des');
+    expect(v.message).toContain('pommes');
+    expect(v.message).toMatch(/Change/);
+  });
+  test('verifierContraintes : contrainte respectée', () => {
+    const [v] = verifierContraintes('Maman mange', { initiale: 'm' });
+    expect(v.atteinte).toBe(true);
+  });
+  test('texte vide : rien à reprocher', () => {
+    expect(verifierContraintes('', { lettreInterdite: 'r' })[0].atteinte).toBe(true);
+  });
+  test('valeur invalide (plus d’une lettre, chiffre) ignorée', () => {
+    expect(verifierContraintes('abc', { initiale: 'ab' })).toEqual([]);
+    expect(verifierContraintes('abc', { lettreInterdite: '1' })).toEqual([]);
   });
 });

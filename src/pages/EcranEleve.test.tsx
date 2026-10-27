@@ -806,3 +806,30 @@ describe('EcranEleve : chasse aux erreurs (voie B)', () => {
   });
 });
 
+describe('EcranEleve : contrainte d’écriture (jeu de lettre)', () => {
+  async function jusquAuTemps(texte: string, temps: 'relire' | 'corriger', a = activite(), api = apiDeTest()) {
+    render(<EcranEleve activite={a} eleveId="el1" jeton="j" api={api} delaiSauvegardeMs={0} />);
+    await versEcriture();
+    await userEvent.type(screen.getByLabelText(/mon texte/i), texte);
+    await userEvent.click(screen.getByRole('button', { name: /fini d.écrire/i }));
+    if (temps === 'corriger') await userEvent.click(screen.getByRole('button', { name: /passer à la correction/i }));
+    return api;
+  }
+
+  test('à la relecture, la question cite les mots à changer', async () => {
+    await jusquAuTemps('Maman mange des pommes.', 'relire', activite({ contraintes: { initiale: 'm' }, principeIds: [], categories: [] }));
+    expect(screen.getByText(/commencent par M/)).toBeInTheDocument();
+    expect(screen.getByText(/« des », « pommes »/)).toBeInTheDocument();
+  });
+
+  test('à la correction, les mots fautifs sont surlignés, sans mot de remplacement', async () => {
+    await jusquAuTemps('Le renard dort.', 'corriger', activite({ contraintes: { lettreInterdite: 'r' }, principeIds: [], categories: [] }));
+    const marques = Array.from(document.querySelectorAll('mark')).map((m) => m.textContent);
+    expect(marques).toEqual(['renard', 'dort']);
+  });
+
+  test('contrainte respectée : aucune alerte de lettre', async () => {
+    await jusquAuTemps('Le chat mange.', 'corriger', activite({ contraintes: { lettreInterdite: 'r' }, principeIds: [], categories: [] }));
+    expect(document.querySelectorAll('mark')).toHaveLength(0);
+  });
+});

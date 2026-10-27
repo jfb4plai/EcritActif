@@ -18,7 +18,7 @@ import { PALETTE, TEXTE_SOMBRE } from '../lib/palette';
 import { ATTRIBUTION_ARASAAC } from '../lib/pictos';
 import { principeParId } from '../lib/principes';
 import { EXPLICATION_QUESTION, explicationDe } from '../lib/explications';
-import { detecterSignaux, recapRendu, verifierContraintes } from '../lib/retour';
+import { detecterSignaux, motsFautifs, recapRendu, verifierContraintes } from '../lib/retour';
 import type { AutoEvaluation, Phase } from '../types';
 
 export interface ApiEleve {
@@ -217,6 +217,8 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
   const critere = questionsRelire.find((q) => q.id === critereId);
 
   const signaux = useMemo(() => detecterSignaux(texte, activite.categories), [texte, activite.categories]);
+  // Contrainte d'écriture (jeu de lettre) : les mots fautifs sont montrés, jamais remplacés.
+  const fautifs = useMemo(() => motsFautifs(texte, activite.contraintes), [texte, activite.contraintes]);
   const categorieActive = signaux[0]?.categorie;
   const signauxActifs = signaux.filter((s) => s.categorie === categorieActive);
 
@@ -374,7 +376,21 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
               ))}
             </ul>
           ) : (
-            <p>Rien à signaler pour le moment.</p>
+            fautifs.length === 0 && <p>Rien à signaler pour le moment.</p>
+          )}
+          {fautifs.length > 0 && (
+            <ul>
+              {fautifs.map((f, i) => (
+                <li key={'lettre' + i}>
+                  Ce mot ne respecte pas la contrainte de lettre :{' '}
+                  <q>
+                    {texte.slice(Math.max(0, f.debut - 12), f.debut)}
+                    <mark>{texte.slice(f.debut, f.fin)}</mark>
+                    {texte.slice(f.fin, f.fin + 12)}
+                  </q>
+                </li>
+              ))}
+            </ul>
           )}
           {chasseDispo && !rendu && (
             <div>

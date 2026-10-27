@@ -57,6 +57,9 @@ export default function NouvelleActivite({ annee: anneeDepart, niveauClasse, onE
   const [consigne, setConsigne] = useState('');
   const [minMots, setMinMots] = useState('');
   const [maxMots, setMaxMots] = useState('');
+  const [jeu, setJeu] = useState<'' | 'initiale' | 'lettreInterdite'>('');
+  const [lettreJeu, setLettreJeu] = useState('');
+  const [erreurJeu, setErreurJeu] = useState('');
   const [itemIds, setItemIds] = useState<string[]>([]);
   const [principeIds, setPrincipeIds] = useState<string[]>([]);
   const [categories, setCategories] = useState<CategorieErreur[]>([]);
@@ -104,6 +107,15 @@ export default function NouvelleActivite({ annee: anneeDepart, niveauClasse, onE
     }
     setErreurChasse('');
     const contraintes: Contraintes = {};
+    if (jeu !== '') {
+      const l = lettreJeu.trim();
+      if (!/^\p{L}$/u.test(l)) {
+        setErreurJeu('Indiquez une seule lettre (par exemple m ou r).');
+        return;
+      }
+      contraintes[jeu] = l.toLowerCase();
+    }
+    setErreurJeu('');
     if (minMots !== '') contraintes.minMots = Number(minMots);
     if (maxMots !== '') contraintes.maxMots = Number(maxMots);
     onEnregistrer({
@@ -153,6 +165,24 @@ export default function NouvelleActivite({ annee: anneeDepart, niveauClasse, onE
         <input id="max" type="number" min={0} className="plai-input" value={maxMots} onChange={(e) => setMaxMots(e.target.value)} placeholder="40" aria-describedby="aide-max" />
         <p id="aide-max" className="text-sm">Laisser vide pour ne pas fixer de maximum. Utile pour les élèves qui écrivent beaucoup et se perdent.</p>
       </div>
+
+      <div>
+        <label htmlFor="jeu">Contrainte d’écriture (facultatif)</label>
+        <select id="jeu" className="plai-input" value={jeu} onChange={(e) => setJeu(e.target.value as '' | 'initiale' | 'lettreInterdite')} aria-describedby="aide-jeu">
+          <option value="">Aucune</option>
+          <option value="initiale">Tous les mots commencent par une lettre</option>
+          <option value="lettreInterdite">Une lettre est interdite</option>
+        </select>
+        <p id="aide-jeu" className="text-sm">Jeu d’écriture : à la relecture, l’élève voit les mots qui ne respectent pas la contrainte et décide lui-même comment les changer. L’app ne propose jamais de remplaçant. Ce n’est pas un item du programme : à vous de juger s’il convient à votre classe.</p>
+      </div>
+      {jeu !== '' && (
+        <div>
+          <label htmlFor="lettre-jeu">Lettre</label>
+          <input id="lettre-jeu" className="plai-input" maxLength={1} value={lettreJeu} onChange={(e) => setLettreJeu(e.target.value)} placeholder={jeu === 'initiale' ? 'm' : 'r'} aria-describedby="aide-lettre-jeu" />
+          <p id="aide-lettre-jeu" className="text-sm">Une seule lettre. Les accents et les majuscules sont ignorés : « é » compte comme « e ». Exemple : r interdite, le mot « dort » est signalé.</p>
+          {erreurJeu && <p role="alert" className="plai-error">{erreurJeu}</p>}
+        </div>
+      )}
 
       <fieldset>
         <legend>Items du programme CECP travaillés ({annee})</legend>

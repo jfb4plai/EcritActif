@@ -11,6 +11,9 @@ export interface Signal {
 export interface Contraintes {
   minMots?: number;
   maxMots?: number;
+  // Jeux d'écriture choisis par l'enseignant : une seule lettre (accent et casse ignorés).
+  initiale?: string;
+  lettreInterdite?: string;
 }
 
 export interface Verification {
@@ -75,6 +78,32 @@ export function detecterSignaux(texte: string, categories: CategorieErreur[]): S
 
 const pluriel = (n: number, mot: string) => `${n} ${mot}${n >= 2 ? 's' : ''}`;
 
+const sansAccent = (x: string) => x.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const lettreValide = (l: unknown): l is string => typeof l === 'string' && /^\p{L}$/u.test(l.normalize('NFD').replace(/[̀-ͯ]/g, ''));
+
+export interface MotFautif {
+  mot: string;
+  debut: number;
+  fin: number;
+}
+
+// Mots qui ne respectent pas la contrainte de lettre. Ne propose jamais de remplaçant.
+export function motsFautifs(texte: string, c: Contraintes): MotFautif[] {
+  const fautifs: MotFautif[] = [];
+  const ini = lettreValide(c.initiale) ? sansAccent(c.initiale) : null;
+  const interdite = lettreValide(c.lettreInterdite) ? sansAccent(c.lettreInterdite) : null;
+  if (!ini && !interdite) return fautifs;
+  for (const m of texte.matchAll(MOT)) {
+    const mot = m[0];
+    const base = sansAccent(mot);
+    const faute = (ini !== null && !base.startsWith(ini)) || (interdite !== null && base.includes(interdite));
+    if (faute) fautifs.push({ mot, debut: m.index ?? 0, fin: (m.index ?? 0) + mot.length });
+  }
+  return fautifs;
+}
+
+const listeMots = (f: MotFautif[]) => [...new Set(f.map((x) => x.mot))].map((m) => `« ${m} »`).join(', ');
+
 // Un retour qui informe : les chiffres, puis quoi faire (qualité de la rétroaction, voir qualite.ts).
 export function verifierContraintes(texte: string, c: Contraintes): Verification[] {
   const n = compterMots(texte);
@@ -95,6 +124,17 @@ export function verifierContraintes(texte: string, c: Contraintes): Verification
       message: atteinte ? `Ton texte a ${pluriel(n, 'mot')} : c’est ce qui est demandé.` : `Ton texte a ${pluriel(n, 'mot')} ; il en faut au plus ${c.maxMots}. Garde l’essentiel.`,
     });
   }
+  const jeu = (cle: 'initiale' | 'lettreInterdite', c1: Contraintes, ok: string, ko: (l: string) => string) => {
+    const f = motsFautifs(texte, c1);
+    const lettre = c1[cle]!.toUpperCase();
+    r.push({
+      contrainte: cle,
+      atteinte: f.length === 0,
+      message: f.length === 0 ? ok.replace('{l}', lettre) : `${ko(lettre)} Mots à changer : ${listeMots(f)}. Change chaque mot, puis relis.`,
+    });
+  };
+  if (lettreValide(c.initiale)) jeu('initiale', { initiale: c.initiale }, 'Tous tes mots commencent par {l} : c’est ce qui est demandé.', (l) => `Il faut des mots qui commencent par ${l}.`);
+  if (lettreValide(c.lettreInterdite)) jeu('lettreInterdite', { lettreInterdite: c.lettreInterdite }, 'Aucun mot ne contient la lettre {l} : c’est ce qui est demandé.', (l) => `La lettre ${l} est interdite.`);
   return r;
 }
 
