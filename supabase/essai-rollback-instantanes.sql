@@ -46,6 +46,8 @@ drop policy if exists ecrit_instantanes_lecture on public.ecrit_instantanes;
 create policy ecrit_instantanes_lecture on public.ecrit_instantanes
   for select to authenticated using (public.ecrit_est_mon_activite(activite_id));
 
+-- Supabase accorde par défaut tous les droits aux rôles anon et authenticated sur une nouvelle table : on les retire d'abord.
+revoke all on public.ecrit_instantanes from anon, authenticated;
 grant select on public.ecrit_instantanes to authenticated;
 grant select, insert, update, delete on public.ecrit_instantanes to service_role;
 
@@ -80,6 +82,9 @@ begin
   rapport := rapport || E'\n' || case
     when has_table_privilege('authenticated', 'public.ecrit_instantanes', 'select')
      and not has_table_privilege('authenticated', 'public.ecrit_instantanes', 'insert')
+     and not has_table_privilege('authenticated', 'public.ecrit_instantanes', 'update')
+     and not has_table_privilege('authenticated', 'public.ecrit_instantanes', 'delete')
+     and not has_table_privilege('anon', 'public.ecrit_instantanes', 'select')
      and has_table_privilege('service_role', 'public.ecrit_instantanes', 'insert')
     then 'OK : authenticated lit seulement, service_role écrit'
     else 'ÉCHEC : droits (authenticated doit lire seulement, service_role écrire)' end;
