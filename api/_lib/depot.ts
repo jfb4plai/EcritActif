@@ -30,9 +30,9 @@ export function depotSupabase(): Depot {
 
   return {
     async classeParCode(code) {
-      const { data, error } = await db.from('ecrit_classes').select('id').eq('code_classe', code).maybeSingle();
+      const { data, error } = await db.from('ecrit_classes').select('id, mots_acceptes').eq('code_classe', code).maybeSingle();
       if (error) throw error;
-      return data ? { id: data.id } : null;
+      return data ? { id: data.id, motsAcceptes: data.mots_acceptes ?? [] } : null;
     },
     async eleveParCode(classeId, code) {
       const { data, error } = await db.from('ecrit_eleves').select('id, aides, colorisation').eq('classe_id', classeId).eq('code_eleve', code).maybeSingle();

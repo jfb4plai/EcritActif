@@ -992,4 +992,12 @@ describe('EcranEleve : ce que l’application regarde, mots absents de la liste,
     expect(marques).toEqual(['pomes']);
     expect(screen.getByTestId('limites-app')).toHaveTextContent('Mots ajoutés par ton enseignant, jamais signalés : trémie.');
   });
+
+  test('mots acceptés de la classe : plus signalés, annoncés à l’élève', async () => {
+    vi.mocked(chargerDictionnaire).mockResolvedValue((m: string) => !['pomes', 'cointe'].includes(m.toLowerCase()));
+    await versRelecture(activite({ annee: 'P1', categories: ['mot_inconnu'], motsClasse: ['Cointe'], reprise: { texte: 'Je vais à Cointe avec des pomes.', version: 1, phase: 'ecrire' } }));
+    await waitFor(() => expect(screen.getByText(/n’est pas dans la liste de mots/)).toBeInTheDocument());
+    expect(Array.from(document.querySelectorAll('mark')).map((m) => m.textContent)).toEqual(['pomes']);
+    expect(screen.getByTestId('limites-app')).toHaveTextContent('Mots ajoutés par ton enseignant, jamais signalés : Cointe.');
+  });
 });

@@ -1,3 +1,4 @@
+import { lireMotsAcceptes } from './dictionnaire';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { ActiviteNouvelle } from '../pages/NouvelleActivite';
 import type { LigneEleve } from '../pages/Tableau';
@@ -16,6 +17,8 @@ export interface ClasseLigne {
   code_classe: string;
   // Année scolaire de la classe : valeur de départ des nouvelles activités. Vide pour les classes créées avant ce champ.
   niveau: Annee | null;
+  // Mots locaux acceptés dans toutes les activités de la classe (signal « mot absent de la liste »).
+  motsAcceptes: string[];
 }
 
 export interface EleveLigne {
@@ -36,9 +39,9 @@ export interface ActiviteLigne {
 const CONFLIT = '23505';
 
 export async function listerClasses(db: SupabaseClient): Promise<ClasseLigne[]> {
-  const { data, error } = await db.from('ecrit_classes').select('id, nom, code_classe, niveau').order('created_at', { ascending: false });
+  const { data, error } = await db.from('ecrit_classes').select('id, nom, code_classe, niveau, mots_acceptes').order('created_at', { ascending: false });
   if (error) throw error;
-  return (data ?? []).map((r) => ({ ...r, niveau: r.niveau ?? null }));
+  return (data ?? []).map(({ mots_acceptes, ...r }) => ({ ...r, niveau: r.niveau ?? null, motsAcceptes: mots_acceptes ?? [] }));
 }
 
 // Ce qui est écrit en base pour une nouvelle classe (fonction pure, testée) : le niveau est obligatoire.
@@ -53,10 +56,22 @@ export async function modifierNiveauClasse(db: SupabaseClient, classeId: string,
   if (error) throw error;
 }
 
+// Mots acceptés de la classe : mêmes règles que pour une activité (mots seuls, 50 au plus). Remplace la liste précédente.
+export async function modifierMotsClasse(db: SupabaseClient, classeId: string, saisie: string): Promise<string[]> {
+  const { mots, invalides } = lireMotsAcceptes(saisie);
+  if (invalides.length > 0) throw new Error(`Mots non reconnus : ${invalides.join(', ')}`);
+  const { error } = await db.from('ecrit_classes').update({ mots_acceptes: mots }).eq('id', classeId);
+  if (error) throw error;
+  return mots;
+}
+
 export async function creerClasse(db: SupabaseClient, userId: string, nom: string, niveau: Annee): Promise<ClasseLigne> {
   for (let essai = 0; essai < 5; essai++) {
-    const { data, error } = await db.from('ecrit_classes').insert(ligneClasse(userId, nom, genererCode(6), niveau)).select('id, nom, code_classe, niveau').single();
-    if (!error) return { ...data, niveau: data.niveau ?? null };
+    const { data, error } = await db.from('ecrit_classes').insert(ligneClasse(userId, nom, genererCode(6), niveau)).select('id, nom, code_classe, niveau, mots_acceptes').single();
+    if (!error) {
+      const { mots_acceptes, ...reste } = data;
+      return { ...reste, niveau: reste.niveau ?? null, motsAcceptes: mots_acceptes ?? [] };
+    }
     if (error.code !== CONFLIT) throw error;
   }
   throw new Error('Impossible de générer un code de classe unique.');

@@ -17,6 +17,7 @@ import {
   listerClasses,
   listerEleves,
   modifierAidesRetirees,
+  modifierMotsClasse,
   modifierNiveauClasse,
   reglerAides,
   reglerColorisation,
@@ -28,6 +29,7 @@ import {
 import { getSupabase } from '../lib/supabase';
 import { lireSurnoms } from '../lib/surnoms';
 import type { Annee } from '../types';
+import MotsClasse from '../components/MotsClasse';
 import NouvelleActivite from './NouvelleActivite';
 import Tableau, { type LigneEleve } from './Tableau';
 
@@ -169,6 +171,8 @@ export default function Classe() {
           ))}
         </ul>
       </section>
+
+      <MotsClasse initial={classe.motsAcceptes} onEnregistrer={(saisie) => modifierMotsClasse(getSupabase(), id, saisie)} />
 
       <section aria-label="Activités">
         <h2>Activités</h2>

@@ -36,7 +36,7 @@ export interface EleveBrut {
 }
 
 export interface Depot {
-  classeParCode(code: string): Promise<{ id: string } | null>;
+  classeParCode(code: string): Promise<{ id: string; motsAcceptes?: string[] } | null>;
   eleveParCode(classeId: string, code: string): Promise<EleveBrut | null>;
   eleve(id: string): Promise<EleveBrut | null>;
   activites(classeId: string): Promise<ActiviteBrute[]>;
@@ -64,6 +64,8 @@ export interface ActiviteEleve {
   aidesRetirees: { id: AideId; raison: string }[];
   // Apports propres à l'enseignant : ses mots utiles et ses questions s'ajoutent aux questions fixes.
   banqueMots: string[];
+  // Mots locaux acceptés dans toute la classe (réglage de la classe, pas de l'activité).
+  motsClasse?: string[];
   principesPerso: { phase: Phase; question: string }[];
   atelier: boolean;
   // Colorisation : mode de départ et modes permis ; null = comportement habituel.
@@ -103,7 +105,7 @@ export function enObjet(x: unknown): Record<string, unknown> | null {
   return typeof x === 'object' && x !== null ? (x as Record<string, unknown>) : null;
 }
 
-function versEleve(a: ActiviteBrute, eleve: EleveBrut, reprise: { texte: string; version: number; phase: string } | null): ActiviteEleve {
+function versEleve(a: ActiviteBrute, eleve: EleveBrut, reprise: { texte: string; version: number; phase: string } | null, motsClasse: string[] = []): ActiviteEleve {
   return {
     id: a.id,
     annee: a.annee,
@@ -115,6 +117,7 @@ function versEleve(a: ActiviteBrute, eleve: EleveBrut, reprise: { texte: string;
     aides: resoudreAides(eleve.aides, a.aidesRetirees),
     aidesRetirees: a.aidesRetirees,
     banqueMots: a.banqueMots,
+    motsClasse,
     principesPerso: a.principesPerso,
     atelier: a.atelier,
     colorisation: nettoyerReglages(eleve.colorisation),
@@ -139,7 +142,7 @@ export async function ouvrirEleve(depot: Depot, secret: string, body: unknown): 
     corps: {
       jeton: signerJeton({ eleveId: eleve.id, classeId: classe.id }, secret),
       eleveId: eleve.id,
-      activites: activites.map((a, i) => versEleve(a, eleve, reprises[i])),
+      activites: activites.map((a, i) => versEleve(a, eleve, reprises[i], classe.motsAcceptes ?? [])),
     },
   };
 }

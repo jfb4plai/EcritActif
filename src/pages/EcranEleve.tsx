@@ -220,8 +220,8 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
   const critereId = choisirCritere(questionsRelire.map((q) => q.id), deja);
   const critere = questionsRelire.find((q) => q.id === critereId);
 
-  // Mots acceptés par l'enseignant (contraintes.motsAcceptes) et « mots utiles » de l'activité : jamais signalés comme absents de la liste.
-  const motsAcceptes = useMemo(() => [...(activite.contraintes?.motsAcceptes ?? []), ...activite.banqueMots], [activite]);
+  // Mots acceptés par l'enseignant (de l'activité, puis de la classe) et « mots utiles » de l'activité : jamais signalés comme absents de la liste.
+  const motsAcceptes = useMemo(() => [...(activite.contraintes?.motsAcceptes ?? []), ...(activite.motsClasse ?? []), ...activite.banqueMots], [activite]);
   const connuFinal = useMemo(() => (connu ? avecMotsAcceptes(connu, motsAcceptes) : undefined), [connu, motsAcceptes]);
   const signaux = useMemo(() => detecterSignaux(texte, activite.categories, connuFinal), [texte, activite.categories, connuFinal]);
   // Contrainte d'écriture (jeu de lettre) : les mots fautifs sont montrés, jamais remplacés.

@@ -34,7 +34,7 @@ function depotDeTest() {
     chasse: r.chasse,
   };
   const depot: Depot = {
-    classeParCode: async (code) => (code === 'ABCDEF' ? { id: 'cl1' } : null),
+    classeParCode: async (code) => (code === 'ABCDEF' ? { id: 'cl1', motsAcceptes: ['Cointe', 'Outremeuse'] } : null),
     eleveParCode: async (classeId, code) => (classeId === 'cl1' && code === 'KMNPQR' ? { id: 'el1', aides: ['dictee-vocale', 'colorisation'] } : null),
     activites: async (classeId) => (classeId === 'cl1' ? [activite] : []),
     activite: async (id) => (id === 'act1' ? activite : null),
@@ -94,6 +94,14 @@ describe('ouvrirEleve', () => {
       { id: 'dictee-vocale', active: false, raison: 'On vérifie le geste d’écrire.' },
       { id: 'colorisation', active: true },
     ]);
+  });
+
+  test('les mots acceptés de la classe arrivent dans chaque activité de l’élève', async () => {
+    const { depot } = depotDeTest();
+    const r = await ouvrirEleve(depot, SECRET, { codeClasse: 'ABCDEF', codeEleve: 'KMNPQR' });
+    expect(r.status).toBe(200);
+    if (r.status !== 200) return;
+    expect(r.corps.activites[0].motsClasse).toEqual(['Cointe', 'Outremeuse']);
   });
 
   test('mauvais code de classe et mauvais code d’élève : même réponse 404', async () => {
