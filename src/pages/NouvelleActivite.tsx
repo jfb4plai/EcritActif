@@ -289,7 +289,7 @@ export default function NouvelleActivite({ annee: anneeDepart, niveauClasse, onE
         {categories.includes('mot_inconnu') && (
           <div>
             <label htmlFor="mots-acceptes">Mots que la liste ne connaît pas mais que vous acceptez</label>
-            <input id="mots-acceptes" className="plai-input" value={motsAcceptes} onChange={(e) => setMotsAcceptes(e.target.value)} placeholder="trémie, Cointe, Outremeuse" aria-describedby="aide-acceptes" />
+            <input id="mots-acceptes" className="plai-input" value={motsAcceptes} onChange={(e) => setMotsAcceptes(e.target.value)} placeholder="Cointe, Outremeuse" aria-describedby="aide-acceptes" />
             <p id="aide-acceptes" className="text-sm">
               Mots locaux ou propres à votre activité, séparés par des virgules. Ils ne seront plus signalés pour les élèves de cette activité. Attention : l’application accepte ces mots tels que vous les écrivez ici. Une faute de votre part sera acceptée chez l’élève. Les « mots utiles » ci-dessus sont aussi acceptés. Seuls les mots seuls sont possibles, pas les expressions.
             </p>
