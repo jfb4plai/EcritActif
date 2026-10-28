@@ -5,8 +5,8 @@ import ListeClasses from './ListeClasses';
 import type { ClasseLigne } from '../lib/enseignant';
 
 const classes: ClasseLigne[] = [
-  { id: 'c1', nom: 'essai', code_classe: 'PAPAG4', niveau: 'P4' },
-  { id: 'c2', nom: '2e A', code_classe: 'KMNPQR', niveau: null },
+  { id: 'c1', nom: 'essai', code_classe: 'PAPAG4', niveau: 'P4', motsAcceptes: [] },
+  { id: 'c2', nom: '2e A', code_classe: 'KMNPQR', niveau: null, motsAcceptes: [] },
 ];
 
 const monter = (liste: ClasseLigne[]) =>
