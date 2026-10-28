@@ -19,6 +19,9 @@ import { PALETTE, TEXTE_SOMBRE } from '../lib/palette';
 import { ATTRIBUTION_ARASAAC } from '../lib/pictos';
 import { principeParId } from '../lib/principes';
 import { EXPLICATION_QUESTION, explicationDe } from '../lib/explications';
+import LimitesApp from '../components/LimitesApp';
+import MotsDoutes from '../components/MotsDoutes';
+import { chargerDictionnaire, type EstConnu } from '../lib/dictionnaire';
 import { detecterSignaux, motsFautifs, recapRendu, verifierContraintes } from '../lib/retour';
 import type { AutoEvaluation, Phase } from '../types';
 
@@ -67,6 +70,10 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
   const [ecoute, setEcoute] = useState(false);
   const [modeColor, setModeColor] = useState<ModeColorisation>(activite.colorisation?.defaut ?? 'syllabes');
   const [colorPrete, setColorPrete] = useState(false);
+  // Liste de mots du français : chargée seulement si l'activité signale les mots absents ; `listeEchec` si le chargement a échoué.
+  const [connu, setConnu] = useState<EstConnu | null>(null);
+  const [listeEchec, setListeEchec] = useState(false);
+  const [doutes, setDoutes] = useState<string[]>([]);
   const [collageRefuse, setCollageRefuse] = useState(false);
   const [plan, setPlan] = useState(() => {
     try {
@@ -151,6 +158,7 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
 
   useEffect(() => {
     if (active('colorisation')) chargerColorisation().then(() => setColorPrete(true));
+    if (activite.categories.includes('mot_inconnu')) chargerDictionnaire().then((f) => setConnu(() => f), () => setListeEchec(true));
   }, [resolues]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function aller(phase: 'suivant' | Choix) {
@@ -212,7 +220,7 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
   const critereId = choisirCritere(questionsRelire.map((q) => q.id), deja);
   const critere = questionsRelire.find((q) => q.id === critereId);
 
-  const signaux = useMemo(() => detecterSignaux(texte, activite.categories), [texte, activite.categories]);
+  const signaux = useMemo(() => detecterSignaux(texte, activite.categories, connu ?? undefined), [texte, activite.categories, connu]);
   // Contrainte d'écriture (jeu de lettre) : les mots fautifs sont montrés, jamais remplacés.
   const fautifs = useMemo(() => motsFautifs(texte, activite.contraintes), [texte, activite.contraintes]);
   const categorieActive = signaux[0]?.categorie;
@@ -254,6 +262,12 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
       )}
     </div>
   );
+
+  function basculerDoute(mot: string, marque: boolean) {
+    const cle = mot.toLowerCase();
+    setDoutes((d) => (marque ? [...d, cle] : d.filter((x) => x !== cle)));
+    tracer(`${marque ? 'doute' : 'doute-retire'}:${cle}`);
+  }
 
   function ajouterMot(mot: string) {
     setTexte((p) => p + (p && !/\s$/.test(p) ? ' ' : '') + mot);
@@ -392,7 +406,11 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
               ))}
             </ul>
           ) : (
-            fautifs.length === 0 && <p>Rien à signaler pour le moment.</p>
+            fautifs.length === 0 && (
+              <>
+                {activite.categories.includes('mot_inconnu') && !connu && <p>{listeEchec ? 'La liste de mots n’a pas pu être chargée : les mots ne sont pas vérifiés.' : 'La liste de mots se charge…'}</p>}
+              </>
+            )
           )}
           {fautifs.length > 0 && (
             <ul>
@@ -408,6 +426,13 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
               ))}
             </ul>
           )}
+          <LimitesApp
+            categories={activite.categories}
+            contrainte={!!(activite.contraintes?.initiale || activite.contraintes?.lettreInterdite)}
+            listeDeMots={connu !== null}
+            aucunSignal={signauxActifs.length === 0 && fautifs.length === 0}
+          />
+          <MotsDoutes texte={texte} doutes={doutes} onBasculer={basculerDoute} />
           {chasseDispo && !rendu && (
             <div>
               {chasseOuverte ? (

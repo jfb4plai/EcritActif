@@ -3,6 +3,10 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import EcranEleve, { type ApiEleve } from './EcranEleve';
 import type { ActiviteEleve } from '../../api/_lib/eleve';
+import { chargerDictionnaire } from '../lib/dictionnaire';
+
+// Les fichiers de la liste de mots (1,4 Mo) ne sont pas servis en test : la vraie liste est testée dans dictionnaire.test.ts.
+vi.mock('../lib/dictionnaire', () => ({ chargerDictionnaire: vi.fn() }));
 
 function activite(surcharge: Partial<ActiviteEleve> = {}): ActiviteEleve {
   return {
@@ -934,5 +938,47 @@ describe('EcranEleve : recopier la dernière version à la main (option de l’e
     render(<EcranEleve activite={activite({ contraintes: { recopier: true }, categories: [] })} eleveId="el1" jeton="j" api={apiDeTest()} delaiSauvegardeMs={0} />);
     await versEcriture();
     expect(screen.queryByRole('group', { name: /sur une feuille/i })).not.toBeInTheDocument();
+  });
+});
+
+describe('EcranEleve : ce que l’application regarde, mots absents de la liste, mots douteux', () => {
+  async function versRelecture(a: ActiviteEleve, api = apiDeTest()) {
+    render(<EcranEleve activite={a} eleveId="el1" jeton="j" api={api} delaiSauvegardeMs={0} />);
+    await userEvent.click(screen.getByRole('button', { name: /J’ai fini d’écrire/i }));
+    return api;
+  }
+
+  test('sans signal, l’écran dit ce qui est regardé et que ce n’est pas une garantie', async () => {
+    await versRelecture(activite({ annee: 'P1', categories: ['point_fin_phrase'], reprise: { texte: 'Le chat dort.', version: 1, phase: 'ecrire' } }));
+    const bloc = screen.getByTestId('limites-app');
+    expect(within(bloc).getByText('Aucun signal sur :')).toBeInTheDocument();
+    expect(within(bloc).getByText('le point à la fin du texte')).toBeInTheDocument();
+    expect(bloc).toHaveTextContent('Aucun signal ne veut pas dire que ton texte est sans erreur');
+    expect(document.body.textContent).not.toMatch(/Rien à signaler/);
+  });
+
+  test('mot absent de la liste : signalé avec le message neutre, sans correction', async () => {
+    vi.mocked(chargerDictionnaire).mockResolvedValue((m: string) => m !== 'pomes');
+    await versRelecture(activite({ annee: 'P1', categories: ['mot_inconnu'], reprise: { texte: 'Le chat mange des pomes.', version: 1, phase: 'ecrire' } }));
+    await waitFor(() => expect(screen.getByText(/n’est pas dans la liste de mots/)).toBeInTheDocument());
+    expect(screen.getByTestId('limites-app')).toHaveTextContent('L’application regarde seulement :les mots absents de la liste de mots');
+    expect(document.body.textContent).not.toMatch(/pommes/);
+  });
+
+  test('liste de mots impossible à charger : l’élève est prévenu, rien n’est annoncé comme regardé', async () => {
+    vi.mocked(chargerDictionnaire).mockRejectedValue(new Error('x'));
+    await versRelecture(activite({ annee: 'P1', categories: ['mot_inconnu'], reprise: { texte: 'Le chat mange des pomes.', version: 1, phase: 'ecrire' } }));
+    await waitFor(() => expect(screen.getByText(/n’a pas pu être chargée : les mots ne sont pas vérifiés/)).toBeInTheDocument());
+    expect(screen.getByTestId('limites-app')).toHaveTextContent('Ici, l’application ne vérifie rien dans ton texte.');
+  });
+
+  test('marquer un mot douteux envoie la trace « doute:mot » au serveur', async () => {
+    const api = await versRelecture(activite({ annee: 'P1', categories: [], reprise: { texte: 'Le chat mange des pomes.', version: 1, phase: 'ecrire' } }));
+    await userEvent.click(screen.getByRole('button', { name: /Marquer un mot dont je doute/ }));
+    await userEvent.click(screen.getByRole('button', { name: 'pomes' }));
+    await waitFor(() => {
+      const evenements = (api.sauver as ReturnType<typeof vi.fn>).mock.calls.flatMap((c) => c[0].evenements);
+      expect(evenements).toContain('doute:pomes');
+    });
   });
 });

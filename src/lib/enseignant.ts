@@ -141,7 +141,7 @@ export async function chargerTableau(
 
   const [t, tr, v, ins] = await Promise.all([
     db.from('ecrit_textes').select('eleve_id, activite_id, version, phase, updated_at, auto_evaluation, texte').in('eleve_id', idsEleves),
-    db.from('ecrit_traces').select('eleve_id, evenement').in('eleve_id', idsEleves).or('evenement.like.aide:%,evenement.like.clarification:%,evenement.like.atelier:phrase:%,evenement.like.atelier:pas-sur,evenement.like.atelier:justification:%,evenement.like.chasse:%'),
+    db.from('ecrit_traces').select('eleve_id, evenement').in('eleve_id', idsEleves).or('evenement.like.aide:%,evenement.like.clarification:%,evenement.like.doute:%,evenement.like.atelier:phrase:%,evenement.like.atelier:pas-sur,evenement.like.atelier:justification:%,evenement.like.chasse:%'),
     db.from('ecrit_validations').select('eleve_id, item_id').in('eleve_id', idsEleves),
     db.from('ecrit_instantanes').select('eleve_id, activite_id, version, moment, texte').in('eleve_id', idsEleves),
   ]);

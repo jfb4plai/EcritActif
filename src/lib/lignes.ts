@@ -55,6 +55,7 @@ export function construireLignes(
       code: e.code,
       dernierePhase: (dernier?.phase as Phase | 'rendu' | undefined) ?? null,
       versions: dernier?.version ?? 0,
+      doutes: [...new Set(siennes.filter((t) => t.evenement.startsWith('doute:')).map((t) => t.evenement.slice('doute:'.length)))],
       clarifications: traces.filter((t) => t.eleveId === e.id && t.evenement.startsWith('clarification:')).length,
       autoEvaluation: dernier?.autoEvaluation ?? null,
       aides,

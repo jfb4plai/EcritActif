@@ -17,6 +17,8 @@ export interface LigneEleve {
   itemsTravailles: string[];
   // Littératie à la rétroaction : demandes d'aide (« Je ne comprends pas ») et auto-évaluation avant de rendre.
   clarifications: number;
+  // Mots que l'élève a marqués « je doute » (ou a marqués puis retirés) : l'application ne dit pas s'ils sont justes.
+  doutes?: string[];
   autoEvaluation: AutoEvaluation | null;
   // Atelier de raisonnement grammatical : ce que l'élève a fait, sans jugement de l'application sur la grammaire.
   atelier?: { phrases: number; pasSur: number; justifications: string[] };
@@ -112,7 +114,7 @@ export default function Tableau({ annee, items, eleves, activites, validations, 
               <th>Où il en est</th>
               <th>Texte</th>
               <th>Aides</th>
-              <th>Demandes d’aide</th>
+              <th>Demandes d’aide et mots douteux</th>
               <th>Auto-évaluation</th>
               {avecAtelier && <th>Atelier de grammaire</th>}
               {avecChasse && <th>Chasse aux erreurs</th>}
@@ -142,7 +144,10 @@ export default function Tableau({ annee, items, eleves, activites, validations, 
                   <p>Activées par vous : {(e.aidesEnseignant ?? []).length > 0 ? (e.aidesEnseignant ?? []).map(libelleAide).join(' ; ') : 'aucune'}</p>
                   <p>Ajoutées par l’élève : {e.aides.length > 0 ? e.aides.map(libelleAide).join(' ; ') : 'aucune'}</p>
                 </td>
-                <td>{e.clarifications === 0 ? 'Aucune demande d’aide' : `${e.clarifications} demande${e.clarifications > 1 ? 's' : ''} d’aide`}</td>
+                <td>
+                  <p>{e.clarifications === 0 ? 'Aucune demande d’aide' : `${e.clarifications} demande${e.clarifications > 1 ? 's' : ''} d’aide`}</p>
+                  <p>Mots dont l’élève a douté : {(e.doutes ?? []).length > 0 ? (e.doutes ?? []).join(', ') : 'aucun'}</p>
+                </td>
                 <td>
                   {e.autoEvaluation ? (
                     <div>

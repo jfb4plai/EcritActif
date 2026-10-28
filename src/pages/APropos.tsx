@@ -14,6 +14,12 @@ export default function APropos() {
         profondément inspiré par LireCouleur (https://lirecouleur.arkaline.fr/). Le code du moteur est dans le dossier
         src/vendor/colorisation de cette application ; les fichiers de ce dossier gardent leurs en-têtes de licence.
       </p>
+      <h2>Liste de mots du français</h2>
+      <p>
+        Le signal « mot absent de la liste » s’appuie sur les dictionnaires orthographiques français de Grammalecte (https://grammalecte.net/, version 7.5), licence MPL 2.0, utilisés
+        avec le moteur nspell. Les fichiers sont dans le dossier public/dictionnaire, avec leur licence. La liste signale les mots qu’elle ne connaît pas ; elle ne vérifie ni les accords ni
+        le choix entre deux mots qui existent.
+      </p>
       <h2>Pictogrammes</h2>
       <p>{ATTRIBUTION_ARASAAC}</p>
       <h2>Apprendre à utiliser les retours</h2>

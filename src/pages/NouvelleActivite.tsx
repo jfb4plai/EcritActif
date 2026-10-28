@@ -34,6 +34,7 @@ const CATEGORIES: { id: CategorieErreur; libelle: string }[] = [
   { id: 'majuscule_debut_phrase', libelle: 'Majuscule au début des phrases' },
   { id: 'point_fin_phrase', libelle: 'Point à la fin du texte' },
   { id: 'mot_repete', libelle: 'Mot écrit deux fois de suite' },
+  { id: 'mot_inconnu', libelle: 'Mot absent de la liste de mots du français (peut signaler à tort un prénom ou un mot rare)' },
 ];
 
 const PHASES: { id: Phase; titre: string; verbe: string; exemple: string }[] = [
@@ -272,6 +273,9 @@ export default function NouvelleActivite({ annee: anneeDepart, niveauClasse, onE
             <input type="checkbox" checked={categories.includes(c.id)} onChange={() => setCategories(bascule(categories, c.id))} /> {c.libelle}
           </label>
         ))}
+        <p className="text-sm">
+          « Mot absent de la liste » : la liste est le dictionnaire Grammalecte (reconnaît par exemple nonante et septante). Elle signale les mots mal écrits qui n’existent pas, pas les accords ni les mots qui existent mais ne sont pas les bons (a ou à). Elle peut signaler à tort un prénom. Elle se charge à l’ouverture de l’activité (1,4 Mo).
+        </p>
       </fieldset>
 
       {atelierPossible && (

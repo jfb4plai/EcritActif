@@ -1,4 +1,4 @@
-export type CategorieErreur = 'majuscule_debut_phrase' | 'point_fin_phrase' | 'mot_repete';
+export type CategorieErreur = 'majuscule_debut_phrase' | 'point_fin_phrase' | 'mot_repete' | 'mot_inconnu';
 
 // Pas de champ de correction : le retour signale, il ne corrige jamais (spec §7).
 export interface Signal {
@@ -34,9 +34,26 @@ const INDICES: Record<CategorieErreur, string> = {
   majuscule_debut_phrase: 'Regarde la première lettre de cette phrase.',
   point_fin_phrase: 'Regarde la fin de ton texte.',
   mot_repete: 'Regarde ces deux mots à la suite.',
+  mot_inconnu: 'Ce mot n’est pas dans la liste de mots de l’application. Vérifie-le : il est peut-être mal écrit, ou la liste ne le connaît pas.',
 };
 
-export function detecterSignaux(texte: string, categories: CategorieErreur[]): Signal[] {
+// Mot = lettres, avec apostrophe ou trait d'union à l'intérieur (aujourd'hui, peut-être).
+const MOT_ENTIER = /\p{L}+(?:['’-]\p{L}+)*/gu;
+
+// Ce que l'application regarde, dit à l'élève : sans cette phrase, « aucun signal » se lirait « texte correct ».
+export function limitesDesSignaux(categories: CategorieErreur[], contrainte: boolean, listeDeMots: boolean): { regarde: string[]; nePasVoit: string[] } {
+  const regarde: string[] = [];
+  if (categories.includes('majuscule_debut_phrase')) regarde.push('la majuscule au début des phrases');
+  if (categories.includes('point_fin_phrase')) regarde.push('le point à la fin du texte');
+  if (categories.includes('mot_repete')) regarde.push('un mot écrit deux fois de suite');
+  if (listeDeMots) regarde.push('les mots absents de la liste de mots');
+  if (contrainte) regarde.push('la contrainte de lettre');
+  const nePasVoit = [listeDeMots ? 'les mots qui existent mais ne sont pas les bons (a ou à, et ou est)' : 'les fautes dans les mots', 'les fautes d’accord', 'le sens de ton texte'];
+  return { regarde, nePasVoit };
+}
+
+// `connu` : liste de mots chargée ; sans elle, la catégorie « mot_inconnu » ne signale rien (l'élève en est informé par limitesDesSignaux).
+export function detecterSignaux(texte: string, categories: CategorieErreur[], connu?: (mot: string) => boolean): Signal[] {
   const signaux: Signal[] = [];
   if (texte.trim() === '') return signaux;
 
@@ -72,6 +89,17 @@ export function detecterSignaux(texte: string, categories: CategorieErreur[]): S
         const debut = mot.index ?? 0;
         signaux.push({ categorie: 'mot_repete', debut, fin: debut + mot[0].length, indice: INDICES.mot_repete });
       }
+    }
+  }
+
+  if (categories.includes('mot_inconnu') && connu) {
+    const vus = new Set<string>();
+    for (const m of texte.matchAll(MOT_ENTIER)) {
+      const cle = m[0].toLowerCase();
+      if (vus.has(cle) || connu(m[0])) continue;
+      vus.add(cle);
+      const debut = m.index ?? 0;
+      signaux.push({ categorie: 'mot_inconnu', debut, fin: debut + m[0].length, indice: INDICES.mot_inconnu });
     }
   }
 

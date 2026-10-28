@@ -64,7 +64,7 @@ describe('tout ce que l’app dit à l’élève n’emploie que le vocabulaire 
   });
 
   test('il y a bien une explication par année et par catégorie', () => {
-    for (const a of ANNEES) expect(Object.keys(EXPLICATIONS[a]).sort()).toEqual(['majuscule_debut_phrase', 'mot_repete', 'point_fin_phrase']);
+    for (const a of ANNEES) expect(Object.keys(EXPLICATIONS[a]).sort()).toEqual(['majuscule_debut_phrase', 'mot_inconnu', 'mot_repete', 'point_fin_phrase']);
   });
 
   test('la fin de phrase s’élargit avec le programme : point en P1, puis point d’interrogation et d’exclamation', () => {
