@@ -21,7 +21,7 @@ import { principeParId } from '../lib/principes';
 import { EXPLICATION_QUESTION, explicationDe } from '../lib/explications';
 import LimitesApp from '../components/LimitesApp';
 import MotsDoutes from '../components/MotsDoutes';
-import { chargerDictionnaire, type EstConnu } from '../lib/dictionnaire';
+import { avecMotsAcceptes, chargerDictionnaire, type EstConnu } from '../lib/dictionnaire';
 import { detecterSignaux, motsFautifs, recapRendu, verifierContraintes } from '../lib/retour';
 import type { AutoEvaluation, Phase } from '../types';
 
@@ -220,7 +220,10 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
   const critereId = choisirCritere(questionsRelire.map((q) => q.id), deja);
   const critere = questionsRelire.find((q) => q.id === critereId);
 
-  const signaux = useMemo(() => detecterSignaux(texte, activite.categories, connu ?? undefined), [texte, activite.categories, connu]);
+  // Mots acceptés par l'enseignant (contraintes.motsAcceptes) et « mots utiles » de l'activité : jamais signalés comme absents de la liste.
+  const motsAcceptes = useMemo(() => [...(activite.contraintes?.motsAcceptes ?? []), ...activite.banqueMots], [activite]);
+  const connuFinal = useMemo(() => (connu ? avecMotsAcceptes(connu, motsAcceptes) : undefined), [connu, motsAcceptes]);
+  const signaux = useMemo(() => detecterSignaux(texte, activite.categories, connuFinal), [texte, activite.categories, connuFinal]);
   // Contrainte d'écriture (jeu de lettre) : les mots fautifs sont montrés, jamais remplacés.
   const fautifs = useMemo(() => motsFautifs(texte, activite.contraintes), [texte, activite.contraintes]);
   const categorieActive = signaux[0]?.categorie;
@@ -430,6 +433,7 @@ export default function EcranEleve({ activite, eleveId, jeton, api, delaiSauvega
             categories={activite.categories}
             contrainte={!!(activite.contraintes?.initiale || activite.contraintes?.lettreInterdite)}
             listeDeMots={connu !== null}
+            motsAcceptes={motsAcceptes}
             aucunSignal={signauxActifs.length === 0 && fautifs.length === 0}
           />
           <MotsDoutes texte={texte} doutes={doutes} onBasculer={basculerDoute} />

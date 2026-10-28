@@ -48,3 +48,22 @@ describe('limitesDesSignaux', () => {
     expect(limitesDesSignaux(['mot_inconnu'], false, false).regarde).toEqual([]);
   });
 });
+
+describe('mots acceptés par l’enseignant', () => {
+  test('un mot absent de la liste : signalé sans l’ajout, accepté avec (casse ignorée)', async () => {
+    const { avecMotsAcceptes } = await import('./dictionnaire');
+    // « trémie » est déjà dans la liste Grammalecte (constaté) : on teste avec un mot absent.
+    expect(connu('trémie')).toBe(true);
+    const absent = 'cointe-xyz';
+    expect(connu(absent)).toBe(false);
+    const avec = avecMotsAcceptes(connu, [absent]);
+    expect(avec('Cointe-XYZ')).toBe(true);
+    expect(avec('pomes')).toBe(false);
+    expect(detecterSignaux(`Il va à ${absent}.`, ['mot_inconnu'], avec)).toEqual([]);
+  });
+  test('saisie : mots seuls, doublons ignorés, expressions refusées', async () => {
+    const { lireMotsAcceptes } = await import('./dictionnaire');
+    expect(lireMotsAcceptes('trémie, Trémie; Outremeuse\nl’Ourthe')).toEqual({ mots: ['trémie', 'Outremeuse', 'l’Ourthe'], invalides: [] });
+    expect(lireMotsAcceptes('trémie, tunnel de la Meuse, 123').invalides).toEqual(['tunnel de la Meuse', '123']);
+  });
+});

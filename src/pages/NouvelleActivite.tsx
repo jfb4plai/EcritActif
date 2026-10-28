@@ -1,3 +1,4 @@
+import { lireMotsAcceptes, MOTS_ACCEPTES_MAX } from '../lib/dictionnaire';
 import { useMemo, useState, type FormEvent } from 'react';
 import { AIDES, type AideId } from '../lib/aides';
 import ChoixAnnee from '../components/ChoixAnnee';
@@ -62,6 +63,7 @@ export default function NouvelleActivite({ annee: anneeDepart, niveauClasse, onE
   const [lettreJeu, setLettreJeu] = useState('');
   const [erreurJeu, setErreurJeu] = useState('');
   const [recopier, setRecopier] = useState(false);
+  const [motsAcceptes, setMotsAcceptes] = useState('');
   const [itemIds, setItemIds] = useState<string[]>([]);
   const [principeIds, setPrincipeIds] = useState<string[]>([]);
   const [categories, setCategories] = useState<CategorieErreur[]>([]);
@@ -118,6 +120,14 @@ export default function NouvelleActivite({ annee: anneeDepart, niveauClasse, onE
       contraintes[jeu] = l.toLowerCase();
     }
     setErreurJeu('');
+    if (categories.includes('mot_inconnu')) {
+      const { mots, invalides } = lireMotsAcceptes(motsAcceptes);
+      if (invalides.length > 0) {
+        setErreurJeu(`Mots acceptés non reconnus : ${invalides.join(', ')}. Écrivez des mots seuls, séparés par des virgules (${MOTS_ACCEPTES_MAX} au plus).`);
+        return;
+      }
+      if (mots.length > 0) contraintes.motsAcceptes = mots;
+    }
     if (minMots !== '') contraintes.minMots = Number(minMots);
     if (maxMots !== '') contraintes.maxMots = Number(maxMots);
     if (recopier) contraintes.recopier = true;
@@ -276,6 +286,15 @@ export default function NouvelleActivite({ annee: anneeDepart, niveauClasse, onE
         <p className="text-sm">
           « Mot absent de la liste » : la liste est le dictionnaire Grammalecte (reconnaît par exemple nonante et septante). Elle signale les mots mal écrits qui n’existent pas, pas les accords ni les mots qui existent mais ne sont pas les bons (a ou à). Elle peut signaler à tort un prénom. Elle se charge à l’ouverture de l’activité (1,4 Mo).
         </p>
+        {categories.includes('mot_inconnu') && (
+          <div>
+            <label htmlFor="mots-acceptes">Mots que la liste ne connaît pas mais que vous acceptez</label>
+            <input id="mots-acceptes" className="plai-input" value={motsAcceptes} onChange={(e) => setMotsAcceptes(e.target.value)} placeholder="trémie, Cointe, Outremeuse" aria-describedby="aide-acceptes" />
+            <p id="aide-acceptes" className="text-sm">
+              Mots locaux ou propres à votre activité, séparés par des virgules. Ils ne seront plus signalés pour les élèves de cette activité. Attention : l’application accepte ces mots tels que vous les écrivez ici. Une faute de votre part sera acceptée chez l’élève. Les « mots utiles » ci-dessus sont aussi acceptés. Seuls les mots seuls sont possibles, pas les expressions.
+            </p>
+          </div>
+        )}
       </fieldset>
 
       {atelierPossible && (

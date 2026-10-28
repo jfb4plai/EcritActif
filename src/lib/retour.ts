@@ -16,6 +16,8 @@ export interface Contraintes {
   lettreInterdite?: string;
   // Option de l'enseignant : après le rendu, l'élève recopie sa version finale sur une feuille. Stockée ici pour ne pas changer la base.
   recopier?: boolean;
+  // Mots que l'enseignant déclare corrects pour cette activité (mots locaux, absents de la liste de mots). Stockés ici : pas de migration.
+  motsAcceptes?: string[];
 }
 
 export interface Verification {

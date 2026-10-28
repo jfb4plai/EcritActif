@@ -33,3 +33,26 @@ export function chargerDictionnaire(base = '/dictionnaire'): Promise<EstConnu> {
   });
   return enCours;
 }
+
+const normaliser = (m: string) => m.replace(/’/g, "'").toLowerCase();
+
+// Mots d'une saisie de l'enseignant (séparés par des virgules). Un mot = lettres, avec apostrophe ou trait d'union à l'intérieur.
+export const MOTS_ACCEPTES_MAX = 50;
+export function lireMotsAcceptes(saisie: string): { mots: string[]; invalides: string[] } {
+  const brut = saisie.split(/[,;\n]/).map((m) => m.trim()).filter((m) => m !== '');
+  const mots: string[] = [];
+  const invalides: string[] = [];
+  for (const m of brut) {
+    if (!/^\p{L}+(?:['’-]\p{L}+)*$/u.test(m) || m.length > 40) invalides.push(m);
+    else if (!mots.some((x) => normaliser(x) === normaliser(m))) mots.push(m);
+  }
+  if (mots.length > MOTS_ACCEPTES_MAX) invalides.push(...mots.splice(MOTS_ACCEPTES_MAX));
+  return { mots, invalides };
+}
+
+// Les mots acceptés par l'enseignant s'ajoutent à la liste ; casse ignorée.
+export function avecMotsAcceptes(connu: EstConnu, acceptes: string[]): EstConnu {
+  if (acceptes.length === 0) return connu;
+  const set = new Set(acceptes.map(normaliser));
+  return (mot) => set.has(normaliser(mot)) || connu(mot);
+}

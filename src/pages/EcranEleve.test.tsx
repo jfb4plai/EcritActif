@@ -6,7 +6,7 @@ import type { ActiviteEleve } from '../../api/_lib/eleve';
 import { chargerDictionnaire } from '../lib/dictionnaire';
 
 // Les fichiers de la liste de mots (1,4 Mo) ne sont pas servis en test : la vraie liste est testée dans dictionnaire.test.ts.
-vi.mock('../lib/dictionnaire', () => ({ chargerDictionnaire: vi.fn() }));
+vi.mock('../lib/dictionnaire', async (original) => ({ ...(await original<typeof import('../lib/dictionnaire')>()), chargerDictionnaire: vi.fn() }));
 
 function activite(surcharge: Partial<ActiviteEleve> = {}): ActiviteEleve {
   return {
@@ -980,5 +980,16 @@ describe('EcranEleve : ce que l’application regarde, mots absents de la liste,
       const evenements = (api.sauver as ReturnType<typeof vi.fn>).mock.calls.flatMap((c) => c[0].evenements);
       expect(evenements).toContain('doute:pomes');
     });
+  });
+
+  test('mot accepté par l’enseignant : plus signalé, et annoncé à l’élève', async () => {
+    vi.mocked(chargerDictionnaire).mockResolvedValue((m: string) => !['pomes', 'trémie'].includes(m.toLowerCase()));
+    await versRelecture(
+      activite({ annee: 'P1', categories: ['mot_inconnu'], contraintes: { motsAcceptes: ['trémie'] }, reprise: { texte: 'La trémie mange des pomes.', version: 1, phase: 'ecrire' } }),
+    );
+    await waitFor(() => expect(screen.getByText(/n’est pas dans la liste de mots/)).toBeInTheDocument());
+    const marques = Array.from(document.querySelectorAll('mark')).map((m) => m.textContent);
+    expect(marques).toEqual(['pomes']);
+    expect(screen.getByTestId('limites-app')).toHaveTextContent('Mots ajoutés par ton enseignant, jamais signalés : trémie.');
   });
 });
